@@ -1,0 +1,40 @@
+# Maven generated files
+/target
+dependency-reduced-pom.xml
+
+#Gradle
+/bin
+/build
+/target
+.gradle
+/out
+/*/build
+/run
+
+# Mac OSX generated files
+.DS_Store
+
+# Eclipse generated files
+/.classpath
+/.project
+/.settings
+
+# Vim generated files
+*~
+*.swp
+
+# XCode 3 and 4 generated files
+*.mode1
+*.mode1v3
+*.mode2v3
+*.perspective
+*.perspectivev3
+*.pbxuser
+*.xcworkspace
+xcuserdata
+*class
+
+#idea
+/.idea
+/out
+*.iml

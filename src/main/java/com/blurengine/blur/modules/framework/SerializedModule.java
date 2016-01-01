@@ -1,0 +1,88 @@
+/*
+ * Copyright 2016 Ali Moghnieh
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.blurengine.blur.modules.framework;
+
+import com.supaham.commons.utils.MapBuilder;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import lombok.NonNull;
+import pluginbase.config.serializers.SerializerSet;
+
+public class SerializedModule {
+
+    private final ModuleLoader moduleLoader;
+    private final Object object;
+
+    public SerializedModule(@NonNull ModuleLoader moduleLoader, @Nullable Object object) {
+        this.moduleLoader = moduleLoader;
+        this.object = object;
+    }
+
+    public Object getAsObject() {
+        return object;
+    }
+
+    public Integer getAsInteger() {
+        return ((Integer) object);
+    }
+
+    public Double getAsDouble() {
+        return ((Double) object);
+    }
+
+    public Float getAsFloat() {
+        return ((Float) object);
+    }
+
+    public String getAsString() {
+        return ((String) object);
+    }
+
+    public List<?> getAsList() {
+        return ((List) object);
+    }
+
+    public Map<String, ?> getAsMap() {
+        return ((Map) object);
+    }
+
+    public <T> void load(T dataClass) {
+        moduleLoader.deserializeTo(getAsMap(), dataClass);
+    }
+
+    public <T> void loadToField(T dataClass, String fieldName) {
+        LinkedHashMap<Object, Object> map = MapBuilder.newLinkedHashMap().put(fieldName, getAsObject()).build();
+        moduleLoader.deserializeTo(map, dataClass);
+    }
+
+    public <T> void loadWithMap(T dataClass, Map<?, ?> map) {
+        moduleLoader.deserializeTo(map, dataClass);
+    }
+
+    /* ================================
+     * >> DELEGATE METHODS
+     * ================================ */
+
+    public SerializerSet getSerializerSet() {
+        return moduleLoader.getSerializerSet();
+    }
+}

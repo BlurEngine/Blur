@@ -1,0 +1,6 @@
+name: "${name}"
+main: "${main.class}"
+version: "${version}"
+depend: [WorldEdit]
+load: STARTUP
+authors: [SupaHam]
