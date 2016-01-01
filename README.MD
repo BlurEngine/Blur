@@ -1,4 +1,4 @@
-# Blur
+# Blur [![Build Status](https://ci.drtshock.net/buildStatus/icon?job=Blur)](https://ci.drtshock.net/job/Blur/)
 I am your Minecraft Game Engine. You come up with the ideas, and allow me to make them a reality.
 
 As you might know, creating a game can be both time consuming and expensive. So wouldn't it be great if you could pay no money and little time and in return get your own unique game? Well Blur strives to achieve that for you.
