@@ -27,13 +27,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.Getter;
 import pluginbase.config.datasource.yaml.YamlDataSource;
 
 /**
  * Bukkit plugin class for {@link Blur}.
  */
-@Getter
 public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
 
     private static final String COMMAND_PREFIX = "b";
@@ -89,5 +87,17 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
                 new TickerTask(this, 600 * tries.get(), this::enableMetrics);
             }
         }
+    }
+
+    public BlurSettings getSettings() {
+        return settings;
+    }
+
+    public Blur getBlur() {
+        return blur;
+    }
+
+    public RootBlurSession getRootSession() {
+        return rootSession;
     }
 }
