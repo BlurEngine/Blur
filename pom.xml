@@ -101,11 +101,8 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>net.mcball.nucleus:nucleus-core</include>
                                     <include>com.supaham.commons:commons-core</include>
                                     <include>com.supaham.commons:commons-bukkit</include>
-                                    <include>com.sk89q:squirrelid</include>
-                                    <include>de.slikey:EffectLib</include>
                                     <include>com.dumptruckman.minecraft.pluginbase:Plugin-Bukkit</include>
                                 </includes>
                             </artifactSet>
