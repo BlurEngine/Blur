@@ -5,6 +5,8 @@ As you might know, creating a game can be both time consuming and expensive. So 
 
 Blur is a module-based Game Engine, defining functionality through blocks of variables that tells the engine what to do and how to do it.
 
+Here is an example of a SurvivalGames gamemode map configuration [map.yml](https://gist.github.com/SupaHam/286b137f4cfc17d9e549).
+
 # Documentation
 Documentation can be found over at [https://blurengine.com](https://blurengine.com).
 
