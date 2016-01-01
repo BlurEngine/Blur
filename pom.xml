@@ -36,8 +36,8 @@
 
     <repositories>
         <repository>
-            <id>elmakers</id>
-            <url>http://maven.elmakers.com/repository/</url>
+            <id>drtshock-repo</id>
+            <url>http://ci.drtshock.net/plugin/repository/</url>
         </repository>
         <repository>
             <id>sk89q-repo</id>
