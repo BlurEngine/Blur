@@ -59,11 +59,6 @@
             <version>${spigot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>${spigot.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.supaham.commons</groupId>
             <artifactId>commons-bukkit</artifactId>
             <version>${commons-bukkit.version}</version>
