@@ -18,33 +18,31 @@ package com.blurengine.blur;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.InvulnerableModule;
-import com.blurengine.blur.modules.filters.FilterManager;
-import com.blurengine.blur.modules.maploading.MapLoaderModule;
-import com.blurengine.blur.modules.spawns.SpawnsModule;
-import com.blurengine.blur.session.SessionManager;
-import com.blurengine.blur.modules.goal.LastPlayerAliveWinnerModule;
-import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.BoundariesModule;
 import com.blurengine.blur.modules.DummyModule;
+import com.blurengine.blur.modules.InvulnerableModule;
 import com.blurengine.blur.modules.MapInfoModule;
 import com.blurengine.blur.modules.extents.ExtentManager;
+import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.modules.goal.LastPlayerAliveWinnerModule;
+import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.includes.IncludesModule;
+import com.blurengine.blur.modules.maploading.MapLoaderModule;
+import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
+import com.blurengine.blur.session.SessionManager;
 import com.supaham.commons.bukkit.CommonPlugin;
 import com.supaham.commons.bukkit.modules.ModuleContainer;
 
 import javax.annotation.Nonnull;
 
-import lombok.Getter;
 import pluginbase.logging.PluginLogger;
 
 /**
  * Blur main class.
  */
-@Getter
 public class Blur {
 
     private final CommonPlugin plugin;
@@ -80,5 +78,21 @@ public class Blur {
         ModuleLoader.register(InvulnerableModule.class);
         ModuleLoader.register(LastPlayerAliveWinnerModule.class);
         ModuleLoader.register(LastTeamAliveWinnerModule.class);
+    }
+
+    public CommonPlugin getPlugin() {
+        return plugin;
+    }
+
+    public ModuleContainer getModuleContainer() {
+        return moduleContainer;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    public PluginLogger getLogger() {
+        return logger;
     }
 }

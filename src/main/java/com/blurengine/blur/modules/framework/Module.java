@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.modules.framework;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -42,7 +43,8 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
+
 import pluginbase.logging.PluginLogger;
 
 /**
@@ -143,8 +145,8 @@ public abstract class Module implements Listener {
      *
      * @return whether the listener is added to this session
      */
-    public boolean hasListener(@NonNull Listener listener) {
-        return this.listeners.contains(listener);
+    public boolean hasListener(@Nonnull Listener listener) {
+        return this.listeners.contains(Preconditions.checkNotNull(listener, "listener cannot be null."));
     }
 
     /**
@@ -156,7 +158,8 @@ public abstract class Module implements Listener {
      *
      * @return whether this set did not already contain the specified element
      */
-    public boolean addListener(@NonNull Listener listener) {
+    public boolean addListener(@Nonnull Listener listener) {
+        Preconditions.checkNotNull(listener, "listener cannot be null.");
         if (this.listeners.add(listener)) {
             if (this.state != ModuleState.UNLOADED) {
                 getSession().getBlur().getPlugin().registerEvents(this);
@@ -173,7 +176,8 @@ public abstract class Module implements Listener {
      *
      * @return whether this set contained the specified element
      */
-    public boolean removeListener(@NonNull Listener listener) {
+    public boolean removeListener(@Nonnull Listener listener) {
+        Preconditions.checkNotNull(listener, "listener cannot be null.");
         if (this.listeners.remove(listener)) {
             if (this.state != ModuleState.UNLOADED) {
                 getSession().getBlur().getPlugin().unregisterEvents(this);
@@ -192,8 +196,8 @@ public abstract class Module implements Listener {
      *
      * @see #hasTask(TickerTask)
      */
-    public boolean hasTickable(@NonNull Tickable tickable) {
-        return this.tickableTasks.containsKey(tickable);
+    public boolean hasTickable(@Nonnull Tickable tickable) {
+        return this.tickableTasks.containsKey(Preconditions.checkNotNull(tickable, "tickable cannot be null."));
     }
 
     /**
@@ -208,7 +212,8 @@ public abstract class Module implements Listener {
      *
      * @see #addTask(TickerTask)
      */
-    public boolean addTickable(@NonNull Tickable tickable) {
+    public boolean addTickable(@Nonnull Tickable tickable) {
+        Preconditions.checkNotNull(tickable, "tickable cannot be null.");
         if (!this.tickableTasks.containsKey(tickable)) {
             TickMethodsCache.loadTickableReturnTaskBuilders(tickable).forEach(t -> {
                 TickerTask task = t.plugin(this.getSession().getBlur().getPlugin()).build();
@@ -229,7 +234,8 @@ public abstract class Module implements Listener {
      *
      * @see #removeTask(TickerTask)
      */
-    public boolean removeTickable(@NonNull Tickable tickable) {
+    public boolean removeTickable(@Nonnull Tickable tickable) {
+        Preconditions.checkNotNull(tickable, "tickable cannot be null.");
         Collection<TickerTask> tasks = this.tickableTasks.removeAll(tickable);
         tasks.forEach(this::removeTask);
         return tasks.size() > 0;
@@ -251,7 +257,8 @@ public abstract class Module implements Listener {
      *
      * @return whether the task is added to this session
      */
-    public boolean hasTask(@NonNull TickerTask task) {
+    public boolean hasTask(@Nonnull TickerTask task) {
+        Preconditions.checkNotNull(task, "task cannot be null.");
         return this.tasks.contains(task);
     }
 
@@ -265,7 +272,7 @@ public abstract class Module implements Listener {
      *
      * @return whether the task was added to this module
      */
-    public boolean addTask(@NonNull TickerTask task) {
+    public boolean addTask(@Nonnull TickerTask task) {
         if (this.tasks.add(task)) {
             if (this.state != ModuleState.UNLOADED) {
                 task.start();
@@ -282,7 +289,8 @@ public abstract class Module implements Listener {
      *
      * @return whether the task was removed from this module
      */
-    public boolean removeTask(@NonNull TickerTask task) {
+    public boolean removeTask(@Nonnull TickerTask task) {
+        Preconditions.checkNotNull(task, "task cannot be null.");
         if (this.tasks.remove(task)) {
             if (this.state != ModuleState.UNLOADED) {
                 task.stop();
@@ -309,7 +317,8 @@ public abstract class Module implements Listener {
         };
     }
 
-    protected boolean addSubmodule(@NonNull Module module) {
+    protected boolean addSubmodule(@Nonnull Module module) {
+        Preconditions.checkNotNull(module, "module cannot be null.");
         if (this.submodules.add(module)) {
             if (this.state == ModuleState.UNLOADED) {
                 return true;  // Added successfully without loading.
@@ -331,7 +340,8 @@ public abstract class Module implements Listener {
         return false;
     }
 
-    public boolean removeSubmodule(@NonNull Module module) {
+    public boolean removeSubmodule(@Nonnull Module module) {
+        Preconditions.checkNotNull(module, "module cannot be null.");
         if (this.submodules.remove(module)) {
             moduleManager.disableModule(module);
             moduleManager.unloadModule(module);
@@ -364,12 +374,13 @@ public abstract class Module implements Listener {
      * >> DELEGATE METHODS
      * ================================ */
 
-    public void broadcastMessage(@NonNull String message, Object... args) {
+    public void broadcastMessage(@Nonnull String message, Object... args) {
+        Preconditions.checkNotNull(message, "message cannot be null.");
         getSession().broadcastMessage(message, args);
     }
 
-    public void broadcastMessage(@NonNull FancyMessage fancyMessage) {
-        getSession().broadcastMessage(fancyMessage);
+    public void broadcastMessage(@Nonnull FancyMessage fancyMessage) {
+        getSession().broadcastMessage(Preconditions.checkNotNull(fancyMessage, "fancyMessage cannot be null."));
     }
 
     public Set<BlurPlayer> getPlayers(Predicate<BlurPlayer> predicate) {

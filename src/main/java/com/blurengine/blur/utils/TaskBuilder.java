@@ -24,13 +24,12 @@ import com.supaham.commons.bukkit.TickerTask;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import lombok.Getter;
-import lombok.NonNull;
+import javax.annotation.Nonnull;
+
 
 /**
  * Created by Ali on 22/11/2015.
  */
-@Getter
 public class TaskBuilder {
 
     private CommonPlugin plugin;
@@ -42,8 +41,8 @@ public class TaskBuilder {
     public TaskBuilder() {
     }
 
-    public TaskBuilder(@NonNull CommonPlugin plugin) {
-        this.plugin = plugin;
+    public TaskBuilder(@Nonnull CommonPlugin plugin) {
+        this.plugin = Preconditions.checkNotNull(plugin, "plugin cannot be null.");
     }
 
     public TickerTask build() {
@@ -52,7 +51,8 @@ public class TaskBuilder {
         this.delay = Math.max(this.delay, 0);
 
         TickerTask task = new TickerTask(this.plugin, this.delay / 50) {
-            @Override public void run() {
+            @Override
+            public void run() {
                 runnable.run(this);
             }
         };
@@ -62,17 +62,18 @@ public class TaskBuilder {
         return task;
     }
 
-    public TaskBuilder plugin(@NonNull CommonPlugin plugin) {
-        this.plugin = plugin;
+    public TaskBuilder plugin(@Nonnull CommonPlugin plugin) {
+        this.plugin = Preconditions.checkNotNull(plugin, "plugin cannot be null.");
         return this;
     }
 
-    public TaskBuilder delay(@NonNull Duration delay) {
+    public TaskBuilder delay(@Nonnull Duration delay) {
+        Preconditions.checkNotNull(delay, "delay cannot be null.");
         return delay(delay.toMillis());
     }
 
-    public TaskBuilder delay(long delay, @NonNull TimeUnit unit) {
-        return delay(TimeUnit.MILLISECONDS.convert(delay, unit));
+    public TaskBuilder delay(long delay, @Nonnull TimeUnit unit) {
+        return delay(TimeUnit.MILLISECONDS.convert(delay, Preconditions.checkNotNull(unit, "unit cannot be null.")));
     }
 
     public TaskBuilder delay(long delay) {
@@ -93,12 +94,14 @@ public class TaskBuilder {
         return this;
     }
 
-    public TaskBuilder run(@NonNull Runnable runnable) {
+    public TaskBuilder run(@Nonnull Runnable runnable) {
+        Preconditions.checkNotNull(runnable, "runnable cannot be null.");
         this.runnable = (task) -> runnable.run();
         return this;
     }
 
-    public TaskBuilder run(@NonNull RunnableWithTask runnableWithTask) {
+    public TaskBuilder run(@Nonnull RunnableWithTask runnableWithTask) {
+        Preconditions.checkNotNull(runnableWithTask, "runnableWithTask cannot be null.");
         this.runnable = runnableWithTask;
         return this;
     }
@@ -111,10 +114,33 @@ public class TaskBuilder {
         this.async = async;
         return this;
     }
+    
+    /* ================================
+     * >> GETTERS
+     * ================================ */
+
+    public CommonPlugin getPlugin() {
+        return plugin;
+    }
+
+    public long getDelay() {
+        return delay;
+    }
+
+    public Long getInterval() {
+        return interval;
+    }
+
+    public RunnableWithTask getRunnable() {
+        return runnable;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
 
     public interface RunnableWithTask {
 
         void run(TickerTask task); // Yes yes I know, the user has control over task state.
     }
-    
 }

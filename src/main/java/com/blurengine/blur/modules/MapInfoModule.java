@@ -16,23 +16,21 @@
 
 package com.blurengine.blur.modules;
 
+import com.blurengine.blur.modules.MapInfoModule.MapInfoData;
 import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.modules.framework.ModuleData;
 import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
-import com.blurengine.blur.modules.MapInfoModule.MapInfoData;
-import com.blurengine.blur.modules.framework.ModuleData;
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
 
 import java.util.List;
 import java.util.UUID;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import javax.annotation.Nonnull;
+
 import pluginbase.config.annotation.Name;
-import pluginbase.config.annotation.NoTypeKey;
 import pluginbase.config.annotation.SerializeWith;
 
 @ModuleInfo(name = "MapInfo", dataClass = MapInfoData.class)
@@ -40,7 +38,7 @@ public class MapInfoModule extends Module {
 
     private final MapInfoData data;
 
-    public MapInfoModule(@NonNull ModuleManager moduleManager, MapInfoData data) {
+    public MapInfoModule(@Nonnull ModuleManager moduleManager, MapInfoData data) {
         super(moduleManager);
         this.data = data;
     }
@@ -54,8 +52,6 @@ public class MapInfoModule extends Module {
         return "MapInfoModule{" + data.toString() + "}";
     }
 
-    @Getter
-    @ToString
     public static final class MapInfoData implements ModuleData {
 
         @Name("blur-version")
@@ -73,14 +69,43 @@ public class MapInfoModule extends Module {
             serialized.load(this);
             return new MapInfoModule(moduleManager, this);
         }
+
+        public String getBlurVersion() {
+            return blurVersion;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public List<Author> getAuthors() {
+            return authors;
+        }
     }
 
-    @NoTypeKey
-    @Getter
-    @ToString
     public static final class Author {
 
         private UUID uuid;
         private String role;
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        public String getRole() {
+            return role;
+        }
     }
 }

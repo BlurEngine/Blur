@@ -18,16 +18,19 @@ package com.blurengine.blur.modules.teams;
 
 import org.bukkit.scoreboard.NameTagVisibility;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * Represents a state of visibility a team's nametags can be.
  */
-@RequiredArgsConstructor
-@Getter
 public enum NametagVisibility {
-    EVERYONE(NameTagVisibility.ALWAYS), NOONE(NameTagVisibility.NEVER), ALLIES(NameTagVisibility.HIDE_FOR_OTHER_TEAMS), 
+    EVERYONE(NameTagVisibility.ALWAYS), NOONE(NameTagVisibility.NEVER), ALLIES(NameTagVisibility.HIDE_FOR_OTHER_TEAMS),
     ENEMIES(NameTagVisibility.HIDE_FOR_OWN_TEAM);
     private final NameTagVisibility bukkit;
+
+    NametagVisibility(NameTagVisibility bukkit) {
+        this.bukkit = bukkit;
+    }
+
+    public NameTagVisibility getBukkit() {
+        return bukkit;
+    }
 }

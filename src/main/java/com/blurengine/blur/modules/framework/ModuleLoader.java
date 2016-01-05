@@ -22,15 +22,15 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import com.blurengine.blur.modules.extents.Extent;
+import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
+import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
 import com.blurengine.blur.modules.framework.serializer.ModuleNotFoundException;
 import com.blurengine.blur.modules.framework.serializer.ModuleSerializer;
-import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
-import com.blurengine.blur.modules.teams.serializer.TeamSerializer;
-import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.modules.spawns.Spawn;
+import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.serializer.BlurTeam;
+import com.blurengine.blur.modules.teams.serializer.TeamSerializer;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 
 import java.io.File;
@@ -45,7 +45,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
+
 import pluginbase.config.serializers.Serializer;
 import pluginbase.config.serializers.SerializerSet;
 import pluginbase.config.serializers.SerializerSet.Builder;
@@ -75,7 +76,8 @@ public class ModuleLoader {
      *
      * @return whether or not the method registered the class, the only case where it would return false is if the class is already registered
      */
-    public static boolean register(@NonNull Class<? extends Module> moduleClass) {
+    public static boolean register(@Nonnull Class<? extends Module> moduleClass) {
+        Preconditions.checkNotNull(moduleClass, "moduleClass cannot be null.");
         if (dataClasses.containsKey(moduleClass)) {
             return false;
         }
@@ -162,7 +164,8 @@ public class ModuleLoader {
      *
      * @return
      */
-    public Module createModule(@NonNull ModuleInfo moduleInfo, Object data) {
+    public Module createModule(@Nonnull ModuleInfo moduleInfo, Object data) {
+        Preconditions.checkNotNull(moduleInfo, "moduleInfo cannot be null.");
         // No Data class, just look for a constructor that takes ModuleManager param.
         if (moduleInfo.dataClass().equals(ModuleData.class)) {
             Class<? extends Module> moduleClass = moduleInfoClasses.get(moduleInfo);
@@ -207,7 +210,9 @@ public class ModuleLoader {
      *
      * @return
      */
-    public Module createModule(ModuleInfo moduleInfo, @NonNull ModuleData moduleData, Object data) {
+    public Module createModule(@Nonnull ModuleInfo moduleInfo, @Nonnull ModuleData moduleData, Object data) {
+        Preconditions.checkNotNull(moduleInfo, "moduleInfo cannot be null.");
+        Preconditions.checkNotNull(moduleData, "moduleData cannot be null.");
         try {
             return this.moduleManager.addModule(moduleData.parse(this.moduleManager, new SerializedModule(this, data)));
         } catch (Exception e) {
@@ -229,12 +234,12 @@ public class ModuleLoader {
         return createModule(this.dataClassesToInfo.get(moduleData.getClass()), moduleData, data);
     }
 
-    public <T extends ModuleData> T deserializeTo(Map map, @NonNull T moduleData) {
-        return SerializationUtils.loadToObject(map, moduleData, serializerSet);
+    public <T extends ModuleData> T deserializeTo(Map map, @Nonnull T moduleData) {
+        return SerializationUtils.loadToObject(map, Preconditions.checkNotNull(moduleData, "moduleData cannot be null."), serializerSet);
     }
 
-    public <T> T deserializeTo(Map map, @NonNull T destination) {
-        return SerializationUtils.loadToObject(map, destination, serializerSet);
+    public <T> T deserializeTo(Map map, @Nonnull T destination) {
+        return SerializationUtils.loadToObject(map, Preconditions.checkNotNull(destination, "destination cannot be null."), serializerSet);
     }
 
     public boolean deserializeYAMLFileTo(File file, Object destination) {

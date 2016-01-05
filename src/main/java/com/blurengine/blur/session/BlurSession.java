@@ -50,7 +50,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.NonNull;
 import pluginbase.logging.PluginLogger;
 
 /**
@@ -148,12 +147,14 @@ public abstract class BlurSession {
         this.players.remove(blurPlayer.getUuid());
     }
 
-    public void broadcastMessage(@NonNull String message, Object... args) {
+    public void broadcastMessage(@Nonnull String message, Object... args) {
+        Preconditions.checkNotNull(message, "message cannot be null.");
         this.players.values().forEach(p -> p.messagePrefix(message, args));
         getBlur().getPlugin().getLog().info(message, args);
     }
 
-    public void broadcastMessage(@NonNull FancyMessage fancyMessage) {
+    public void broadcastMessage(@Nonnull FancyMessage fancyMessage) {
+        Preconditions.checkNotNull(fancyMessage, "fancyMessage cannot be null.");
         fancyMessage.send(players.values().stream().map(BlurPlayer::getPlayer).collect(Collectors.toList()));
         getBlur().getPlugin().getLog().info(fancyMessage.toReadableString());
     }

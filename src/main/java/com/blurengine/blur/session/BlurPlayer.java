@@ -16,13 +16,16 @@
 
 package com.blurengine.blur.session;
 
+import com.google.common.base.Preconditions;
+
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
 import com.supaham.commons.bukkit.text.FancyMessage;
 
 import org.bukkit.entity.Player;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
+
 
 /**
  * Represents a player that belongs to a {@link BlurSession}.
@@ -32,9 +35,9 @@ public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
     private final BlurSession session;
     private boolean alive;
 
-    public BlurPlayer(@NonNull Player player, @NonNull BlurSession session) {
-        super(player);
-        this.session = session;
+    public BlurPlayer(@Nonnull Player player, @Nonnull BlurSession session) {
+        super(Preconditions.checkNotNull(player, "player cannot be null."));
+        this.session = Preconditions.checkNotNull(session, "session cannot be null.");
     }
 
     public void reset() {

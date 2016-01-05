@@ -16,33 +16,41 @@
 
 package com.blurengine.blur.modules.teams.events;
 
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.modules.teams.SessionTeam;
 
 import org.bukkit.event.HandlerList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import lombok.Getter;
-import lombok.NonNull;
 
 /**
  * Called when a {@link SessionTeam}'s name changes.
  */
-@Getter
 public class TeamRenameEvent extends TeamEvent {
 
-    @NonNull private String oldName;
-    @NonNull private String newName;
+    private String oldName;
+    private String newName;
 
-    public TeamRenameEvent(@NonNull SessionTeam team, @NonNull String oldName, @Nullable String newName) {
+    public TeamRenameEvent(@Nonnull SessionTeam team, @Nonnull String oldName, @Nullable String newName) {
         super(team);
-        this.oldName = oldName;
-        this.newName = newName;
+        this.oldName = Preconditions.checkNotNull(oldName, "oldName cannot be null.");
+        this.newName = Preconditions.checkNotNull(newName, "newName cannot be null.");
     }
 
-    @Getter private static HandlerList handlerList;
-
-    @Override public HandlerList getHandlers() {
-        return handlerList;
+    public String getOldName() {
+        return oldName;
     }
+
+    public String getNewName() {
+        return newName;
+    }
+
+    private static final HandlerList handlerList = new HandlerList();
+
+    @Override
+    public HandlerList getHandlers() { return handlerList; }
+
+    public static HandlerList getHandlerList() { return handlerList; }
 }

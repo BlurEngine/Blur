@@ -16,23 +16,22 @@
 
 package com.blurengine.blur.modules.framework;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
-import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
+import com.blurengine.blur.session.BlurSession;
 
 import java.util.logging.Level;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import pluginbase.logging.PluginLogger;
 
 /**
@@ -40,8 +39,6 @@ import pluginbase.logging.PluginLogger;
  *
  * @see Module
  */
-@Data
-@EqualsAndHashCode(exclude = "session")
 public class ModuleManager {
 
     @Nullable private final ModuleManager parentManager;
@@ -62,21 +59,21 @@ public class ModuleManager {
         addModule(stageManager = new StageManager(this));
     }
 
-    public ModuleManager(@NonNull BlurSession session) {
-        this.session = session;
+    public ModuleManager(@Nonnull BlurSession session) {
+        this.session = Preconditions.checkNotNull(session, "session cannot be null.");
         this.parentManager = null;
         this.moduleLoader = new ModuleLoader(this);
     }
 
-    public ModuleManager(@NonNull BlurSession session, @NonNull ModuleLoader moduleLoader) {
-        this.session = session;
+    public ModuleManager(@Nonnull BlurSession session, @Nonnull ModuleLoader moduleLoader) {
+        this.session = Preconditions.checkNotNull(session, "session cannot be null.");
         this.parentManager = null;
-        this.moduleLoader = moduleLoader;
+        this.moduleLoader = Preconditions.checkNotNull(moduleLoader, "moduleLoader cannot be null.");
     }
 
-    public ModuleManager(@NonNull BlurSession session, @NonNull ModuleManager parentManager) {
-        this.session = session;
-        this.parentManager = parentManager;
+    public ModuleManager(@Nonnull BlurSession session, @Nonnull ModuleManager parentManager) {
+        this.session = Preconditions.checkNotNull(session, "session cannot be null.");
+        this.parentManager = Preconditions.checkNotNull(parentManager, "parentManager cannot be null.");
         this.moduleLoader = parentManager.moduleLoader;
     }
 
@@ -175,7 +172,8 @@ public class ModuleManager {
      *
      * @return whether the removed module is equal to the given module
      */
-    public boolean destroyModule(@NonNull Module module) {
+    public boolean destroyModule(@Nonnull Module module) {
+        Preconditions.checkNotNull(module, "module cannot be null.");
         return this.modules.remove(module.getClass(), module);
     }
 
@@ -188,9 +186,9 @@ public class ModuleManager {
      * @return module instance, nullable
      */
     @Nullable
-    public <T extends Module> T getModule(@NonNull Class<T> clazz) {
+    public <T extends Module> T getModule(@Nonnull Class<T> clazz) {
         //noinspection unchecked
-        return (T) this.modules.get(clazz);
+        return (T) this.modules.get(Preconditions.checkNotNull(clazz, "clazz cannot be null."));
     }
 
     /**
@@ -198,9 +196,37 @@ public class ModuleManager {
      *
      * @return a map of classes and their module instances
      */
-    @NonNull
     public Multimap<Class<? extends Module>, Module> getModules() {
         return Multimaps.unmodifiableMultimap(this.modules);
+    }
+
+    @Nullable
+    public ModuleManager getParentManager() {
+        return parentManager;
+    }
+
+    public ModuleLoader getModuleLoader() {
+        return moduleLoader;
+    }
+
+    public BlurSession getSession() {
+        return session;
+    }
+
+    public FilterManager getFilterManager() {
+        return filterManager;
+    }
+
+    public ExtentManager getExtentManager() {
+        return extentManager;
+    }
+
+    public TeamManager getTeamManager() {
+        return teamManager;
+    }
+
+    public StageManager getStageManager() {
+        return stageManager;
     }
     
     /* ================================

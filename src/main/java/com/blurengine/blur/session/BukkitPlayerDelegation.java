@@ -16,10 +16,6 @@
 
 package com.blurengine.blur.session;
 
-import com.supaham.commons.bukkit.text.FancyMessage;
-import com.supaham.commons.bukkit.text.MessagePart;
-import com.supaham.commons.bukkit.title.Title;
-
 import org.bukkit.Achievement;
 import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
@@ -42,7 +38,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.map.MapView;
 import org.bukkit.permissions.Permission;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -54,11 +49,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import lombok.NonNull;
-
-/**
- * Created by Ali on 22/11/2015.
- */
 @SuppressWarnings("unused")
 public interface BukkitPlayerDelegation {
 

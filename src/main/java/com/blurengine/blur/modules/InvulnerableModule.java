@@ -25,7 +25,6 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
 import com.supaham.commons.bukkit.TickerTask;
-import com.supaham.commons.serializers.DurationSerializer;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,13 +32,7 @@ import org.bukkit.event.Listener;
 
 import java.time.Duration;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import pluginbase.config.annotation.SerializeWith;
-
 @ModuleInfo(name = "Invulnerable", dataClass = InvulnerableData.class)
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class InvulnerableModule extends Module implements Listener {
 
     private final TickerTask task;
@@ -57,9 +50,16 @@ public class InvulnerableModule extends Module implements Listener {
         }
     }
 
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+
+    public void setInvulnerable(boolean invulnerable) {
+        this.invulnerable = invulnerable;
+    }
+
     public static final class InvulnerableData implements ModuleData {
 
-        @SerializeWith(DurationSerializer.class)
         private Duration duration;
 
         @Override

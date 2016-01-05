@@ -16,6 +16,8 @@
 
 package com.blurengine.blur.modules.filters;
 
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.modules.filters.Filter.FilterResponse;
 import com.supaham.commons.utils.RandomUtils;
 
@@ -27,7 +29,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import java.util.Random;
 import java.util.function.Predicate;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
 
 /**
  * Utility class for using {@link Filter}s.
@@ -47,7 +49,8 @@ public class Filters {
      *
      * @return inverted filter
      */
-    public static Filter inverse(@NonNull Filter filter) {
+    public static Filter inverse(@Nonnull Filter filter) {
+        Preconditions.checkNotNull(filter, "filter cannot be null.");
         if (filter instanceof InverseFilter) {
             return ((InverseFilter) filter).filter;
         } else { // TODO handle StaticFilters?
@@ -63,8 +66,8 @@ public class Filters {
      *
      * @return Allow filter
      */
-    public static Filter allow(@NonNull Filter filter) {
-        return new AllowFilter(filter);
+    public static Filter allow(@Nonnull Filter filter) {
+        return new AllowFilter(Preconditions.checkNotNull(filter, "filter cannot be null."));
     }
 
     /**
@@ -75,24 +78,24 @@ public class Filters {
      *
      * @return Deny filter
      */
-    public static Filter deny(@NonNull Filter filter) {
-        return new DenyFilter(filter);
+    public static Filter deny(@Nonnull Filter filter) {
+        return new DenyFilter(Preconditions.checkNotNull(filter, "filter cannot be null."));
     }
 
-    public static Filter entityType(@NonNull EntityType entityType) {
-        return new EntityTypeFilter(entityType);
+    public static Filter entityType(@Nonnull EntityType entityType) {
+        return new EntityTypeFilter(Preconditions.checkNotNull(entityType, "entityType cannot be null."));
     }
 
     public static Filter random(float min, boolean minEquals, float max, boolean maxEquals) {
         return random(RandomUtils.getRandom(), min, minEquals, max, maxEquals);
     }
 
-    public static Filter random(Random random, float min, boolean minEquals, float max, boolean maxEquals) {
-        return new RandomFilter(random, min, minEquals, max, maxEquals);
+    public static Filter random(@Nonnull Random random, float min, boolean minEquals, float max, boolean maxEquals) {
+        return new RandomFilter(Preconditions.checkNotNull(random, "random cannot be null."), min, minEquals, max, maxEquals);
     }
 
-    public static Filter damageCause(DamageCause damageCause) {
-        return new DamageCauseFilter(damageCause);
+    public static Filter damageCause(@Nonnull DamageCause damageCause) {
+        return new DamageCauseFilter(Preconditions.checkNotNull(damageCause, "damageCause cannot be null."));
     }
     
     /* ================================

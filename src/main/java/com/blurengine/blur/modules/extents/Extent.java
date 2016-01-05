@@ -16,6 +16,8 @@
 
 package com.blurengine.blur.modules.extents;
 
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.modules.filters.Filter;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
@@ -27,7 +29,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an extent typically contained in a world. Extent extends {@link Filter} which allows for very convenient filter tests. Extent also has
@@ -43,8 +45,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      *
      * @return whether the {@code entity} is within this extent
      */
-    default boolean contains(@NonNull Entity entity) {
-        return contains(entity.getLocation());
+    default boolean contains(@Nonnull Entity entity) {
+        return contains(Preconditions.checkNotNull(entity, "entity cannot be null.").getLocation());
     }
 
     /**
@@ -54,8 +56,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      *
      * @return whether the {@code block} is within this extent
      */
-    default boolean contains(@NonNull Block block) {
-        return contains(block.getLocation());
+    default boolean contains(@Nonnull Block block) {
+        return contains(Preconditions.checkNotNull(block, "block cannot be null.").getLocation());
     }
 
     /**
@@ -65,7 +67,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      *
      * @return whether the {@code vector} is within this extent
      */
-    default boolean contains(@NonNull Vector vector) {
+    default boolean contains(@Nonnull Vector vector) {
+        Preconditions.checkNotNull(vector, "vector cannot be null.");
         return contains(vector.getX(), vector.getY(), vector.getZ());
     }
 
@@ -76,7 +79,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      *
      * @return whether the {@code immutableVector} is within this extent
      */
-    default boolean contains(@NonNull ImmutableVector immutableVector) {
+    default boolean contains(@Nonnull ImmutableVector immutableVector) {
+        Preconditions.checkNotNull(immutableVector, "immutableVector cannot be null.");
         return contains(immutableVector.getX(), immutableVector.getY(), immutableVector.getZ());
     }
 
@@ -87,7 +91,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      *
      * @return whether the {@code location} is within this extent
      */
-    default boolean contains(@NonNull Location location) {
+    default boolean contains(@Nonnull Location location) {
+        Preconditions.checkNotNull(location, "location cannot be null.");
         return contains(location.getX(), location.getY(), location.getZ());
     }
 

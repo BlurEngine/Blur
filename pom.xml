@@ -29,7 +29,6 @@
         <main.package>com.blurengine.blur</main.package>
         <main.class>${main.package}.BlurPlugin</main.class>
 
-        <lombok.version>1.16.6</lombok.version>
         <spigot.version>1.8.7-R0.1-SNAPSHOT</spigot.version>
         <commons-bukkit.version>0.4-SNAPSHOT</commons-bukkit.version>
     </properties>
@@ -50,11 +49,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>

@@ -35,8 +35,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.Data;
-import lombok.NonNull;
+import javax.annotation.Nonnull;
+
 
 public final class TickMethodsCache {
 
@@ -50,7 +50,8 @@ public final class TickMethodsCache {
      *
      * @return mutable collection of {@link TaskBuilder}
      */
-    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(@NonNull Tickable tickable) {
+    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(@Nonnull Tickable tickable) {
+        Preconditions.checkNotNull(tickable, "tickable cannot be null.");
         return loadClass(tickable.getClass()).stream().map(t -> t.toBuilder(tickable)).collect(Collectors.toList());
     }
 
@@ -63,7 +64,8 @@ public final class TickMethodsCache {
      *
      * @throws IllegalArgumentException thrown if {@code clazz} is {@code Tickable.class}
      */
-    public static Collection<TickMethod> loadClass(@NonNull Class<?> clazz) throws IllegalArgumentException {
+    public static Collection<TickMethod> loadClass(@Nonnull Class<?> clazz) throws IllegalArgumentException {
+        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
         Preconditions.checkArgument(!clazz.equals(Tickable.class), "Cannot register class Tickable.");
         if (!classTickMethods.containsKey(clazz)) {
             { // Load superclasses first
@@ -121,20 +123,26 @@ public final class TickMethodsCache {
         return null;
     }
 
-    @Data
     public static final class TickMethod {
 
         private final Method method;
         private final boolean passParams;
         private final Tick tick;
 
-        public TaskBuilder toBuilder(Tickable tickable) {
+        public TickMethod(@Nonnull Method method, boolean passParams, @Nonnull Tick tick) {
+            this.method = Preconditions.checkNotNull(method, "method cannot be null.");
+            this.passParams = passParams;
+            this.tick = Preconditions.checkNotNull(tick, "tick cannot be null.");
+        }
+
+        public TaskBuilder toBuilder(@Nonnull Tickable tickable) {
+            Preconditions.checkNotNull(tickable, "tickable cannot be null.");
             long delay = TimeUtils.parseDurationMs(tick.delay());
             long interval = TimeUtils.parseDurationMs(tick.interval());
             return new TaskBuilder().run((task) -> invoke(tickable, task)).delay(delay).interval(interval).async(tick.async());
         }
 
-        public void invoke(Tickable tickable, TickerTask task) {
+        private void invoke(Tickable tickable, TickerTask task) {
             try {
                 if (this.passParams) {
                     this.method.invoke(tickable);

@@ -16,15 +16,17 @@
 
 package com.blurengine.blur.modules.framework;
 
+import com.google.common.base.Preconditions;
+
 import com.supaham.commons.utils.MapBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.NonNull;
 import pluginbase.config.serializers.SerializerSet;
 
 public class SerializedModule {
@@ -32,8 +34,8 @@ public class SerializedModule {
     private final ModuleLoader moduleLoader;
     private final Object object;
 
-    public SerializedModule(@NonNull ModuleLoader moduleLoader, @Nullable Object object) {
-        this.moduleLoader = moduleLoader;
+    public SerializedModule(@Nonnull ModuleLoader moduleLoader, @Nullable Object object) {
+        this.moduleLoader = Preconditions.checkNotNull(moduleLoader, "moduleLoader cannot be null.");
         this.object = object;
     }
 

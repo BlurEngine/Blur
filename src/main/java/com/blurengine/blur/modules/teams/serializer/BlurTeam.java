@@ -26,14 +26,12 @@ import org.bukkit.Color;
 
 import javax.annotation.Nonnull;
 
-import lombok.ToString;
 import pluginbase.config.annotation.Name;
 import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a team that is utilized by {@link BlurTeam}.
  */
-@ToString
 public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
     private String id;
@@ -72,6 +70,19 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof BlurTeam && id.equals(((BlurTeam) obj).id);
+    }
+
+    @Override
+    public String toString() {
+        return "BlurTeam{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", chatPrefix='" + chatPrefix + '\'' +
+            ", color=" + color +
+            ", max=" + max +
+            ", maxOverfill=" + maxOverfill +
+            ", nametagVisibility=" + nametagVisibility +
+            '}';
     }
 
     @Override

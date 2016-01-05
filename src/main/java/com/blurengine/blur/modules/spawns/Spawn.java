@@ -16,15 +16,12 @@
 
 package com.blurengine.blur.modules.spawns;
 
-import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.BlockExtent;
-
-import lombok.Getter;
+import com.blurengine.blur.modules.extents.Extent;
 
 /**
  * Represents a spawnpoint used by {@link SpawnsModule}.
  */
-@Getter
 public class Spawn {
 
     public static final Spawn ZERO = new Spawn(BlockExtent.ZERO);
@@ -42,5 +39,17 @@ public class Spawn {
         this.extent = extent;
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    public Extent getExtent() {
+        return extent;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 }

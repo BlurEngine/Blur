@@ -16,10 +16,12 @@
 
 package com.blurengine.blur;
 
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.session.SessionManager;
 
-import lombok.NonNull;
+import javax.annotation.Nonnull;
 
 /**
  * Represents a root {@link BlurSession} that is incharge of all the other {@link BlurSession}. There should only exist one instance of this class 
@@ -27,8 +29,8 @@ import lombok.NonNull;
  */
 public class RootBlurSession extends BlurSession {
 
-    public RootBlurSession(@NonNull SessionManager manager) {
-        super(manager, null);
+    public RootBlurSession(@Nonnull SessionManager manager) {
+        super(Preconditions.checkNotNull(manager, "manager cannot be null."), null);
     }
 
     @Override
