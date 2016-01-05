@@ -23,6 +23,7 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
 import com.blurengine.blur.modules.framework.serializer.ListModuleSerializer;
+import com.blurengine.blur.modules.framework.serializer.ModuleList;
 import com.blurengine.blur.modules.includes.IncludesModule.IncludesData;
 import com.supaham.commons.Joiner;
 
@@ -84,7 +85,6 @@ public class IncludesModule extends Module {
 
     public static final class IncludeFileData {
 
-        @SerializeWith(ListModuleSerializer.class)
-        private List<Module> modules = new ArrayList<>(0); // Can't use emptyList because of PB issue - 2015-12-30
+        private ModuleList modules;
     }
 }

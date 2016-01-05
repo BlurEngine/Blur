@@ -23,6 +23,7 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
 import com.blurengine.blur.modules.framework.serializer.ListModuleSerializer;
+import com.blurengine.blur.modules.framework.serializer.ModuleList;
 import com.blurengine.blur.modules.stages.StagesModule.StagesData;
 
 import java.util.ArrayList;
@@ -59,7 +60,6 @@ public class StagesModule extends Module {
     private static final class StageData {
 
         private String name;
-        @SerializeWith(ListModuleSerializer.class)
-        private List<Module> modules;
+        private ModuleList modules;
     }
 }
