@@ -22,8 +22,7 @@ import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
-import com.blurengine.blur.modules.framework.serializer.ListModuleSerializer;
-import com.blurengine.blur.modules.framework.serializer.ModuleList;
+import com.blurengine.blur.serializers.ModuleList;
 import com.blurengine.blur.modules.includes.IncludesModule.IncludesData;
 import com.supaham.commons.Joiner;
 
@@ -31,8 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import pluginbase.config.annotation.SerializeWith;
 
 @ModuleInfo(name = "Includes", dataClass = IncludesData.class)
 public class IncludesModule extends Module {

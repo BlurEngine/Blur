@@ -26,6 +26,7 @@ import com.blurengine.blur.modules.framework.SerializedModule;
 import com.blurengine.blur.modules.teams.TeamsModule.TeamsData;
 import com.blurengine.blur.modules.teams.serializer.BlurTeam;
 import com.blurengine.blur.modules.teams.serializer.TeamSerializer.ListTeamSerializer;
+import com.blurengine.blur.serializers.TeamList;
 
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,7 @@ public class TeamsModule extends Module {
 
     public static final class TeamsData implements ModuleData {
 
-        @SerializeWith(ListTeamSerializer.class)
-        private List<BlurTeam> teams;
+        private TeamList teams;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {

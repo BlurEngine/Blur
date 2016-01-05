@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.serializer;
+package com.blurengine.blur.serializers;
 
+import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.modules.framework.serializer.ListModuleSerializer;
+import com.blurengine.blur.modules.teams.serializer.TeamSerializer.ListTeamSerializer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,19 +27,19 @@ import java.util.Collection;
 import pluginbase.config.annotation.SerializeWith;
 
 /**
- * Represents an {@link ArrayList} of {@link Module} specifically designed for easy serialization.
+ * Represents an {@link ArrayList} of {@link Filter} specifically designed for easy serialization.
  */
-@SerializeWith(ListModuleSerializer.class)
-public class ModuleList extends ArrayList<Module> {
+@SerializeWith(ListTeamSerializer.class)
+public class TeamList extends ArrayList<Module> {
 
-    public ModuleList(int initialCapacity) {
+    public TeamList(int initialCapacity) {
         super(initialCapacity);
     }
 
-    public ModuleList() {
+    public TeamList() {
     }
 
-    public ModuleList(Collection<? extends Module> c) {
+    public TeamList(Collection<? extends Module> c) {
         super(c);
     }
 }

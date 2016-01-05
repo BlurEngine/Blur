@@ -24,6 +24,7 @@ import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
 import com.blurengine.blur.modules.filters.FiltersModule.FiltersData;
 import com.blurengine.blur.modules.framework.ModuleData;
+import com.blurengine.blur.serializers.FilterList;
 
 import java.util.List;
 
@@ -41,8 +42,7 @@ public class FiltersModule extends Module {
 
     public static final class FiltersData implements ModuleData {
 
-        @SerializeWith(ListFilterSerializer.class)
-        private List<Filter> filters;
+        private FilterList filters;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {

@@ -25,6 +25,7 @@ import com.blurengine.blur.modules.framework.SerializedModule;
 import com.blurengine.blur.modules.extents.ExtentsModule.ExtentsData;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer.ListExtentSerializer;
+import com.blurengine.blur.serializers.ExtentList;
 
 import java.util.List;
 
@@ -42,8 +43,7 @@ public class ExtentsModule extends Module {
 
     public static final class ExtentsData implements ModuleData {
 
-        @SerializeWith(ListExtentSerializer.class)
-        private List<Extent> extents;
+        private ExtentList extents;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
