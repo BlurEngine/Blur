@@ -1,6 +1,6 @@
 name: ${name}
 main: ${main.class}
-version: ${project.version}-${git.commit.id.abbrev}
+version: ${project.version}-git-${git.commit.id.abbrev}
 depend: [WorldEdit]
 load: STARTUP
 authors: [SupaHam]
