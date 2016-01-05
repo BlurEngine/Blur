@@ -30,7 +30,7 @@
         <main.class>${main.package}.BlurPlugin</main.class>
 
         <spigot.version>1.8.7-R0.1-SNAPSHOT</spigot.version>
-        <commons-bukkit.version>0.4-SNAPSHOT</commons-bukkit.version>
+        <commons-bukkit.version>0.4.1-SNAPSHOT</commons-bukkit.version>
     </properties>
 
     <repositories>
