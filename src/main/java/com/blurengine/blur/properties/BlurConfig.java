@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur;
-
-import com.supaham.commons.bukkit.CommonPlugin;
-import com.supaham.commons.bukkit.CommonSettings;
+package com.blurengine.blur.properties;
 
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
-import pluginbase.config.annotation.NoTypeKey;
-
-@NoTypeKey
-public final class BlurSettings extends CommonSettings {
+/**
+ * Represents a class for deserializing a blur map configuration.
+ */
+public class BlurConfig {
 
     private List<Object> modules = Arrays.asList("");
-
-    private BlurSettings() {}
-
-    public BlurSettings(@Nonnull CommonPlugin plugin) {
-        super(plugin);
-    }
 
     public List<Object> getModules() {
         return modules;

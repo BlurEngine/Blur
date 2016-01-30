@@ -34,19 +34,17 @@ import pluginbase.config.datasource.yaml.YamlDataSource;
  */
 public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
 
-    private static final String COMMAND_PREFIX = "b";
     private static BlurPlugin instance;
 
-    private BlurSettings settings = new BlurSettings();
     private Blur blur;
     private RootBlurSession rootSession;
 
     public static BlurPlugin get() { return instance; }
 
     public BlurPlugin() {
-        super(BlurPlugin.class, COMMAND_PREFIX);
         Preconditions.checkState(instance == null, "BlurPlugin already initialized.");
         instance = this;
+        setSettings(() -> new BlurSettings(this));
     }
 
     @Override
@@ -54,43 +52,26 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
         super.onEnable();
         this.blur = new Blur(this);
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
-        YamlDataSource yaml;
-        try {
-            yaml = SerializationUtils.yaml(new File(getDataFolder(), "blur.yml")).build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        SerializationUtils.loadOrCreateProperties(getLog(), yaml, this.settings);
         ModuleManager moduleManager = this.rootSession.getModuleManager();
 
         // Load from serialized modules, here's how the whoooole chain starts!
         moduleManager.getModuleLoader().load(getSettings().getModules());
 
+        if (!enableMetrics()) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         // Immediately load, enable and start the root session to get the wheels going.
         new TickerTask(this, 1, this.rootSession::start).start();
         new TickerTask(this, 200, this.rootSession::stop).start();
-
-        enableMetrics();
     }
 
 
     private AtomicInteger tries = new AtomicInteger();
 
-    private void enableMetrics() {
-        try {
-            Metrics metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (tries.incrementAndGet() <= 3) {
-                new TickerTask(this, 600 * tries.get(), this::enableMetrics);
-            }
-        }
-    }
-
     public BlurSettings getSettings() {
-        return settings;
+        return (BlurSettings) super.getSettings();
     }
 
     public Blur getBlur() {

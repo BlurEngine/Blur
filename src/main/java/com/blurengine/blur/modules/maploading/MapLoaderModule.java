@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.maploading;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.properties.BlurConfig;
 import com.blurengine.blur.session.WorldBlurSession;
 import com.blurengine.blur.BlurSettings;
 import com.blurengine.blur.modules.filters.Filter;
@@ -147,7 +148,7 @@ public class MapLoaderModule extends Module {
         } catch (IOException e) {
             throw new MapLoadException("Failed to read " + MAP_FILE_NAME, e);
         }
-        BlurSettings config = new BlurSettings();
+        BlurConfig config = new BlurConfig();
         SerializationUtils.loadOrCreateProperties(getLogger(), yaml, config);
 
         // Create and load map config
