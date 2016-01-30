@@ -65,7 +65,7 @@ public class MapLoaderModule extends Module {
     // TODO abstract all this File usage to support global repository access.
 
     public static final String GENERATED_WORLD_DIRECTORY_PREFIX = "blur_";
-    public static final String MAP_FILE_NAME = "map.yml";
+    public static final String MAP_FILE_NAME = "blur.yml";
 
     private final File rootDirectory;
     private final boolean random;
