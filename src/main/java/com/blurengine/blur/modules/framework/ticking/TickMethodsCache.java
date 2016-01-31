@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.modules.framework.ticking;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import com.blurengine.blur.modules.framework.ticking.Tick;
 import com.blurengine.blur.session.Tickable;
 import com.blurengine.blur.utils.TaskBuilder;
 import com.supaham.commons.bukkit.TickerTask;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.modules.framework.ticking;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
