@@ -320,6 +320,9 @@ public abstract class Module implements Listener {
     protected boolean addSubmodule(@Nonnull Module module) {
         Preconditions.checkNotNull(module, "module cannot be null.");
         if (this.submodules.add(module)) {
+            // This is a must to ensure that any added behaviour from ModuleManager is respected.
+            moduleManager.addModule(module);
+
             if (this.state == ModuleState.UNLOADED) {
                 return true;  // Added successfully without loading.
             }
