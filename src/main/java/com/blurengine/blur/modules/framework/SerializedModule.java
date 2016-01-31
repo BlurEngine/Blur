@@ -31,6 +31,7 @@ import pluginbase.config.serializers.SerializerSet;
 
 public class SerializedModule {
 
+    // TODO be aware of current directory of this context. (Maybe rename this class to include Context)
     private final ModuleLoader moduleLoader;
     private final Object object;
 

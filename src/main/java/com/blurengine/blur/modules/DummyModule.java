@@ -25,6 +25,9 @@ import com.blurengine.blur.modules.framework.ticking.TickField;
 
 /**
  * Dummy module to test module functionality.
+ * <p>
+ *     <b>This is just an example class and shouldn't actually be used in production.</b>
+ * </p>
  */
 @ModuleInfo(name = "BlurDummy")
 public class DummyModule extends Module {
