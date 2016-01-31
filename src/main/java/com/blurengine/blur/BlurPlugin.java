@@ -19,21 +19,21 @@ package com.blurengine.blur;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.framework.ModuleManager;
+import com.supaham.commons.bukkit.ServerShutdown;
+import com.supaham.commons.bukkit.ServerShutdown.ServerShutdownEvent;
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.commands.common.CommonCommands;
-import com.supaham.commons.bukkit.utils.SerializationUtils;
+import com.supaham.commons.state.State;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import pluginbase.config.datasource.yaml.YamlDataSource;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 /**
  * Bukkit plugin class for {@link Blur}.
  */
-public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
+public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listener {
 
     private static BlurPlugin instance;
 
@@ -51,6 +51,13 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
     @Override
     public void onEnable() {
         super.onEnable();
+
+        // This is important for handling immediate shutdown via commands.
+        ServerShutdown module = new ServerShutdown(getModuleContainer());
+        getModuleContainer().register(module);
+        module.setState(State.ACTIVE);
+        registerEvents(this);
+
         this.blur = new Blur(this);
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
         ModuleManager moduleManager = this.rootSession.getModuleManager();
@@ -71,8 +78,13 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
         new TickerTask(this, 0, getCommandsManager()::build).start();
     }
 
-
-    private AtomicInteger tries = new AtomicInteger();
+    // Cleanup blur during shutdown.
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onServerShutdown(ServerShutdownEvent event) {
+        if (this.rootSession != null) {
+            this.rootSession.stop();
+        }
+    }
 
     public BlurSettings getSettings() {
         return (BlurSettings) super.getSettings();
