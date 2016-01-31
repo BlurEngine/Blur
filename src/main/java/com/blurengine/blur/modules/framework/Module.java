@@ -87,6 +87,7 @@ public abstract class Module implements Listener, Tickable {
         this.state = ModuleState.LOADED;
         this.listeners.forEach(getSession().getBlur().getPlugin()::registerEvents);
         this.tasks.forEach(TickerTask::start);
+        this.tasks.removeIf(t -> t.getInterval() < 0); // Remove all single-run tasks
         this.submodules.forEach(moduleManager::loadModule);
     }
 
@@ -308,9 +309,7 @@ public abstract class Module implements Listener, Tickable {
             @Override
             public TickerTask build() {
                 TickerTask task = super.build();
-                if (task.getInterval() >= 0) {
-                    addTask(task);
-                }
+                addTask(task);
                 return task;
             }
         };
