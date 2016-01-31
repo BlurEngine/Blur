@@ -31,14 +31,6 @@ import pluginbase.config.serializers.SerializerSet;
  */
 public class ListModuleSerializer extends ListSerializer<Module> {
 
-    @Nullable
-    @Override
-    public List<Module> deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet)
-        throws IllegalArgumentException {
-        System.out.println(serialized);
-        return super.deserialize(serialized, wantedType, serializerSet);
-    }
-
     @Override
     public Class<Module> getTypeClass() {
         return Module.class;
