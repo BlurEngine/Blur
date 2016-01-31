@@ -72,7 +72,8 @@ public class StageManager extends Module {
             getLogger().finer("Last stage, calling StageCompleteEvent");
             // This is the end, call the StagesCompleteEvent. - Adele
             getSession().callEvent(new StagesCompleteEvent(changeReason, lastStage));
-            reset();
+            reset(changeReason);
+            getSession().stop();
             return true;
         } else {
             Stage nextStage = this.stages.get(++this.stageIndex);// get next stage and update stageIndex.
