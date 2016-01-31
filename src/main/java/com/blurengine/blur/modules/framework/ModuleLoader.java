@@ -181,7 +181,11 @@ public class ModuleLoader {
                 }
                 return module;
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                e.printStackTrace();
+                Throwable t = e;
+                if (e.getCause() != null) {
+                    t = e.getCause();
+                }
+                t.printStackTrace();
                 return null;
             }
         }
