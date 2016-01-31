@@ -35,6 +35,8 @@ public class DummyModule extends Module {
     // Increments every tick (by default, See value parameter).
     @TickField(increment = true)
     private BAutoInt ticks;
+    @TickField(amount = -10) // increments 10 every tick because increment = false (subtract) and amount is a negative number.
+    private BAutoInt ticks2;
 
     public DummyModule(ModuleManager moduleManager) {
         super(moduleManager);
@@ -45,19 +47,20 @@ public class DummyModule extends Module {
     public void load() {
         super.load();
         getLogger().info("Loaded");
-        getLogger().info("  ticks: " + ticks.get());
+        displayTicks();
     }
 
     @Override
     public void enable() {
         super.enable();
         getLogger().info("Enabled!");
-        getLogger().info("  ticks: " + ticks.get());
+        displayTicks();
     }
     
     // This method is automatically called every second after the first second. See Tickable interface for more information.
-    @Tick(interval = "1s", delay = "1s")
+    @Tick(interval = "1ms", delay = "1s")
     private void displayTicks() {
         getLogger().info("ticks: " + ticks.get());
+        getLogger().info("ticks2: " + ticks2.get());
     }
 }
