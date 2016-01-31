@@ -65,7 +65,10 @@ public class IncludesModule extends Module {
                     IncludeFileData includeData = new IncludeFileData();
                     moduleManager.getModuleLoader().deserializeYAMLFileTo(file, includeData);
                     // Configurate treats present empty lists as null.
-                    if (includeData.modules != null) {
+                    if(includeData.modules == null || includeData.modules.isEmpty()) {
+                        moduleManager.getLogger().warning("Empty includes.");
+                    } else {
+                        moduleManager.getLogger().finer("Adding %d includes.", includeData.modules.size());
                         includes.addAll(includeData.modules);
                     }
                 }
