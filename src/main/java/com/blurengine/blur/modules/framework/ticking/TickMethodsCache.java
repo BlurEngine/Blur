@@ -71,10 +71,12 @@ public final class TickMethodsCache {
         if (!classTickMethods.containsKey(clazz)) {
             { // Load superclasses first
                 Class<?> superclass = clazz.getSuperclass();
-                while (!superclass.equals(Tickable.class) && superclass.isAssignableFrom(Tickable.class)) {
+                // No need for while loop as loadClass will end up reaching here if necessary.
+                if (!superclass.equals(Tickable.class) && superclass.isAssignableFrom(Tickable.class)) {
                     loadClass(superclass);
                 }
             }
+
             Collection<TickMethod> tickMethods = classTickMethods.get(clazz); // empty cache list, automatically updates
             for (Method method : clazz.getDeclaredMethods()) {
                 TickMethod tickMethod = getTickMethod(clazz, method);
@@ -145,7 +147,7 @@ public final class TickMethodsCache {
 
         private void invoke(Tickable tickable, TickerTask task) {
             try {
-                if (this.passParams) {
+                if (!this.passParams) {
                     this.method.invoke(tickable);
                 } else {
                     this.method.invoke(tickable, task);
