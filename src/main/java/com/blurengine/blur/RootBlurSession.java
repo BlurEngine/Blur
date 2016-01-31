@@ -36,9 +36,11 @@ public class RootBlurSession extends BlurSession {
     @Override
     public void start() {
         getLogger().info("Starting " + getClass().getName());
+        long startedAt = System.currentTimeMillis();
         this.moduleManager.load();
         this.moduleManager.enable();
         super.start();
+        getLogger().fine("RootSession started in %dms", System.currentTimeMillis() - startedAt);
     }
 
     @Override
