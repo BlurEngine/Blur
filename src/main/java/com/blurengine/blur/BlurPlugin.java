@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.modules.framework.ModuleManager;
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
 import com.supaham.commons.bukkit.TickerTask;
+import com.supaham.commons.bukkit.commands.common.CommonCommands;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 
 import java.io.File;
@@ -61,10 +62,13 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        CommonCommands.DEBUG.builder(this, "b").register();
 
         // Immediately load, enable and start the root session to get the wheels going.
         new TickerTask(this, 1, this.rootSession::start).start();
         new TickerTask(this, 200, this.rootSession::stop).start();
+
+        new TickerTask(this, 0, getCommandsManager()::build).start();
     }
 
 
