@@ -59,11 +59,11 @@ public class SerializedModule {
         return ((String) object);
     }
 
-    public List<?> getAsList() {
-        return ((List) object);
+    public <E> List<E> getAsList() {
+        return ((List<E>) object);
     }
 
-    public Map<String, ?> getAsMap() {
+    public Map<String, Object> getAsMap() {
         return ((Map) object);
     }
 

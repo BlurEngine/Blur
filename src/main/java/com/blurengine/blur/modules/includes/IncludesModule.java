@@ -46,7 +46,7 @@ public class IncludesModule extends Module {
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
             if (serialized.getAsObject() instanceof List) {
-                this.includes = (List<String>) serialized.getAsList();
+                this.includes = serialized.getAsList();
             } else if (serialized.getAsObject() instanceof String) {
                 this.includes = Collections.singletonList(serialized.getAsString());
             }
