@@ -123,11 +123,9 @@ public abstract class BlurSession {
     }
 
     public void stop() {
-        this.childrenSessions.stream().forEach(s -> {
-            s.stop();
-            s.moduleManager.disable();
-            s.moduleManager.unload();
-        });
+        this.childrenSessions.forEach(BlurSession::stop);
+        moduleManager.disable();
+        moduleManager.unload();
         onStopTasks.forEach(Runnable::run);
     }
 
