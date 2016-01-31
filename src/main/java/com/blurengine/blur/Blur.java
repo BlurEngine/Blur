@@ -25,6 +25,7 @@ import com.blurengine.blur.modules.MapInfoModule;
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.modules.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.goal.LastPlayerAliveWinnerModule;
 import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.includes.IncludesModule;
@@ -61,6 +62,7 @@ public class Blur {
         /* ================================
          * >> CORE
          * ================================ */
+        ModuleLoader.register(TickFieldHolder.class);
         ModuleLoader.register(SpawnsModule.class);
         ModuleLoader.register(FilterManager.class);
         ModuleLoader.register(ExtentManager.class);

@@ -19,6 +19,9 @@ package com.blurengine.blur.modules;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.modules.framework.ticking.BAutoInt;
+import com.blurengine.blur.modules.framework.ticking.Tick;
+import com.blurengine.blur.modules.framework.ticking.TickField;
 
 /**
  * Dummy module to test module functionality.
@@ -26,20 +29,32 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 @ModuleInfo(name = "BlurDummy")
 public class DummyModule extends Module {
 
+    // Increments every tick (by default, See value parameter).
+    @TickField(increment = true)
+    private BAutoInt ticks;
+
     public DummyModule(ModuleManager moduleManager) {
         super(moduleManager);
-        System.out.println("Constructed");
+        getLogger().info("Constructed");
     }
 
     @Override
     public void load() {
         super.load();
-        System.out.println("Loaded");
+        getLogger().info("Loaded");
+        getLogger().info("  ticks: " + ticks.get());
     }
 
     @Override
     public void enable() {
         super.enable();
-        System.out.println("Enabled!");
+        getLogger().info("Enabled!");
+        getLogger().info("  ticks: " + ticks.get());
+    }
+    
+    // This method is automatically called every second after the first second. See Tickable interface for more information.
+    @Tick(interval = "1s", delay = "1s")
+    private void displayTicks() {
+        getLogger().info("ticks: " + ticks.get());
     }
 }

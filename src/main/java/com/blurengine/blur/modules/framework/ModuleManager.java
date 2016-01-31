@@ -23,6 +23,7 @@ import com.google.common.collect.Multimaps;
 
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
+import com.blurengine.blur.modules.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurSession;
@@ -44,43 +45,49 @@ public class ModuleManager {
     @Nullable private final ModuleManager parentManager;
     private final ModuleLoader moduleLoader;
     private final BlurSession session;
-    private final Multimap<Class<? extends Module>, Module> modules;
+    private final Multimap<Class<? extends Module>, Module> modules = HashMultimap.create();
 
-    private final FilterManager filterManager;
-    private final ExtentManager extentManager;
-    private final TeamManager teamManager;
-    private final StageManager stageManager;
-
-    {
-        modules = HashMultimap.create();
-        addModule(filterManager = new FilterManager(this));
-        addModule(extentManager = new ExtentManager(this));
-        addModule(teamManager = new TeamManager(this));
-        addModule(stageManager = new StageManager(this));
-    }
+    private TickFieldHolder tickFieldholder;
+    private FilterManager filterManager;
+    private ExtentManager extentManager;
+    private TeamManager teamManager;
+    private StageManager stageManager;
 
     public ModuleManager(@Nonnull BlurSession session) {
         this.session = Preconditions.checkNotNull(session, "session cannot be null.");
         this.parentManager = null;
+        init();
         this.moduleLoader = new ModuleLoader(this);
     }
 
     public ModuleManager(@Nonnull BlurSession session, @Nonnull ModuleLoader moduleLoader) {
         this.session = Preconditions.checkNotNull(session, "session cannot be null.");
         this.parentManager = null;
+        init();
         this.moduleLoader = Preconditions.checkNotNull(moduleLoader, "moduleLoader cannot be null.");
     }
 
     public ModuleManager(@Nonnull BlurSession session, @Nonnull ModuleManager parentManager) {
         this.session = Preconditions.checkNotNull(session, "session cannot be null.");
         this.parentManager = Preconditions.checkNotNull(parentManager, "parentManager cannot be null.");
+        init();
         this.moduleLoader = parentManager.moduleLoader;
     }
 
+    private void init() {
+        // The following set of modules don't use addModule as actual modules depend on them.
+        this.modules.put(TickFieldHolder.class, this.tickFieldholder = new TickFieldHolder(this));
+
+        addModule(filterManager = new FilterManager(this));
+        addModule(extentManager = new ExtentManager(this));
+        addModule(teamManager = new TeamManager(this));
+        addModule(stageManager = new StageManager(this));
+    }
+
     protected Module addModule(Module module) {
-        if (module != null) {
-            this.modules.put(module.getClass(), module);
-        }
+        Preconditions.checkNotNull(module, "module cannot be null.");
+        this.modules.put(module.getClass(), module);
+        this.tickFieldholder.load(module);
         return module;
     }
 
@@ -106,63 +113,78 @@ public class ModuleManager {
     }
 
     public boolean loadModule(Module module) {
-        getLogger().fine("Loading module %s", module.getModuleInfo().name());
+        String name = module.getClass().getName();
         try {
+            name = checkName(module);
+            getLogger().fine("Loading module %s", name);
             module.load();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
-                getLogger().severe("Error loading Module %s: %s", module.getModuleInfo().name(), e.getMessage());
+                getLogger().severe("Error loading Module %s: %s", name, e.getMessage());
             } else {
-                getLogger().log(Level.SEVERE, "Error loading Module " + module.getModuleInfo().name(), e);
+                getLogger().log(Level.SEVERE, "Error loading Module " + name, e);
             }
         }
         return false;
     }
 
     public boolean unloadModule(Module module) {
-        getLogger().fine("Unloading module %s", module.getModuleInfo().name());
+        String name = module.getClass().getName();
         try {
+            name = checkName(module);
+            getLogger().fine("Unloading module %s", name);
             module.unload();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
-                getLogger().severe("Error unloading Module %s: %s", module.getModuleInfo().name(), e.getMessage());
+                getLogger().severe("Error unloading Module %s: %s", name, e.getMessage());
             } else {
-                getLogger().log(Level.SEVERE, "Error unloading Module " + module.getModuleInfo().name(), e);
+                getLogger().log(Level.SEVERE, "Error unloading Module " + name, e);
             }
         }
         return false;
     }
 
     public boolean enableModule(Module module) {
-        getLogger().fine("Enabling module %s", module.getModuleInfo().name());
+        String name = module.getClass().getName();
         try {
+            name = checkName(module);
+            getLogger().fine("Enabling module %s", name);
             module.enable();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
-                getLogger().severe("Error enabling Module %s: %s", module.getModuleInfo().name(), e.getMessage());
+                getLogger().severe("Error enabling Module %s: %s", name, e.getMessage());
             } else {
-                getLogger().log(Level.SEVERE, "Error enabling Module " + module.getModuleInfo().name(), e);
+                getLogger().log(Level.SEVERE, "Error enabling Module " + name, e);
             }
         }
         return false;
     }
 
     public boolean disableModule(Module module) {
-        getLogger().fine("Disabling module %s", module.getModuleInfo().name());
+        String name = module.getClass().getName();
         try {
+            name = checkName(module);
+            getLogger().fine("Disabling module %s", name);
             module.disable();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
-                getLogger().severe("Error disabling Module %s: %s", module.getModuleInfo().name(), e.getMessage());
+                getLogger().severe("Error disabling Module %s: %s", name, e.getMessage());
             } else {
-                getLogger().log(Level.SEVERE, "Error disabling Module " + module.getModuleInfo().name(), e);
+                getLogger().log(Level.SEVERE, "Error disabling Module " + name, e);
             }
         }
         return false;
+    }
+    
+    private String checkName(Module module) {
+        if (module.getModuleInfo() == null) {
+            throw new IllegalStateException(module.getClass().getName() + " must be annotated with @ModuleInfo and registered to ModuleLoader.");
+        }
+        return module.getModuleInfo().name();
     }
 
     /**

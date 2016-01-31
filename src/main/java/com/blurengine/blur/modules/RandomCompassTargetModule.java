@@ -19,7 +19,7 @@ package com.blurengine.blur.modules;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.Tick;
+import com.blurengine.blur.modules.framework.ticking.Tick;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
 import com.blurengine.blur.session.Tickable;

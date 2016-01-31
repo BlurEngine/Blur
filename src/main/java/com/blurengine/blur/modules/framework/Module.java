@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import com.blurengine.blur.modules.framework.ticking.TickMethodsCache;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.events.session.BlurSessionEvent;
