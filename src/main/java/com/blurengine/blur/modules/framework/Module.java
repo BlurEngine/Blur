@@ -54,7 +54,7 @@ import pluginbase.logging.PluginLogger;
  *
  * @see #Module(ModuleManager)
  */
-public abstract class Module implements Listener {
+public abstract class Module implements Listener, Tickable {
 
     protected final ModuleManager moduleManager;
     private final ModuleInfo moduleInfo;
@@ -72,9 +72,7 @@ public abstract class Module implements Listener {
 
     private void init() {
         addListener(this);
-        if (this instanceof Tickable) {
-            addTickable(((Tickable) this));
-        }
+        addTickable(this);
     }
 
     /**
