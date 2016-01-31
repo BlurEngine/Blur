@@ -72,8 +72,7 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         CommonCommands.DEBUG.builder(this, "b").register();
 
         // Immediately load, enable and start the root session to get the wheels going.
-        new TickerTask(this, 1, this.rootSession::start).start();
-        new TickerTask(this, 200, this.rootSession::stop).start();
+        new TickerTask(this, 0, this.rootSession::start).start();
 
         new TickerTask(this, 0, getCommandsManager()::build).start();
     }
