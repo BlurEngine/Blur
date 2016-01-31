@@ -208,7 +208,9 @@ public class MapLoaderModule extends Module {
             }
 
             // Direct list of map (directory) names
-            if (rawMaps instanceof List) {
+            if(rawMaps instanceof String) { // Single map in the form of a string
+                addStrings(moduleManager.getLogger(), Stream.of((String) rawMaps));
+            } else if (rawMaps instanceof List) {
                 addStrings(moduleManager.getLogger(), ((List<String>) rawMaps).stream());
             } else if (rawMaps instanceof Map) {
                 // map of key 'file' with the path to the file that contains maps.
