@@ -233,19 +233,21 @@ public class MapLoaderModule extends Module {
 
             if (map.containsKey("archive")) {
                 Object o = map.get("archive");
-                this.archive = new Archive(); // If archive is present, assume we must start archives, unless value is "false". See if-string.
+                this.archive = null; // If archive is present, assume we must start archives, unless value is "false". See if-string.
 
                 if (o instanceof String) {
                     // Check for true and false to toggle archiving.
                     if (o.toString().equalsIgnoreCase("true") || o.toString().equalsIgnoreCase("false")) {
-                        // Only if the value is false do we disable archiving.
-                        if (!Boolean.parseBoolean(o.toString())) {
-                            this.archive = null;
+                        // Only if the value is true do we disable archiving.
+                        if (Boolean.parseBoolean(o.toString())) {
+                            this.archive = new Archive();
                         }
                     } else {
+                        this.archive = new Archive();
                         this.archive.directory = o.toString();
                     }
                 } else if (o instanceof Map) { // Automatically load from class fields
+                    this.archive = new Archive();
                     moduleManager.getModuleLoader().deserializeTo((Map) o, archive);
 
                     // Type-safe compression type.
