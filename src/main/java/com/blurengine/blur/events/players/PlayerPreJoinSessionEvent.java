@@ -31,8 +31,8 @@ import javax.annotation.Nonnull;
  */
 public class PlayerPreJoinSessionEvent extends BlurPlayerEvent implements Cancellable {
 
-    public PlayerPreJoinSessionEvent(@Nonnull BlurPlayer blurPlayer) {
-        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."));
+    public PlayerPreJoinSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
     }
 
     private boolean cancelled;

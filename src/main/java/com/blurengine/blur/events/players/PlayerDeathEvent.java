@@ -32,7 +32,7 @@ public class PlayerDeathEvent extends BlurPlayerEvent {
     private final org.bukkit.event.entity.PlayerDeathEvent bukkitEvent;
 
     public PlayerDeathEvent(@Nonnull BlurPlayer victim, @Nonnull org.bukkit.event.entity.PlayerDeathEvent bukkitEvent) {
-        super(Preconditions.checkNotNull(victim, "victim cannot be null."));
+        super(Preconditions.checkNotNull(victim, "victim cannot be null."), victim.getSession());
         this.bukkitEvent = Preconditions.checkNotNull(bukkitEvent, "bukkitEvent cannot be null.");
     }
 

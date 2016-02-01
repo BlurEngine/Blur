@@ -36,7 +36,7 @@ public class PlayerChangeTeamEvent extends BlurPlayerEvent implements Cancellabl
     private SessionTeam newTeam;
 
     public PlayerChangeTeamEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull SessionTeam oldTeam, @Nonnull SessionTeam newTeam) {
-        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."));
+        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession());
         this.oldTeam = Preconditions.checkNotNull(oldTeam, "oldTeam cannot be null.");
         this.newTeam = Preconditions.checkNotNull(newTeam, "newTeam cannot be null.");
     }

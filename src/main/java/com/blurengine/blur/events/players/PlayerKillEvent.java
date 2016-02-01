@@ -32,7 +32,7 @@ public class PlayerKillEvent extends BlurPlayerEvent {
     private final BlurPlayer victim;
 
     public PlayerKillEvent(@Nonnull BlurPlayer killer, @Nonnull BlurPlayer victim) {
-        super(Preconditions.checkNotNull(killer, "killer cannot be null."));
+        super(Preconditions.checkNotNull(killer, "killer cannot be null."), killer.getSession());
         this.victim = Preconditions.checkNotNull(victim, "victim cannot be null.");
     }
 
