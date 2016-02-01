@@ -24,6 +24,7 @@ import com.supaham.commons.bukkit.ServerShutdown.ServerShutdownEvent;
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.commands.common.CommonCommands;
+import com.supaham.commons.bukkit.listeners.PlayerListeners;
 import com.supaham.commons.state.State;
 
 import org.bukkit.event.EventHandler;
@@ -56,6 +57,7 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         ServerShutdown module = new ServerShutdown(getModuleContainer());
         getModuleContainer().register(module);
         module.setState(State.ACTIVE);
+        PlayerListeners.defaultSpeeds(this);
         registerEvents(this);
 
         this.blur = new Blur(this);
