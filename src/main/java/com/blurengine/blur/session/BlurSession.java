@@ -122,13 +122,22 @@ public abstract class BlurSession {
     }
 
     public void start() {
+        getLogger().info("Starting " + getClass().getName());
+        long startedAt = System.currentTimeMillis();
+        this.moduleManager.load();
+        this.moduleManager.enable();
+        getLogger().fine("BlurSession started in %dms", System.currentTimeMillis() - startedAt);
     }
 
     public void stop() {
+        getLogger().fine("Stopping " + getClass().getName());
+        long startedAt = System.currentTimeMillis();
+        
         this.childrenSessions.forEach(BlurSession::stop);
-        moduleManager.disable();
-        moduleManager.unload();
-        onStopTasks.forEach(Runnable::run);
+        this.moduleManager.disable();
+        this.moduleManager.unload();
+        this.onStopTasks.forEach(Runnable::run);
+        getLogger().fine("BlurSession stopped in %dms", System.currentTimeMillis() - startedAt);
     }
 
     public BlurPlayer getPlayer(Player player) {

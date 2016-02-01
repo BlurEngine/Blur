@@ -32,22 +32,4 @@ public class RootBlurSession extends BlurSession {
     public RootBlurSession(@Nonnull SessionManager manager) {
         super(Preconditions.checkNotNull(manager, "manager cannot be null."), null);
     }
-
-    @Override
-    public void start() {
-        getLogger().info("Starting " + getClass().getName());
-        long startedAt = System.currentTimeMillis();
-        this.moduleManager.load();
-        this.moduleManager.enable();
-        super.start();
-        getLogger().fine("RootSession started in %dms", System.currentTimeMillis() - startedAt);
-    }
-
-    @Override
-    public void stop() {
-        getLogger().info("Stopping " + getClass().getName());
-        super.stop();
-        this.moduleManager.disable();
-        this.moduleManager.unload();
-    }
 }
