@@ -69,7 +69,10 @@ public class SerializedModule {
     }
 
     public <T> void load(T dataClass) {
-        moduleLoader.deserializeTo(getAsMap(), dataClass);
+        // If data is not map or is empty then don't do anything.
+        if (object instanceof Map && getAsMap().size() > 0) {
+            moduleLoader.deserializeTo(getAsMap(), dataClass);
+        }
     }
 
     public <T> void loadToField(T dataClass, String fieldName) {
