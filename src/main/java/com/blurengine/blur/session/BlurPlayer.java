@@ -18,6 +18,7 @@ package com.blurengine.blur.session;
 
 import com.google.common.base.Preconditions;
 
+import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
 import com.supaham.commons.bukkit.text.FancyMessage;
@@ -32,12 +33,13 @@ import javax.annotation.Nonnull;
  */
 public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
 
-    private final BlurSession session;
+    private final BukkitPlayerManager manager;
+    private BlurSession blurSession;
     private boolean alive;
 
-    public BlurPlayer(@Nonnull Player player, @Nonnull BlurSession session) {
-        super(Preconditions.checkNotNull(player, "player cannot be null."));
-        this.session = Preconditions.checkNotNull(session, "session cannot be null.");
+    public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
+        super(player);
+        this.manager = Preconditions.checkNotNull(manager, "manager cannot be null.");
     }
 
     public void reset() {
@@ -70,15 +72,15 @@ public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
     }
 
     public void messagePrefix(String string, Object... args) {
-        message(new FancyMessage().append(session.getMessagePrefixMP()).append(String.format(string, args)));
+        message(new FancyMessage().append(blurSession.getMessagePrefixMP()).append(String.format(string, args)));
     }
 
     public void messagePrefix(FancyMessage fancyMessage) {
-        message(fancyMessage.add(0, session.getMessagePrefixMP()));
+        message(fancyMessage.add(0, blurSession.getMessagePrefixMP()));
     }
 
     public BlurSession getSession() {
-        return session;
+        return blurSession;
     }
 
     public boolean isAlive() {

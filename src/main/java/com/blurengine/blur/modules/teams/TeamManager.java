@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.teams;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.framework.InternalModule;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleLoader;
@@ -35,6 +36,7 @@ import java.util.Map;
  * reused in child {@link BlurSession}.
  */
 @ModuleInfo(name = "BlurTeamManager")
+@InternalModule
 public class TeamManager extends Module {
 
     public static final String FILTER_PREFIX = "team-";

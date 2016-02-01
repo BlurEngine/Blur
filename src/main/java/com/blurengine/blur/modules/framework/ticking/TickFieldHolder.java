@@ -17,6 +17,8 @@
 package com.blurengine.blur.modules.framework.ticking;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import com.blurengine.blur.modules.framework.InternalModule;
 import com.blurengine.blur.modules.framework.Module;
@@ -25,13 +27,20 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 @InternalModule
 @ModuleInfo(name = "TickFieldHolder")
 public class TickFieldHolder extends Module implements Runnable{
+
+    private static final Set<Class<?>> LOADED_CLASSES = new HashSet<>();
+    private static final Multimap<Class<?>, Field> FIELDS = HashMultimap.create();
 
     private final List<TickFieldGenerated> list = new ArrayList<>();
 
@@ -41,25 +50,37 @@ public class TickFieldHolder extends Module implements Runnable{
         // This is where the ticking happens
         newTask(this).interval((long) 1).build();
     }
+    
+    private static Collection<Field> load(Class<?> clazz) {
+        if (LOADED_CLASSES.contains(clazz)) {
+            return Collections.unmodifiableCollection(FIELDS.get(clazz));
+        }
 
-    public void load(@Nonnull Object object) {
-        Preconditions.checkNotNull(object, "object cannot be null.");
-        for (Field field : object.getClass().getDeclaredFields()) {
+        for (Field field : clazz.getDeclaredFields()) {
             TickField annotation = field.getDeclaredAnnotation(TickField.class);
             if (annotation != null) {
                 Preconditions.checkArgument(field.getType().isAssignableFrom(BAutoInt.class), "%s must by of type %s", field, BAutoInt.class.getName());
 
                 field.setAccessible(true);
-                try {
-                    TickFieldGenerated generated = new TickFieldGenerated((BAutoInt) field.get(object), annotation);
-                    field.set(object, generated);
-                    list.add(generated);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
+                FIELDS.put(clazz, field);
             }
         }
-        System.out.println();
+        LOADED_CLASSES.add(clazz);
+        return Collections.unmodifiableCollection(FIELDS.get(clazz));
+    }
+
+    public void load(@Nonnull Object object) {
+        Preconditions.checkNotNull(object, "object cannot be null.");
+        for (Field field : load(object.getClass())) {
+            TickField annotation = field.getDeclaredAnnotation(TickField.class);
+            try {
+                TickFieldGenerated generated = new TickFieldGenerated((BAutoInt) field.get(object), annotation);
+                field.set(object, generated);
+                list.add(generated);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

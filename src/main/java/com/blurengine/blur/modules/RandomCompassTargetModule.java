@@ -22,13 +22,12 @@ import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ticking.Tick;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
-import com.blurengine.blur.session.Tickable;
 import com.supaham.commons.bukkit.text.FancyMessage;
 
 import org.bukkit.Location;
 
 @ModuleInfo(name = "RandomCompassTarget")
-public class RandomCompassTargetModule extends Module implements Tickable {
+public class RandomCompassTargetModule extends Module {
 
     private BlurPlayer bait;
 

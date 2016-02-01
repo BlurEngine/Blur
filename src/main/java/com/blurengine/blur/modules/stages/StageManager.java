@@ -127,10 +127,6 @@ public class StageManager extends Module {
      * >> GETTERS / SETTERS
      * ================================ */
 
-    public ModuleManager getModuleManager() {
-        return moduleManager;
-    }
-
     public List<Stage> getStages() {
         return Collections.unmodifiableList(stages);
     }

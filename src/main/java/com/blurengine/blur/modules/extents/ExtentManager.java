@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.framework.InternalModule;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleLoader;
@@ -42,6 +43,7 @@ import javax.annotation.Nonnull;
  * reused in child {@link BlurSession}.
  */
 @ModuleInfo(name = "BlurExtentManager")
+@InternalModule
 public class ExtentManager extends Module {
 
     public static final String FILTER_PREFIX = "extent-";

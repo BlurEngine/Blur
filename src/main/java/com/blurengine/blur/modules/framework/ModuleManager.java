@@ -17,7 +17,8 @@
 package com.blurengine.blur.modules.framework;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -28,6 +29,9 @@ import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurSession;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
@@ -42,16 +46,39 @@ import pluginbase.logging.PluginLogger;
  */
 public class ModuleManager {
 
+    private static final Map<Class, Boolean> INTERNAL_MODULES = new HashMap<>();
+
     @Nullable private final ModuleManager parentManager;
     private final ModuleLoader moduleLoader;
     private final BlurSession session;
-    private final Multimap<Class<? extends Module>, Module> modules = HashMultimap.create();
+    private final ListMultimap<Class<? extends Module>, Module> modules = ArrayListMultimap.create();
 
-    private TickFieldHolder tickFieldholder;
+    private TickFieldHolder tickFieldHolder;
     private FilterManager filterManager;
     private ExtentManager extentManager;
     private TeamManager teamManager;
     private StageManager stageManager;
+
+    public static boolean isInternalModule(Module module) {
+        // CACHE
+        Boolean aBoolean = INTERNAL_MODULES.get(module.getClass());
+        if (aBoolean != null) {
+            return aBoolean;
+        }
+
+        // GENERATE CACHE
+        boolean found = false;
+        Class clazz = module.getClass();
+        do {
+            if (clazz.isAnnotationPresent(InternalModule.class)) {
+                found = true;
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        } while (!clazz.equals(Object.class));
+        INTERNAL_MODULES.put(module.getClass(), found);
+        return found;
+    }
 
     public ModuleManager(@Nonnull BlurSession session) {
         this.session = Preconditions.checkNotNull(session, "session cannot be null.");
@@ -76,7 +103,7 @@ public class ModuleManager {
 
     private void init() {
         // The following set of modules don't use addModule as actual modules depend on them.
-        this.modules.put(TickFieldHolder.class, this.tickFieldholder = new TickFieldHolder(this));
+        this.modules.put(TickFieldHolder.class, this.tickFieldHolder = new TickFieldHolder(this));
 
         addModule(filterManager = new FilterManager(this));
         addModule(extentManager = new ExtentManager(this));
@@ -87,7 +114,6 @@ public class ModuleManager {
     protected Module addModule(Module module) {
         Preconditions.checkNotNull(module, "module cannot be null.");
         this.modules.put(module.getClass(), module);
-        this.tickFieldholder.load(module);
         return module;
     }
 
@@ -96,28 +122,32 @@ public class ModuleManager {
         if (this.stageManager.getStages().isEmpty()) {
             this.stageManager.addDefaultStage();
         }
-
-        this.modules.values().stream().filter(module -> module.getState() == ModuleState.UNLOADED).forEach(this::loadModule);
+        this.modules.values().stream().filter(module -> module.getState() == ComponentState.UNLOADED).forEach(this::loadModule);
     }
 
     public void unload() {
-        this.modules.values().stream().filter(module -> module.getState() == ModuleState.LOADED).forEach(this::unloadModule);
+        this.modules.values().stream().filter(module -> module.getState() == ComponentState.LOADED).forEach(this::unloadModule);
     }
 
     public void enable() {
-        this.modules.values().stream().filter(module -> module.getState() == ModuleState.LOADED).forEach(this::enableModule);
+        this.modules.values().stream().filter(module -> module.getState() == ComponentState.LOADED).forEach(this::enableModule);
     }
 
     public void disable() {
-        this.modules.values().stream().filter(module -> module.getState() == ModuleState.ENABLED).forEach(this::disableModule);
+        this.modules.values().stream().filter(module -> module.getState() == ComponentState.ENABLED).forEach(this::disableModule);
     }
 
     public boolean loadModule(Module module) {
+        if (module.getState().isLoaded()) {
+            return false;
+        }
         String name = module.getClass().getName();
         try {
             name = checkName(module);
-            getLogger().fine("Loading module %s", name);
-            module.load();
+            if (!isInternalModule(module)) {
+                getLogger().fine("Loading module %s", name);
+            }
+            module.tryLoad();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
@@ -130,11 +160,16 @@ public class ModuleManager {
     }
 
     public boolean unloadModule(Module module) {
+        if (!module.getState().isLoaded()) {
+            return false;
+        }
         String name = module.getClass().getName();
         try {
             name = checkName(module);
-            getLogger().fine("Unloading module %s", name);
-            module.unload();
+            if (!isInternalModule(module)) {
+                getLogger().fine("Unloading module %s", name);
+            }
+            module.tryUnload();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
@@ -147,11 +182,16 @@ public class ModuleManager {
     }
 
     public boolean enableModule(Module module) {
+        if (module.getState() == ComponentState.ENABLED) {
+            return false;
+        }
         String name = module.getClass().getName();
         try {
             name = checkName(module);
-            getLogger().fine("Enabling module %s", name);
-            module.enable();
+            if (!isInternalModule(module)) {
+                getLogger().fine("Enabling module %s", name);
+            }
+            module.tryEnable();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
@@ -164,11 +204,18 @@ public class ModuleManager {
     }
 
     public boolean disableModule(Module module) {
+        // != ENABLED means either unloaded or loaded (which are both disabled state)
+        if (module.getState() != ComponentState.ENABLED) {
+            return false;
+        }
+
         String name = module.getClass().getName();
         try {
             name = checkName(module);
-            getLogger().fine("Disabling module %s", name);
-            module.disable();
+            if (!isInternalModule(module)) {
+                getLogger().fine("Disabling module %s", name);
+            }
+            module.tryDisable();
             return true;
         } catch (Exception e) {
             if (getLogger().getDebugLevel() == 0) {
@@ -179,9 +226,13 @@ public class ModuleManager {
         }
         return false;
     }
-    
+
+    // TODO Add boolean for skipping internal module check?
     private String checkName(Module module) {
         if (module.getModuleInfo() == null) {
+            if (isInternalModule(module)) {
+                return module.getClass().getSimpleName();
+            }
             throw new IllegalStateException(module.getClass().getName() + " must be annotated with @ModuleInfo and registered to ModuleLoader.");
         }
         return module.getModuleInfo().name();
@@ -207,10 +258,10 @@ public class ModuleManager {
      *
      * @return module instance, nullable
      */
-    @Nullable
-    public <T extends Module> T getModule(@Nonnull Class<T> clazz) {
+    @Nonnull
+    public <T extends Module> List<T> getModule(@Nonnull Class<T> clazz) {
         //noinspection unchecked
-        return (T) this.modules.get(Preconditions.checkNotNull(clazz, "clazz cannot be null."));
+        return (List<T>) this.modules.get(Preconditions.checkNotNull(clazz, "clazz cannot be null."));
     }
 
     /**
@@ -233,6 +284,10 @@ public class ModuleManager {
 
     public BlurSession getSession() {
         return session;
+    }
+
+    public TickFieldHolder getTickFieldHolder() {
+        return tickFieldHolder;
     }
 
     public FilterManager getFilterManager() {

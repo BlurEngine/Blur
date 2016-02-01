@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * ModuleManager is already designed for and capable of doing such tasks. This eliminates the need for creating those extra boilerplate methods and
  * clutter the ModuleManager with their usages.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface InternalModule {
 }

@@ -28,6 +28,7 @@ import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
 import com.supaham.commons.bukkit.text.FancyMessage;
 import com.supaham.commons.bukkit.text.MessagePart;
 import com.supaham.commons.bukkit.utils.EventUtils;
+import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -82,6 +83,7 @@ public abstract class BlurSession {
     private final BlurSession parentSession;
     private final Set<BlurSession> childrenSessions = new HashSet<>();
     private File rootDirectory = new File(".");
+    private String name = getClass().getSimpleName(); // Default session name to short class name
 
     private final CommonScoreboard scoreboard;
     private boolean paused;
@@ -122,40 +124,46 @@ public abstract class BlurSession {
     }
 
     public void start() {
-        getLogger().info("Starting " + getClass().getName());
+        getLogger().info("Starting %s", getName());
         long startedAt = System.currentTimeMillis();
         this.moduleManager.load();
         this.moduleManager.enable();
-        getLogger().fine("BlurSession started in %dms", System.currentTimeMillis() - startedAt);
+        getLogger().fine("%s started in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
 
     public void stop() {
-        getLogger().fine("Stopping " + getClass().getName());
+        getLogger().fine("Stopping %s", getName());
         long startedAt = System.currentTimeMillis();
-        
+
         this.childrenSessions.forEach(BlurSession::stop);
         this.moduleManager.disable();
         this.moduleManager.unload();
         this.onStopTasks.forEach(Runnable::run);
-        getLogger().fine("BlurSession stopped in %dms", System.currentTimeMillis() - startedAt);
+        getLogger().fine("%s stopped in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
 
     public BlurPlayer getPlayer(Player player) {
-        return getPlayer(player.getUniqueId());
+        return getPlayer(player.getUniqueId()).orElse(null); // 99.9% this will never be null as a Player is always online and has a BlurPlayer instance.
     }
 
-    public BlurPlayer getPlayer(UUID uuid) {
-        return this.players.get(uuid);
+    public Optional<BlurPlayer> getPlayer(UUID uuid) {
+        return Optional.ofNullable(this.players.get(uuid));
     }
 
     public void addPlayer(BlurPlayer blurPlayer) {
-        this.players.put(blurPlayer.getUuid(), blurPlayer);
-        callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
+        if (!this.players.containsKey(blurPlayer.getUuid())) {
+            getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
+            this.players.put(blurPlayer.getUuid(), blurPlayer);
+            callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
+        }
     }
 
     public void removePlayer(BlurPlayer blurPlayer) {
-        this.players.remove(blurPlayer.getUuid());
-        callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
+        if (this.players.containsKey(blurPlayer.getUuid())) {
+            getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
+            this.players.remove(blurPlayer.getUuid());
+            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
+        }
     }
 
     public void broadcastMessage(@Nonnull String message, Object... args) {
@@ -224,6 +232,17 @@ public abstract class BlurSession {
         this.rootDirectory = Preconditions.checkNotNull(rootDirectory, "rootDirectory cannot be null.");
     }
 
+    @Nonnull
+    public String getName() {
+        return name;
+    }
+
+    public void setName(@Nonnull String name) {
+        name = name.trim();
+        StringUtils.checkNotNullOrEmpty(name, "name");
+        this.name = name + " session";
+    }
+
     public CommonScoreboard getScoreboard() {
         return scoreboard;
     }
@@ -260,12 +279,13 @@ public abstract class BlurSession {
         return sessionManager.getBlur();
     }
 
-    @Nullable
-    public <T extends Module> T getModule(@Nonnull Class<T> clazz) {
+    @Nonnull
+    public <T extends Module> List<T> getModule(@Nonnull Class<T> clazz) {
         return moduleManager.getModule(Preconditions.checkNotNull(clazz, "clazz cannot be null."));
     }
 
     public <T extends Event> T callEvent(@Nonnull T event) {
+        getLogger().finest("Calling %s ", event.getClass().getSimpleName());
         return EventUtils.callEvent(Preconditions.checkNotNull(event, "event cannot be null."));
     }
 

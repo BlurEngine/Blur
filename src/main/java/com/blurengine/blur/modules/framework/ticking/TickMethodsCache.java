@@ -20,8 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import com.blurengine.blur.modules.framework.ticking.Tick;
-import com.blurengine.blur.session.Tickable;
 import com.blurengine.blur.utils.TaskBuilder;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.utils.ReflectionUtils;
@@ -33,7 +31,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -41,17 +41,23 @@ import javax.annotation.Nonnull;
 
 public final class TickMethodsCache {
 
-    private static final Multimap<Class<?>, TickMethod> classTickMethods = HashMultimap.create();
+    /**
+     * HashSet of classes that loadClass has been invoked with. The reason for this isntead of just CLASS_TICK_METHODS is that if the result of 
+     * TickMethods is empty, the Multimap#containsKey will return false. So this ensures that all iterated classes are cached and accessible for
+     * performance.
+     */
+    private static final Set<Class<?>> LOADED_CLASSES = new HashSet<>();
+    private static final Multimap<Class<?>, TickMethod> CLASS_TICK_METHODS = HashMultimap.create();
 
     /**
-     * Loads a {@link Tickable} class and generates {@link TaskBuilder}s of the {@code tickable}'s relevant methods. All given TaskBuilders require
+     * Loads a Tickable class and generates {@link TaskBuilder}s of the {@code tickable}'s relevant methods. All given TaskBuilders require
      * the plugin to be set.
      *
      * @param tickable tickable to load task builders for.
      *
      * @return mutable collection of {@link TaskBuilder}
      */
-    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(@Nonnull Tickable tickable) {
+    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(@Nonnull Object tickable) {
         Preconditions.checkNotNull(tickable, "tickable cannot be null.");
         return loadClass(tickable.getClass()).stream().map(t -> t.toBuilder(tickable)).collect(Collectors.toList());
     }
@@ -67,17 +73,18 @@ public final class TickMethodsCache {
      */
     public static Collection<TickMethod> loadClass(@Nonnull Class<?> clazz) throws IllegalArgumentException {
         Preconditions.checkNotNull(clazz, "clazz cannot be null.");
-        Preconditions.checkArgument(!clazz.equals(Tickable.class), "Cannot register class Tickable.");
-        if (!classTickMethods.containsKey(clazz)) {
+        if (!LOADED_CLASSES.contains(clazz)) {
+
+            Collection<TickMethod> tickMethods = CLASS_TICK_METHODS.get(clazz); // empty cache list, automatically updates
+
             { // Load superclasses first
                 Class<?> superclass = clazz.getSuperclass();
                 // No need for while loop as loadClass will end up reaching here if necessary.
-                if (!superclass.equals(Tickable.class) && superclass.isAssignableFrom(Tickable.class)) {
-                    loadClass(superclass);
+                if (!superclass.equals(Object.class)) {
+                    tickMethods.addAll(loadClass(superclass));
                 }
             }
 
-            Collection<TickMethod> tickMethods = classTickMethods.get(clazz); // empty cache list, automatically updates
             for (Method method : clazz.getDeclaredMethods()) {
                 TickMethod tickMethod = getTickMethod(clazz, method);
                 if (tickMethod != null) {
@@ -103,8 +110,9 @@ public final class TickMethodsCache {
                     }
                 }
             }
+            LOADED_CLASSES.add(clazz);
         }
-        return Collections.unmodifiableCollection(classTickMethods.get(clazz));
+        return Collections.unmodifiableCollection(CLASS_TICK_METHODS.get(clazz));
     }
 
     // It's important to use Class and not depend on the method class as subclasses might have modified overridden methods
@@ -116,7 +124,7 @@ public final class TickMethodsCache {
         // Loop over clazz and its superclasses
         for (Class superclass : superclasses) {
             // find and iterate over the current class' tick methods, if it has any.
-            for (TickMethod tickMethod : classTickMethods.get(superclass)) {
+            for (TickMethod tickMethod : CLASS_TICK_METHODS.get(superclass)) {
                 // if the superclass TickMethod has the same method as ours, return it.
                 if (ReflectionUtils.sameMethodSignature(method, tickMethod.method)) {
                     return tickMethod;
@@ -138,14 +146,14 @@ public final class TickMethodsCache {
             this.tick = Preconditions.checkNotNull(tick, "tick cannot be null.");
         }
 
-        public TaskBuilder toBuilder(@Nonnull Tickable tickable) {
+        public TaskBuilder toBuilder(@Nonnull Object tickable) {
             Preconditions.checkNotNull(tickable, "tickable cannot be null.");
             long delay = TimeUtils.parseDurationMs(tick.delay());
             long interval = TimeUtils.parseDurationMs(tick.interval());
             return new TaskBuilder().run((task) -> invoke(tickable, task)).delay(delay).interval(interval).async(tick.async());
         }
 
-        private void invoke(Tickable tickable, TickerTask task) {
+        private void invoke(Object tickable, TickerTask task) {
             try {
                 if (!this.passParams) {
                     this.method.invoke(tickable);

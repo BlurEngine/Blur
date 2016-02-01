@@ -30,13 +30,17 @@ import com.blurengine.blur.modules.goal.GoalModule;
 import com.blurengine.blur.modules.goal.LastPlayerAliveWinnerModule;
 import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.includes.IncludesModule;
+import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
 import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
+import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.SessionManager;
 import com.supaham.commons.bukkit.CommonPlugin;
 import com.supaham.commons.bukkit.modules.ModuleContainer;
+
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -50,12 +54,14 @@ public class Blur {
     private final CommonPlugin plugin;
     private final ModuleContainer moduleContainer;
     private final SessionManager sessionManager;
+    private final BlurPlayerManager playerManager;
     private final PluginLogger logger;
 
     public Blur(@Nonnull CommonPlugin plugin) {
         this.plugin = Preconditions.checkNotNull(plugin, "plugin cannot be null.");
         this.moduleContainer = new ModuleContainer(plugin.getModuleContainer());
         this.sessionManager = new SessionManager(this);
+        this.playerManager = new BlurPlayerManager(plugin);
         this.logger = plugin.getLog();
     }
 
@@ -82,6 +88,7 @@ public class Blur {
         ModuleLoader.register(LastPlayerAliveWinnerModule.class);
         ModuleLoader.register(LastTeamAliveWinnerModule.class);
         ModuleLoader.register(GoalModule.class);
+        ModuleLoader.register(LobbyModule.class);
     }
 
     public CommonPlugin getPlugin() {
@@ -94,6 +101,26 @@ public class Blur {
 
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    private BlurPlayerManager getPlayerManager() {
+        return playerManager;
+    }
+
+    /**
+     * Returns a {@link BlurPlayer} instance for a {@link Player}. If the {@code player} doesn't have an instance, one is immediately created and
+     * returned.
+     * 
+     * @param player bukkit player to get BlurPlayer from
+     * @return BlurPlayer instance
+     */
+    @Nonnull
+    public BlurPlayer getPlayer(@Nonnull Player player) {
+        BlurPlayer blurPlayer = getPlayerManager().getPlayer(player);
+        if (blurPlayer == null) {
+            blurPlayer = getPlayerManager().createPlayer(player);
+        }
+        return blurPlayer;
     }
 
     public PluginLogger getLogger() {

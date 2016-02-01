@@ -18,9 +18,9 @@ package com.blurengine.blur.modules.maploading;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.properties.BlurConfig;
 import com.blurengine.blur.session.WorldBlurSession;
-import com.blurengine.blur.BlurSettings;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleData;
@@ -79,6 +79,7 @@ public class MapLoaderModule extends Module {
         super(moduleManager);
         this.rootDirectory = rootDirectory;
         this.mapPaths = new ArrayList<>(mapPaths);
+        getLogger().fine("Found maps %s", Joiner.on(", ").function(f -> ((File)f).getName()).join(mapPaths));
         this.random = random;
         this.archiver = archive == null ? null : new LocalArchiver(this, archive);
     }
@@ -86,15 +87,23 @@ public class MapLoaderModule extends Module {
     @Override
     public void load() {
         super.load();
+
         if (this.mapPaths.isEmpty()) {
             getLogger().warning("No maps to load!");
             return;
         }
+
+        // FIXME Temporary hack to allow LobbyModule to load the maps in it's own way.
+        if (!getModuleManager().getModule(LobbyModule.class).isEmpty()) {
+            return;
+        }
+
         try {
             File file = nextMap();
             WorldBlurSession newSession = createSessionFromDirectory(file);
+            newSession.start();
             sessions.add(newSession);
-            getLogger().info("Next map " + file.getName());
+            getLogger().fine("Next map " + file.getName());
         } catch (MapLoadException e) {
             e.printStackTrace();
         }
@@ -153,9 +162,8 @@ public class MapLoaderModule extends Module {
 
         // Create and load map config
         WorldBlurSession newSession = getSession().addChildSession(new WorldBlurSession(getSession(), world));
+        newSession.setName(file.getName());
         newSession.getModuleManager().getModuleLoader().load(config.getModules());
-        newSession.getModuleManager().load();
-        newSession.getModuleManager().enable();
         return newSession;
     }
 

@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.filters;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.framework.InternalModule;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleInfo;
@@ -35,6 +36,7 @@ import java.util.UUID;
  * reused in child {@link BlurSession}.
  */
 @ModuleInfo(name = "BlurFilterManager")
+@InternalModule
 public class FilterManager extends Module {
 
     private Map<String, Filter> filters = new HashMap<>();
