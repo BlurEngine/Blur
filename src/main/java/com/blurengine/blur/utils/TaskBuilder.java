@@ -85,11 +85,12 @@ public class TaskBuilder {
         return interval(interval == null ? null : interval.toMillis());
     }
 
-    public TaskBuilder interval(Long interval, TimeUnit unit) {
-        return interval(interval == null ? null : TimeUnit.MILLISECONDS.convert(interval, unit));
+    public TaskBuilder interval(long interval, @Nonnull TimeUnit unit) {
+        Preconditions.checkNotNull(unit, "unit cannot be null.");
+        return interval(TimeUnit.MILLISECONDS.convert(interval, unit));
     }
 
-    public TaskBuilder interval(Long interval) {
+    public TaskBuilder interval(long interval) {
         this.interval = interval;
         return this;
     }
