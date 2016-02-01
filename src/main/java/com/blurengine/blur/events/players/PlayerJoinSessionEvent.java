@@ -30,8 +30,8 @@ import javax.annotation.Nonnull;
  */
 public class PlayerJoinSessionEvent extends BlurPlayerEvent {
 
-    public PlayerJoinSessionEvent(@Nonnull BlurPlayer blurPlayer) {
-        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."));
+    public PlayerJoinSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
     }
 
     private static final HandlerList handlerList = new HandlerList();

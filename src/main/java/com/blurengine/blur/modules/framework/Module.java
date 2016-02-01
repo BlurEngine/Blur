@@ -364,7 +364,7 @@ public abstract class Module implements Listener, Tickable {
      * ================================ */
 
     public boolean isSession(BlurSessionEvent sessionEvent) {
-        return isSession(sessionEvent.getBlurSession());
+        return isSession(sessionEvent.getSession());
     }
 
     public boolean isSession(BlurSession session) {

@@ -20,6 +20,9 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.session.BlurSessionEvent;
 import com.blurengine.blur.session.BlurPlayer;
+import com.blurengine.blur.session.BlurSession;
+
+import javax.annotation.Nonnull;
 
 /**
  * Represents a {@link BlurPlayer} event.
@@ -28,8 +31,8 @@ public abstract class BlurPlayerEvent extends BlurSessionEvent {
 
     protected final BlurPlayer blurPlayer;
 
-    public BlurPlayerEvent(BlurPlayer blurPlayer) {
-        super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.").getSession());
+    public BlurPlayerEvent(BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+        super(Preconditions.checkNotNull(session, "session cannot be null."));
         this.blurPlayer = blurPlayer;
     }
 

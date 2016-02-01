@@ -34,7 +34,7 @@ public abstract class BlurSessionEvent extends Event {
         this.blurSession = blurSession;
     }
 
-    public BlurSession getBlurSession() {
+    public BlurSession getSession() {
         return blurSession;
     }
 }

@@ -139,10 +139,12 @@ public abstract class BlurSession {
 
     public void addPlayer(BlurPlayer blurPlayer) {
         this.players.put(blurPlayer.getUuid(), blurPlayer);
+        callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
     }
 
     public void removePlayer(BlurPlayer blurPlayer) {
         this.players.remove(blurPlayer.getUuid());
+        callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
     }
 
     public void broadcastMessage(@Nonnull String message, Object... args) {
