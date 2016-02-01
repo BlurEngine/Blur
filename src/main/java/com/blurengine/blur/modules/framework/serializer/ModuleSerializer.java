@@ -52,6 +52,12 @@ public class ModuleSerializer implements BlurSerializer<Module> {
         // Module is represented by name:data, where data is only relayed to the ModuleLoader.
         if (serialized instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) serialized;
+            // A map might be empty if someone forgot to remove a colon, e.g. `MyModule:` instead of `MyModule`. This code handles that case of an
+            // empty map and passes empty data.
+            // For some reason, the deserializer doesn't seem to return _key_ with null as the value.
+            // FIXME!
+            Preconditions.checkArgument(!map.isEmpty(), "A module data seems to be empty, Did you leave a trailing colon (:) somewhere?");
+
             Preconditions.checkArgument(map.size() == 1, "Serialized module must be a map of one entry.");
             Entry<String, Object> next = map.entrySet().iterator().next();
             moduleName = next.getKey().trim();
