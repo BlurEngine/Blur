@@ -82,6 +82,16 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
     // Cleanup blur during shutdown.
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onServerShutdown(ServerShutdownEvent event) {
+        cleanup();
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+        cleanup();
+    }
+    
+    private void cleanup() {
         if (this.rootSession != null) {
             this.rootSession.stop();
         }
