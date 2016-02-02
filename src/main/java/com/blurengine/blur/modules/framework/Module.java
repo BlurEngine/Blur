@@ -23,7 +23,9 @@ import com.blurengine.blur.modules.stages.StageManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -37,7 +39,7 @@ import javax.annotation.Nonnull;
 public abstract class Module extends AbstractComponent {
 
     private final ModuleInfo moduleInfo;
-    private final List<Component> subcomponents = new ArrayList<>();
+    private final Set<Component> subcomponents = new HashSet<>();
 
     public Module(ModuleManager moduleManager) {
         super(moduleManager);
