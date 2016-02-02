@@ -22,10 +22,12 @@ import com.blurengine.blur.Blur;
 import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
+import com.blurengine.blur.events.session.SessionEnableEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleManager;
+import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
 import com.supaham.commons.bukkit.text.FancyMessage;
 import com.supaham.commons.bukkit.text.MessagePart;
@@ -88,6 +90,8 @@ public abstract class BlurSession {
     private String name = getClass().getSimpleName(); // Default session name to short class name
 
     private final CommonScoreboard scoreboard;
+    private boolean enabled;
+    private boolean started;
     private boolean paused;
 
     private final Map<UUID, BlurPlayer> players = new HashMap<>();
@@ -125,18 +129,33 @@ public abstract class BlurSession {
         return session;
     }
 
-    public void start() {
-        getLogger().info("Starting %s", getName());
+    public void enable() {
+        getLogger().fine("Enabling %s", getName());
         long startedAt = System.currentTimeMillis();
         this.moduleManager.load();
         this.moduleManager.enable();
+        this.enabled = true;
+        // Delay event by a tick to give the server time to catch up if it took too long loading the session.
+        new TickerTask(getBlur().getPlugin(), 1, () -> callEvent(new SessionEnableEvent(this))).start();
+        getLogger().fine("%s enabled in %dms", getName(), System.currentTimeMillis() - startedAt);
+    }
+
+    public void start() {
+        if (!this.enabled) {
+            enable();
+        }
+        getLogger().fine("Starting %s", getName());
+        long startedAt = System.currentTimeMillis();
         callEvent(new SessionStartEvent(this));
+        this.started = true;
         getLogger().fine("%s started in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
 
     public void stop() {
         getLogger().fine("Stopping %s", getName());
         long startedAt = System.currentTimeMillis();
+        this.enabled = false;
+        this.started = false;
         callEvent(new SessionStopEvent(this));
         this.childrenSessions.forEach(BlurSession::stop);
         this.moduleManager.disable();
@@ -251,6 +270,14 @@ public abstract class BlurSession {
 
     public CommonScoreboard getScoreboard() {
         return scoreboard;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
     public boolean isPaused() {
