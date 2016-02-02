@@ -16,28 +16,22 @@
 
 package com.blurengine.blur.events.session;
 
-import com.google.common.base.Preconditions;
-
 import com.blurengine.blur.session.BlurSession;
 
-import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 
-/**
- * Represents a {@link BlurSession} event.
- */
-public abstract class BlurSessionEvent extends Event {
+public class SessionStartEvent extends BlurSessionEvent {
 
-    protected final BlurSession blurSession;
-
-    public BlurSessionEvent(@Nonnull BlurSession blurSession) {
-        Preconditions.checkNotNull(blurSession, "session cannot be null.");
-        this.blurSession = blurSession;
+    public SessionStartEvent(@Nonnull BlurSession blurSession) {
+        super(blurSession);
     }
 
-    @Nonnull
-    public BlurSession getSession() {
-        return blurSession;
-    }
+    private static final HandlerList handlerList = new HandlerList();
+
+    @Override
+    public HandlerList getHandlers() { return handlerList; }
+
+    public static HandlerList getHandlerList() { return handlerList; }
 }
