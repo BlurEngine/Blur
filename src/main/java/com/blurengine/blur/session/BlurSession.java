@@ -145,7 +145,8 @@ public abstract class BlurSession {
         getLogger().fine("%s stopped in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
 
-    public BlurPlayer getPlayer(Player player) {
+    public BlurPlayer getPlayer(@Nonnull Player player) {
+        Preconditions.checkNotNull(player, "player cannot be null.");
         return getPlayer(player.getUniqueId()).orElse(null); // 99.9% this will never be null as a Player is always online and has a BlurPlayer instance.
     }
 
@@ -153,7 +154,8 @@ public abstract class BlurSession {
         return Optional.ofNullable(this.players.get(uuid));
     }
 
-    public void addPlayer(BlurPlayer blurPlayer) {
+    public void addPlayer(@Nonnull BlurPlayer blurPlayer) {
+        Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (!this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
@@ -161,7 +163,8 @@ public abstract class BlurSession {
         }
     }
 
-    public void removePlayer(BlurPlayer blurPlayer) {
+    public void removePlayer(@Nonnull BlurPlayer blurPlayer) {
+        Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
             this.players.remove(blurPlayer.getUuid());
