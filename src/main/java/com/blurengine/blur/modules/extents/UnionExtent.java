@@ -17,11 +17,13 @@
 package com.blurengine.blur.modules.extents;
 
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 /**
  * Represents a Union of {@link Extent}s which helps for grouping multiple Extents in one. 
@@ -48,9 +50,19 @@ public class UnionExtent implements Extent {
         return false;
     }
 
+    @Override
+    public double getVolume() {
+        return -1; // TODO write code.
+    }
+
+    @Override
+    public Vector getRandomLocation(Random random) {
+        return extents.stream().findAny().map(e -> e.getRandomLocation(random)).orElse(null);
+    }
+
     /*
-     * Possibly bad practice but next() depends on hasNext() being called.
-     */
+         * Possibly bad practice but next() depends on hasNext() being called.
+         */
     @Override
     public Iterator<BlockVector> iterator() {
         return new Iterator<BlockVector>() {

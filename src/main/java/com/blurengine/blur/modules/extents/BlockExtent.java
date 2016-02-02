@@ -21,9 +21,11 @@ import com.google.common.base.Preconditions;
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
 
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
 
@@ -45,6 +47,16 @@ public class BlockExtent implements Extent {
         return x >= vector.getBlockX() && x < vector.getBlockX() + 1 &&
             y >= vector.getBlockY() && y < vector.getBlockY() + 1 &&
             z >= vector.getBlockZ() && z < vector.getBlockZ() + 1;
+    }
+
+    @Override
+    public double getVolume() {
+        return 1;
+    }
+
+    @Override
+    public Vector getRandomLocation(Random random) {
+        return vector.toBlockVector().add(new Vector(0.5, 0, 0.5));
     }
 
     @Override

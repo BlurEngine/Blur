@@ -18,11 +18,15 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.supaham.commons.bukkit.utils.VectorUtils;
+import com.supaham.commons.utils.RandomUtils;
+
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
 
@@ -46,6 +50,19 @@ public class CuboidExtent implements Extent {
         return x >= min.getBlockX() && x < max.getBlockX() + 1 &&
             y >= min.getBlockY() && y < max.getBlockY() + 1 &&
             z >= min.getBlockZ() && z < max.getBlockZ() + 1;
+    }
+
+    @Override
+    public double getVolume() {
+        return (max.getX() - min.getX()) * (max.getY() - min.getY()) * (max.getZ() - min.getZ());
+    }
+
+    @Override
+    public Vector getRandomLocation(Random random) {
+        double x = RandomUtils.nextDouble(min.getX(), max.getX());
+        double y = RandomUtils.nextDouble(min.getY(), max.getY());
+        double z = RandomUtils.nextDouble(min.getZ(), max.getZ());
+        return new Vector(x, y, z);
     }
 
     @Override

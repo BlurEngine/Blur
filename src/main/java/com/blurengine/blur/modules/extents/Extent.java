@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.filters.Filter;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
+import com.supaham.commons.utils.RandomUtils;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -28,6 +29,7 @@ import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
 
@@ -106,6 +108,14 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      * @return whether {@code x}, {@code y}, {@code z} are within this extent
      */
     boolean contains(double x, double y, double z);
+    
+    double getVolume();
+    
+    default Vector getRandomLocation() {
+        return getRandomLocation(RandomUtils.getRandom());
+    }
+
+    Vector getRandomLocation(Random random);
 
     /**
      * Returns whether this Extent has any boundaries.

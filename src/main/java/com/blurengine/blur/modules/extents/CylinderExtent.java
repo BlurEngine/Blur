@@ -21,8 +21,10 @@ import com.google.common.base.Preconditions;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
 
@@ -47,6 +49,23 @@ public class CylinderExtent implements Extent {
             return false;
         }
         return Math.pow(x - base.getX(), 2) + Math.pow(z - base.getZ(), 2) < radius * radius;
+    }
+
+    @Override
+    public double getVolume() {
+        return Math.PI * radius * radius * height;
+    }
+
+    @Override
+    public Vector getRandomLocation(Random random) {
+        double x = base.getX();
+        double z = base.getZ();
+
+        double rAngle = random.nextDouble() * 360;
+        double rLength = Math.pow(random.nextDouble(), 0.5) * radius; // sqrt double to evenly distribute the random location.
+        double rX = x + rLength * Math.cos(rAngle);
+        double rZ = z + rLength * Math.sin(rAngle);
+        return new Vector(rX, base.getY() + random.nextDouble() * height, rZ);
     }
 
     @Override
