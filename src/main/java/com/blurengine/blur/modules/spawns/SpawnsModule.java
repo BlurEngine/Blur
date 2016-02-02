@@ -47,12 +47,14 @@ public class SpawnsModule extends Module {
 
         @Name("default")
         private Spawn defaultSpawn = Spawn.ZERO;
-        @SerializeWith(ListSpawnSerializer.class)
-        private List<Spawn> spawns = new ArrayList<>();
+        private SpawnList spawns = new SpawnList();
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
             serialized.load(this);
+
+            checkNotNull(defaultSpawn, "default cannot be null.");
+            checkNotNull(spawns, "spawns cannot be null.");
             return new SpawnsModule(moduleManager, this);
         }
     }
