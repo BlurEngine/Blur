@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.session.WorldBlurSession;
 
+import org.bukkit.World;
+
 /**
  * World Module framework base class. Upon extending this class, you will need to annotate the extension with {@link ModuleInfo} to tell the framework
  * how to load this module from the config file. Immediately after implementation, ensure that the class is also registered to the
@@ -37,5 +39,9 @@ public class WorldModule extends Module {
     @Override
     public WorldBlurSession getSession() {
         return (WorldBlurSession) super.getSession();
+    }
+
+    public World getWorld() {
+        return getSession().getWorld();
     }
 }
