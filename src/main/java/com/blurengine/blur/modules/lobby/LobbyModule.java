@@ -97,7 +97,12 @@ public class LobbyModule extends WorldModule {
             getSession().getPlayersStream().forEach(childSession::addPlayer);
 
             // Make the wheels on the bus go round and round.
-            childSession.start();
+            childSession.enable();
+            if (!data.delay.isZero()) {
+                newTask(childSession::start).delay(data.delay).build();
+            } else {
+                childSession.start();
+            }
             this.childrenSessions.add(childSession);
         } catch (MapLoadException e) {
             e.printStackTrace();
@@ -108,6 +113,9 @@ public class LobbyModule extends WorldModule {
     public static final class LobbyData implements ModuleData {
 
         private Duration countdown = Duration.ZERO;
+        @Name("delay-start-session")
+        private Duration delay = Duration.ZERO;
+
         @Name("required-players")
         private int requiredPlayers = 1;
         private int games = 1;
