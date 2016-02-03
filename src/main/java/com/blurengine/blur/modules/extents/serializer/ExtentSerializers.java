@@ -16,9 +16,9 @@
 
 package com.blurengine.blur.modules.extents.serializer;
 
-import com.blurengine.blur.modules.extents.CylinderExtent;
 import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.CuboidExtent;
+import com.blurengine.blur.modules.extents.CylinderExtent;
 import com.blurengine.blur.modules.extents.UnionExtent;
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
@@ -75,7 +75,11 @@ final class ExtentSerializers {
         @Override
         public CylinderExtent deserialize(Object serialized) throws IllegalArgumentException {
             Map<?, ?> map = (Map) serialized;
-            return new CylinderExtent(new ImmutableVector(getVector(map, "base")), getDouble(map, "radius"), getDouble(map, "height"));
+            Double height = (Double) map.get("height");
+            if (height == null) {
+                height = 0D;
+            }
+            return new CylinderExtent(new ImmutableVector(getVector(map, "base")), getDouble(map, "radius"), height);
         }
     }
 
