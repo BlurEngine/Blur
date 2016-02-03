@@ -18,9 +18,7 @@ package com.blurengine.blur.modules.maploading;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.lobby.LobbyModule;
-import com.blurengine.blur.properties.BlurConfig;
-import com.blurengine.blur.session.WorldBlurSession;
+import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleData;
@@ -28,7 +26,10 @@ import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule.MapLoaderData;
+import com.blurengine.blur.properties.BlurConfig;
+import com.blurengine.blur.session.WorldBlurSession;
 import com.supaham.commons.Joiner;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.CollectionUtils;
@@ -80,7 +81,7 @@ public class MapLoaderModule extends Module {
         super(moduleManager);
         this.rootDirectory = rootDirectory;
         this.mapPaths = new ArrayList<>(mapPaths);
-        getLogger().fine("Found maps %s", Joiner.on(", ").function(f -> ((File)f).getName()).join(mapPaths));
+        getLogger().fine("Found maps %s", Joiner.on(", ").function(f -> ((File) f).getName()).join(mapPaths));
         this.random = random;
         this.archiver = archive == null ? null : new LocalArchiver(this, archive);
     }
@@ -117,10 +118,17 @@ public class MapLoaderModule extends Module {
     }
 
     private void unloadMap(WorldBlurSession session) {
-        Bukkit.unloadWorld(session.getWorld(), true);
+        // Does the given session belong to us?
+        if (!this.sessions.contains(session)) {
+            return; // Probably a case where the session was unloaded already
+        }
+        getLogger().fine("Unloading %s from MapLoader.", session.getName());
+        World world = session.getWorld();
+        world.getPlayers().forEach(player -> player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation())); // TODO change fixed world.
+        Bukkit.unloadWorld(world, true);
         boolean canDelete = true;
 
-        File worldFolder = session.getWorld().getWorldFolder();
+        File worldFolder = world.getWorldFolder();
         if (this.archiver != null) {
             canDelete = this.archiver.archive(worldFolder);
         }
@@ -225,7 +233,7 @@ public class MapLoaderModule extends Module {
             }
 
             // Direct list of map (directory) names
-            if(rawMaps instanceof String) { // Single map in the form of a string
+            if (rawMaps instanceof String) { // Single map in the form of a string
                 addStrings(moduleManager.getLogger(), Stream.of((String) rawMaps));
             } else if (rawMaps instanceof List) {
                 addStrings(moduleManager.getLogger(), ((List<String>) rawMaps).stream());
