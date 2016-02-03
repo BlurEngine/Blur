@@ -130,6 +130,9 @@ public abstract class BlurSession {
     }
 
     public void enable() {
+        if (enabled) {
+            return;
+        }
         getLogger().fine("Enabling %s", getName());
         long startedAt = System.currentTimeMillis();
         this.moduleManager.load();
@@ -152,6 +155,9 @@ public abstract class BlurSession {
     }
 
     public void stop() {
+        if (!started) {
+            return;
+        }
         getLogger().fine("Stopping %s", getName());
         long startedAt = System.currentTimeMillis();
         this.enabled = false;
