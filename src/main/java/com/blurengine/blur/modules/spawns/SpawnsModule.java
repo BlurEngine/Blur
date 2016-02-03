@@ -16,6 +16,9 @@
 
 package com.blurengine.blur.modules.spawns;
 
+import com.google.common.base.Preconditions;
+
+import com.blurengine.blur.BlurPlugin;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.framework.Module;
@@ -25,14 +28,20 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.framework.WorldModule;
+import com.blurengine.blur.modules.extents.UnionExtent;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.serializers.SpawnList;
 import com.blurengine.blur.session.BlurPlayer;
+import com.sk89q.intake.Command;
 
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 import pluginbase.config.annotation.Name;
 
@@ -44,6 +53,10 @@ public class SpawnsModule extends WorldModule {
     public SpawnsModule(ModuleManager moduleManager, SpawnsData data) {
         super(moduleManager);
         this.data = data;
+        if (getLogger().getDebugLevel() >= 2) {
+            getSession().getBlur().getPlugin().getCommandsManager().builder().registerMethods(new Commands());
+            getSession().getBlur().getPlugin().getCommandsManager().build();
+        }
     }
 
     @EventHandler
@@ -138,5 +151,15 @@ public class SpawnsModule extends WorldModule {
                 map.remove("spawn-on-start");
             }
         }
+    }
+
+    public static class Commands {
+        @Command(aliases = {"spawn"}, desc = "spawn")
+        public void spawn(CommandSender sender) {
+            BlurPlayer blurPlayer = BlurPlugin.get().getBlur().getPlayer(((Player) sender));
+            SpawnsModule spawnsModule = blurPlayer.getSession().getModule(SpawnsModule.class).get(0);
+            spawnsModule.spawnPlayer(blurPlayer);
+        }
+
     }
 }
