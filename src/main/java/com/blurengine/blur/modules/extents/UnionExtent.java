@@ -16,14 +16,19 @@
 
 package com.blurengine.blur.modules.extents;
 
+import com.supaham.commons.utils.CollectionUtils;
+
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Represents a Union of {@link Extent}s which helps for grouping multiple Extents in one. 
@@ -57,7 +62,7 @@ public class UnionExtent implements Extent {
 
     @Override
     public Vector getRandomLocation(Random random) {
-        return extents.stream().findAny().map(e -> e.getRandomLocation(random)).orElse(null);
+        return CollectionUtils.getRandomElement(extents).getRandomLocation(random);
     }
 
     /*
