@@ -19,6 +19,8 @@ package com.blurengine.blur.modules.lobby;
 import com.blurengine.blur.countdown.AbstractCountdown;
 import com.blurengine.blur.countdown.GlobalGameCountdown;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
+import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
+import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.modules.framework.Module;
 import com.blurengine.blur.modules.framework.ModuleData;
 import com.blurengine.blur.modules.framework.ModuleInfo;
@@ -29,6 +31,7 @@ import com.blurengine.blur.modules.framework.WorldModule;
 import com.blurengine.blur.modules.lobby.LobbyModule.LobbyData;
 import com.blurengine.blur.modules.maploading.MapLoadException;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
+import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.session.WorldBlurSession;
@@ -71,6 +74,24 @@ public class LobbyModule extends WorldModule {
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         if (isSession(event)) {
             checkAndStart();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerLeaveSession(PlayerLeaveSessionEvent event) {
+        if (isSession(event)) {
+            this.countdown.stop();
+        }
+    }
+
+    /*
+     * Teleport players to the lobby when a session created by this lobby is shutdown.
+     */
+    @EventHandler
+    public void onSessionStop(SessionStopEvent event) {
+        if (getSession().getChildrenSessions().contains(event.getSession())) {
+            SpawnsModule spawns = getSession().getModule(SpawnsModule.class).get(0);
+            event.getSession().getPlayers().values().forEach(spawns::spawnPlayer);
         }
     }
 
