@@ -38,6 +38,7 @@ import com.blurengine.blur.session.WorldBlurSession;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -67,6 +68,14 @@ public class LobbyModule extends WorldModule {
             getSession().addPlayer(blurPlayer);
         } else {
             getLogger().warning("LobbyModule can't handle more than one game at a time yet.");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        BlurPlayer blurPlayer = getSession().getBlur().getPlayer(event.getPlayer());
+        if (getPlayers().contains(blurPlayer)) {
+            getSession().removePlayer(blurPlayer);
         }
     }
 
