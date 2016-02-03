@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.event.EventHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -130,6 +131,13 @@ public class MapLoaderModule extends Module {
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to delete " + worldFolder.getPath(), e);
             }
+        }
+    }
+
+    @EventHandler
+    public void onSessionStop(SessionStopEvent event) {
+        if (event.getSession() instanceof WorldBlurSession && this.sessions.contains(event.getSession())) {
+            event.getSession().addOnStopTask(() -> unloadMap((WorldBlurSession) event.getSession()));
         }
     }
 
