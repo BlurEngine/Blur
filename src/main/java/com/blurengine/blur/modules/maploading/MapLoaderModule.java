@@ -162,6 +162,7 @@ public class MapLoaderModule extends Module {
 
         // Create and load map config
         WorldBlurSession newSession = getSession().addChildSession(new WorldBlurSession(getSession(), world));
+        sessions.add(newSession);
         newSession.setName(file.getName());
         newSession.getModuleManager().getModuleLoader().load(config.getModules());
         return newSession;
