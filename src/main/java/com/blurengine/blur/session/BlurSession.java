@@ -184,6 +184,7 @@ public abstract class BlurSession {
         if (!this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
+            blurPlayer.blurSession = this;
             callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
         }
     }
@@ -192,7 +193,14 @@ public abstract class BlurSession {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
+            // If a player is removed from this session, all children should not have the same player.
+            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
             this.players.remove(blurPlayer.getUuid());
+            if (getParentSession() instanceof RootBlurSession) {
+                blurPlayer.blurSession = null;
+            } else {
+                blurPlayer.blurSession = getParentSession();
+            }
             callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
         }
     }

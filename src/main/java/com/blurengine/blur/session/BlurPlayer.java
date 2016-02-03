@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
 
     private final BukkitPlayerManager manager;
-    private BlurSession blurSession;
+    BlurSession blurSession;
     private boolean alive;
 
     public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
