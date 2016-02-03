@@ -25,6 +25,7 @@ import com.blurengine.blur.modules.framework.ModuleInfo;
 import com.blurengine.blur.modules.framework.ModuleManager;
 import com.blurengine.blur.modules.framework.ModuleParseException;
 import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.modules.framework.WorldModule;
 import com.blurengine.blur.modules.lobby.LobbyModule.LobbyData;
 import com.blurengine.blur.modules.maploading.MapLoadException;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
@@ -42,7 +43,7 @@ import java.util.List;
 import pluginbase.config.annotation.Name;
 
 @ModuleInfo(name = "Lobby", dataClass = LobbyData.class)
-public class LobbyModule extends Module {
+public class LobbyModule extends WorldModule {
 
     private final LobbyData data;
     private final List<BlurSession> childrenSessions = new ArrayList<>();
@@ -102,11 +103,6 @@ public class LobbyModule extends Module {
             e.printStackTrace();
             getSession().stop(); // Stop session because of the map load failure.
         }
-    }
-
-    @Override
-    public WorldBlurSession getSession() {
-        return ((WorldBlurSession) super.getSession());
     }
 
     public static final class LobbyData implements ModuleData {
