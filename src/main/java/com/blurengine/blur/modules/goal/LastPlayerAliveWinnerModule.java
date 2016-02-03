@@ -17,9 +17,9 @@
 package com.blurengine.blur.modules.goal;
 
 import com.blurengine.blur.events.players.PlayerDeathEvent;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.modules.goal.Winner.PlayerWinner;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;

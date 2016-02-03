@@ -16,7 +16,7 @@
 
 package com.blurengine.blur.countdown;
 
-import com.blurengine.blur.modules.framework.Component;
+import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.session.BlurPlayer;
 
 /**

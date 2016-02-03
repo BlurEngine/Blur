@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework;
 
-public class ModuleParseException extends Exception {
+/**
+ * Represents the loading type of a {@link Module} to expand its capability.
+ */
+public enum ModuleLoadType {
 
-    public ModuleParseException(String message) {
-        super(message);
-    }
+    /**
+     * Allow modules to load prior to the minecraft world being loaded. This is typically used to modify the world generation.
+     */
+    PRE_WORLD,
+    /**
+     * Allow the module to load only after the world is loaded.
+     */
+    POST_WORLD;
 }

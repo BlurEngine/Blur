@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework;
 
 /**
  * This is an empty interface meant to identify classes that are created by a {@link Module} to store configurable data.

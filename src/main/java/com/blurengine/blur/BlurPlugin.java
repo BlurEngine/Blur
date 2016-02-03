@@ -18,7 +18,7 @@ package com.blurengine.blur;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleManager;
 import com.supaham.commons.bukkit.ServerShutdown;
 import com.supaham.commons.bukkit.ServerShutdown.ServerShutdownEvent;
 import com.supaham.commons.bukkit.SimpleCommonPlugin;

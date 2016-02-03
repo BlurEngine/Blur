@@ -16,7 +16,7 @@
 
 package com.blurengine.blur.countdown;
 
-import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.SingleSound;
 

@@ -19,7 +19,7 @@ package com.blurengine.blur.modules.extents.serializer;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.extents.Extent;
-import com.blurengine.blur.modules.framework.BlurSerializer;
+import com.blurengine.blur.framework.BlurSerializer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

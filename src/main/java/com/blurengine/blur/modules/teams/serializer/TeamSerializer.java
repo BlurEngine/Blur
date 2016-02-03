@@ -18,9 +18,9 @@ package com.blurengine.blur.modules.teams.serializer;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.BlurSerializer;
+import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.modules.teams.NametagVisibility;
-import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
 import com.supaham.commons.serializers.ListSerializer;

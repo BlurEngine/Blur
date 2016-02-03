@@ -17,13 +17,13 @@
 package com.blurengine.blur.modules;
 
 import com.blurengine.blur.modules.extents.Extent;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ModuleParseException;
-import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleParseException;
+import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.BoundariesModule.BoundariesData;
-import com.blurengine.blur.modules.framework.ModuleData;
+import com.blurengine.blur.framework.ModuleData;
 
 @ModuleInfo(name = "Boundaries", dataClass = BoundariesData.class)
 public class BoundariesModule extends Module {

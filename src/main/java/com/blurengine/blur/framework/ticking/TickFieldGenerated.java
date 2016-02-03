@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.ticking;
+package com.blurengine.blur.framework.ticking;
 
 final class TickFieldGenerated implements BAutoInt, Runnable {
 

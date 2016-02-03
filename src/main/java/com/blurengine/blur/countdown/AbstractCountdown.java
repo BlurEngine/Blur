@@ -18,9 +18,9 @@ package com.blurengine.blur.countdown;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.AbstractComponent;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ticking.Tick;
+import com.blurengine.blur.framework.AbstractComponent;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ticking.Tick;
 
 /**
  * Represents a countdown object.

@@ -22,10 +22,10 @@ import com.google.common.collect.ImmutableMap;
 
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.FilterManager;
-import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.filters.lexer.FilterRecursiveDescentParser;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializers.Team;
-import com.blurengine.blur.modules.framework.BlurSerializer;
+import com.blurengine.blur.framework.BlurSerializer;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.serializers.ListSerializer;
 import com.supaham.commons.utils.ArrayUtils;

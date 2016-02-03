@@ -18,12 +18,12 @@ package com.blurengine.blur.modules.filters;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.InternalModule;
+import com.blurengine.blur.framework.InternalModule;
 import com.blurengine.blur.session.BlurSession;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleLoader;
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleLoader;
+import com.blurengine.blur.framework.ModuleManager;
 
 import java.util.Collection;
 import java.util.Collections;

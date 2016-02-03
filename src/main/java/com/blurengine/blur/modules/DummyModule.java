@@ -16,12 +16,12 @@
 
 package com.blurengine.blur.modules;
 
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ticking.BAutoInt;
-import com.blurengine.blur.modules.framework.ticking.Tick;
-import com.blurengine.blur.modules.framework.ticking.TickField;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ticking.BAutoInt;
+import com.blurengine.blur.framework.ticking.Tick;
+import com.blurengine.blur.framework.ticking.TickField;
 
 /**
  * Dummy module to test module functionality.

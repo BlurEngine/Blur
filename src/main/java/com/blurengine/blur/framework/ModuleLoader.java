@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -25,8 +25,8 @@ import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
-import com.blurengine.blur.modules.framework.serializer.ModuleNotFoundException;
-import com.blurengine.blur.modules.framework.serializer.ModuleSerializer;
+import com.blurengine.blur.framework.serializer.ModuleNotFoundException;
+import com.blurengine.blur.framework.serializer.ModuleSerializer;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.serializer.BlurTeam;

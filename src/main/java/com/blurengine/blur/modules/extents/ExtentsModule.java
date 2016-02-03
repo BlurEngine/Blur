@@ -16,20 +16,17 @@
 
 package com.blurengine.blur.modules.extents;
 
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleData;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ModuleParseException;
-import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleData;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleParseException;
+import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.extents.ExtentsModule.ExtentsData;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializer.ListExtentSerializer;
 import com.blurengine.blur.serializers.ExtentList;
 
 import java.util.List;
-
-import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Extent} and nothing else. Intended for user convenience.

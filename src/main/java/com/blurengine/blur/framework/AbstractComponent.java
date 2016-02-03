@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import com.blurengine.blur.countdown.Countdown;
-import com.blurengine.blur.modules.framework.ticking.TickFieldHolder;
-import com.blurengine.blur.modules.framework.ticking.TickMethodsCache;
-import com.blurengine.blur.session.BlurSession;
+import com.blurengine.blur.framework.ticking.TickFieldHolder;
+import com.blurengine.blur.framework.ticking.TickMethodsCache;
 import com.supaham.commons.bukkit.TickerTask;
 
 import org.bukkit.event.Listener;

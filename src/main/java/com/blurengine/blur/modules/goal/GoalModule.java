@@ -17,12 +17,12 @@
 package com.blurengine.blur.modules.goal;
 
 import com.blurengine.blur.events.players.PlayerDeathEvent;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleData;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ModuleParseException;
-import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleData;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleParseException;
+import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.modules.goal.GoalModule.GoalModuleData;

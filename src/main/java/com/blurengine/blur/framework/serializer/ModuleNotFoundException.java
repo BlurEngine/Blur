@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.serializers;
+package com.blurengine.blur.framework.serializer;
 
 import com.blurengine.blur.framework.Module;
-import com.blurengine.blur.framework.serializer.ListModuleSerializer;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import pluginbase.config.annotation.SerializeWith;
 
 /**
- * Represents an {@link ArrayList} of {@link Module} specifically designed for easy serialization.
+ * Represents a {@link RuntimeException} that is thrown when a {@link Module} could not be found by the given name, accessible through 
+ * {@link #getName()}.
  */
-@SerializeWith(ListModuleSerializer.class)
-public class ModuleList extends ArrayList<Module> {
+public class ModuleNotFoundException extends RuntimeException {
 
-    public ModuleList(int initialCapacity) {
-        super(initialCapacity);
+    private String name;
+
+    public ModuleNotFoundException(String name) {
+        this.name = name;
     }
 
-    public ModuleList() {
-    }
-
-    public ModuleList(Collection<? extends Module> c) {
-        super(c);
+    public String getName() {
+        return name;
     }
 }

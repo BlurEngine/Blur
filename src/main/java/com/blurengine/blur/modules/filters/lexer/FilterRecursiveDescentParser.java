@@ -22,7 +22,7 @@ import com.google.common.collect.Iterators;
 
 import com.blurengine.blur.modules.filters.Filters;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
-import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.filters.Filter;
 
 import java.util.Collection;

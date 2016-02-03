@@ -18,8 +18,7 @@ package com.blurengine.blur.serializers;
 
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer.ListFilterSerializer;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.serializer.ListModuleSerializer;
+import com.blurengine.blur.framework.Module;
 
 import java.util.ArrayList;
 import java.util.Collection;

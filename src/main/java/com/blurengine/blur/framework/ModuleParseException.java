@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.serializer;
+package com.blurengine.blur.framework;
 
-import com.blurengine.blur.modules.framework.Module;
-import com.supaham.commons.serializers.ListSerializer;
+public class ModuleParseException extends Exception {
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import pluginbase.config.serializers.SerializerSet;
-
-/**
- * Represents a List accepting serializer version of {@link ModuleSerializer}.
- */
-public class ListModuleSerializer extends ListSerializer<Module> {
-
-    @Override
-    public Class<Module> getTypeClass() {
-        return Module.class;
+    public ModuleParseException(String message) {
+        super(message);
     }
 }

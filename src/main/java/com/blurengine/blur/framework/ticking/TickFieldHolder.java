@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.ticking;
+package com.blurengine.blur.framework.ticking;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import com.blurengine.blur.modules.framework.InternalModule;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.InternalModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

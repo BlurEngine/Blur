@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.serializer;
+package com.blurengine.blur.framework.serializer;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.BlurSerializer;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.framework.BlurSerializer;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.includes.IncludesModule.IncludesData;
 
 import org.jetbrains.annotations.NotNull;

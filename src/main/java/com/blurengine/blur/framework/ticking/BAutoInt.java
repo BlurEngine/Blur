@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.ticking;
+package com.blurengine.blur.framework.ticking;
 
 /**
  * Represents a mutable integer supplier interface. This is used in conjunction with {@link TickField} to create automatically ticking fields for

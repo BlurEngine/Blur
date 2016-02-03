@@ -17,21 +17,16 @@
 package com.blurengine.blur.modules.teams;
 
 import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleData;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ModuleParseException;
-import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleData;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleParseException;
+import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.teams.TeamsModule.TeamsData;
-import com.blurengine.blur.modules.teams.serializer.BlurTeam;
-import com.blurengine.blur.modules.teams.serializer.TeamSerializer.ListTeamSerializer;
 import com.blurengine.blur.serializers.TeamList;
 
-import java.util.List;
 import java.util.Map;
-
-import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Filter} and nothing else. Intended for user convenience.

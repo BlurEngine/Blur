@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
-import com.blurengine.blur.modules.framework.BlurSerializer;
-import com.blurengine.blur.modules.framework.ModuleLoader;
+import com.blurengine.blur.framework.BlurSerializer;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.supaham.commons.serializers.ListSerializer;
 

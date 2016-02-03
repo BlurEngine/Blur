@@ -18,9 +18,9 @@ package com.blurengine.blur.modules.stages;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.session.BlurSession;
-import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.framework.Module;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework.ticking;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Represents the loading type of a {@link Module} to expand its capability.
+ * Represents a method that ticks.
  */
-public enum ModuleLoadType {
-
-    /**
-     * Allow modules to load prior to the minecraft world being loaded. This is typically used to modify the world generation.
-     */
-    PRE_WORLD,
-    /**
-     * Allow the module to load only after the world is loaded.
-     */
-    POST_WORLD;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Tick {
+    
+    String delay() default "0";
+    String interval() default "50ms";
+    boolean async() default false;
 }

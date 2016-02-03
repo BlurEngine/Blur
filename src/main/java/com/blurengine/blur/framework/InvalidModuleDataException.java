@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework;
+package com.blurengine.blur.framework;
 
 /**
  * Represents an exception that is thrown when a {@link ModuleData} receives invalid data.

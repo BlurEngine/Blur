@@ -20,12 +20,12 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.framework.Module;
-import com.blurengine.blur.modules.framework.ModuleData;
-import com.blurengine.blur.modules.framework.ModuleInfo;
-import com.blurengine.blur.modules.framework.ModuleManager;
-import com.blurengine.blur.modules.framework.ModuleParseException;
-import com.blurengine.blur.modules.framework.SerializedModule;
+import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.framework.ModuleData;
+import com.blurengine.blur.framework.ModuleInfo;
+import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleParseException;
+import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule.MapLoaderData;
 import com.blurengine.blur.properties.BlurConfig;

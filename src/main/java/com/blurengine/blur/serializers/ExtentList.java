@@ -18,7 +18,7 @@ package com.blurengine.blur.serializers;
 
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer.ListExtentSerializer;
-import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.framework.Module;
 
 import java.util.ArrayList;
 import java.util.Collection;

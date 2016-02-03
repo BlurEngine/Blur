@@ -18,7 +18,7 @@ package com.blurengine.blur.session;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.framework.ModuleManager;
+import com.blurengine.blur.framework.ModuleManager;
 
 import org.bukkit.World;
 

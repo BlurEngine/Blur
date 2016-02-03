@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.framework.serializer;
+package com.blurengine.blur.framework.serializer;
 
-import com.blurengine.blur.modules.framework.Module;
+import com.blurengine.blur.framework.Module;
+import com.supaham.commons.serializers.ListSerializer;
 
 /**
- * Represents a {@link RuntimeException} that is thrown when a {@link Module} could not be found by the given name, accessible through 
- * {@link #getName()}.
+ * Represents a List accepting serializer version of {@link ModuleSerializer}.
  */
-public class ModuleNotFoundException extends RuntimeException {
+public class ListModuleSerializer extends ListSerializer<Module> {
 
-    private String name;
-
-    public ModuleNotFoundException(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
+    @Override
+    public Class<Module> getTypeClass() {
+        return Module.class;
     }
 }
