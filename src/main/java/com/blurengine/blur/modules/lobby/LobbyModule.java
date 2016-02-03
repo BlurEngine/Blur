@@ -89,7 +89,9 @@ public class LobbyModule extends WorldModule {
     @EventHandler
     public void onPlayerLeaveSession(PlayerLeaveSessionEvent event) {
         if (isSession(event)) {
-            this.countdown.stop();
+            if (this.countdown != null) {
+                this.countdown.stop();
+            }
         }
     }
 
