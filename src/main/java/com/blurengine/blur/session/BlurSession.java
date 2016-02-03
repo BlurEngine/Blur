@@ -303,6 +303,16 @@ public abstract class BlurSession {
     public Collection<Runnable> getOnStopTasks() {
         return Collections.unmodifiableCollection(onStopTasks);
     }
+
+    public boolean addOnStopTask(@Nonnull Runnable runnable) {
+        Preconditions.checkNotNull(runnable, "runnable cannot be null.");
+        return this.onStopTasks.add(runnable);
+    }
+
+    public boolean removeOnStopTask(@Nonnull Runnable runnable) {
+        Preconditions.checkNotNull(runnable, "runnable cannot be null.");
+        return this.onStopTasks.remove(runnable);
+    }
     
     /* ================================
      * >> DELEGATE METHODS
