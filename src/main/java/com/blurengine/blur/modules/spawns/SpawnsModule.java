@@ -66,11 +66,14 @@ public class SpawnsModule extends WorldModule {
         }
     }
 
-    public void spawnPlayer(BlurPlayer blurPlayer) {
+    public void spawnPlayer(@Nonnull BlurPlayer blurPlayer) {
         spawnPlayer(blurPlayer, getNextSpawn());
     }
 
-    public void spawnPlayer(BlurPlayer blurPlayer, Spawn spawn) {
+    public void spawnPlayer(@Nonnull BlurPlayer blurPlayer, @Nonnull Spawn spawn) {
+        Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
+        Preconditions.checkNotNull(spawn, "spawn cannot be null.");
+
         Location location = spawn.getExtent().getRandomLocation().toLocation(getSession().getWorld());
         getLogger().finer("Spawning %s at %s", blurPlayer.getName(), location);
         blurPlayer.teleport(location);
