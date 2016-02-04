@@ -23,8 +23,14 @@ import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.spawns.Spawn;
+import com.blurengine.blur.modules.spawns.SpawnDirection;
+import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
+import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
+import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
+import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.serializers.ListSerializer;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,8 +75,17 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
     public Spawn deserializeMapToSpawn(Extent extent, Map<String, Object> map) {
         Preconditions.checkArgument(!map.isEmpty(), "given map is empty.");
 
+        SpawnData destination = new SpawnData(extent);
         // Pass the given extent argument as a default for SpawnData in case the _map_ doesn't have an extent override.
-        return moduleLoader.deserializeTo(map, new SpawnData(extent)).toSpawn();
+        if (map.containsKey("yaw") || map.containsKey("pitch")) {
+            Object yaw = map.get("yaw");
+            Object pitch = map.get("pitch");
+            destination.direction = new FixedSpawnDirection(yaw == null ? 0 : Float.parseFloat(yaw.toString()),
+                pitch == null ? 0 : Float.parseFloat(pitch.toString()));
+        } else if(map.containsKey("point-to")) {
+            destination.direction = new PointToSpawnDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
+        }
+        return moduleLoader.deserializeTo(map, destination).toSpawn();
     }
 
     public Spawn deserializeSingleMapEntryToSpawn(Map<String, Object> map) {
@@ -132,10 +147,8 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
 
     private static class SpawnData {
 
-        @SerializeWith(ExtentSerializer.class)
         private Extent extent;
-        private float yaw;
-        private float pitch;
+        private transient SpawnDirection direction = NullSpawnDirection.INSTANCE;
 
         private SpawnData() {}
 
@@ -144,7 +157,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
         }
 
         public Spawn toSpawn() {
-            return new Spawn(extent, yaw, pitch);
+            return new Spawn(extent, direction);
         }
     }
 }

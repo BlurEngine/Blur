@@ -28,16 +28,18 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.framework.WorldModule;
-import com.blurengine.blur.modules.extents.UnionExtent;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.serializers.SpawnList;
 import com.blurengine.blur.session.BlurPlayer;
 import com.sk89q.intake.Command;
+import com.supaham.commons.utils.CollectionUtils;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.Map;
 
@@ -79,6 +81,14 @@ public class SpawnsModule extends WorldModule {
         }
     }
 
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        BlurPlayer blurPlayer = getSession().getPlayer(event.getPlayer());
+        if (isSession(blurPlayer.getSession())) {
+            event.setRespawnLocation(getNextSpawnLocationFor(event.getPlayer()));
+        }
+    }
+
     public void spawnPlayer(@Nonnull BlurPlayer blurPlayer) {
         spawnPlayer(blurPlayer, getNextSpawn());
     }
@@ -87,13 +97,20 @@ public class SpawnsModule extends WorldModule {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         Preconditions.checkNotNull(spawn, "spawn cannot be null.");
 
-        Location location = spawn.getExtent().getRandomLocation().toLocation(getSession().getWorld());
+        Location location = getNextSpawnLocationFor(blurPlayer.getPlayer());
         getLogger().finer("Spawning %s at %s", blurPlayer.getName(), location);
         blurPlayer.teleport(location);
     }
 
     public Spawn getNextSpawn() {
-        return data.spawns.stream().findAny().orElse(null);
+        return CollectionUtils.getRandomElement(data.spawns);
+    }
+
+    public Location getNextSpawnLocationFor(Entity entity) {
+        Spawn spawn = getNextSpawn();
+        Location location = spawn.getExtent().getRandomLocation().toLocation(getSession().getWorld());
+        spawn.getSpawnDirection().applyTo(location, entity);
+        return location;
     }
 
     public static final class SpawnsData implements ModuleData {

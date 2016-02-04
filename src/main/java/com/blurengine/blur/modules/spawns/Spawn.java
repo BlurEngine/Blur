@@ -16,8 +16,15 @@
 
 package com.blurengine.blur.modules.spawns;
 
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.Extent;
+import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
+
+import org.bukkit.Location;
+
+import javax.annotation.Nonnull;
 
 /**
  * Represents a spawnpoint used by {@link SpawnsModule}.
@@ -27,29 +34,22 @@ public class Spawn {
     public static final Spawn ZERO = new Spawn(BlockExtent.ZERO);
 
     private final Extent extent;
-    // TODO add support for point-to, allowing dynamic directions
-    private float yaw;
-    private float pitch;
+    private final SpawnDirection spawnDirection;
 
-    public Spawn(Extent extent) {
-        this.extent = extent;
+    public Spawn(@Nonnull Extent extent) {
+        this(extent, NullSpawnDirection.INSTANCE);
     }
 
-    public Spawn(Extent extent, float yaw, float pitch) {
-        this.extent = extent;
-        this.yaw = yaw;
-        this.pitch = pitch;
+    public Spawn(@Nonnull Extent extent, @Nonnull SpawnDirection spawnDirection) {
+        this.extent = Preconditions.checkNotNull(extent, "extent cannot be null.");
+        this.spawnDirection = Preconditions.checkNotNull(spawnDirection, "spawnDirection cannot be null.");
     }
-
+    
     public Extent getExtent() {
         return extent;
     }
 
-    public float getYaw() {
-        return yaw;
-    }
-
-    public float getPitch() {
-        return pitch;
+    public SpawnDirection getSpawnDirection() {
+        return spawnDirection;
     }
 }
