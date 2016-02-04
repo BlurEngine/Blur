@@ -75,11 +75,9 @@ final class ExtentSerializers {
         @Override
         public CylinderExtent deserialize(Object serialized) throws IllegalArgumentException {
             Map<?, ?> map = (Map) serialized;
-            Double height = (Double) map.get("height");
-            if (height == null) {
-                height = 0D;
-            }
-            return new CylinderExtent(new ImmutableVector(getVector(map, "base")), getDouble(map, "radius"), height);
+            Object height = map.get("height");
+            height = height == null ? 0D : Double.parseDouble(height.toString());
+            return new CylinderExtent(new ImmutableVector(getVector(map, "base")), getDouble(map, "radius"), (Double) height);
         }
     }
 
