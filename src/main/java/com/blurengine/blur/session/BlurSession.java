@@ -85,6 +85,7 @@ public abstract class BlurSession {
     protected final SessionManager sessionManager;
     protected final ModuleManager moduleManager;
     private final BlurSession parentSession;
+    private final BlurSessionListener listener = new BlurSessionListener(this);
     private final Set<BlurSession> childrenSessions = new HashSet<>();
     private File rootDirectory = new File(".");
     private String name = getClass().getSimpleName(); // Default session name to short class name
@@ -135,6 +136,7 @@ public abstract class BlurSession {
         }
         getLogger().fine("Enabling %s", getName());
         long startedAt = System.currentTimeMillis();
+        getBlur().getPlugin().registerEvents(this.listener);
         this.moduleManager.load();
         this.moduleManager.enable();
         this.enabled = true;
@@ -166,6 +168,7 @@ public abstract class BlurSession {
         this.childrenSessions.forEach(BlurSession::stop);
         this.moduleManager.disable();
         this.moduleManager.unload();
+        getBlur().getPlugin().unregisterEvents(this.listener);
         this.onStopTasks.forEach(Runnable::run);
         getLogger().fine("%s stopped in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
