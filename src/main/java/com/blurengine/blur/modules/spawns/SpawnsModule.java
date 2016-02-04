@@ -50,13 +50,15 @@ import pluginbase.config.annotation.Name;
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
 public class SpawnsModule extends WorldModule {
 
+    private static Commands COMMANDS;
     private final SpawnsData data;
 
     public SpawnsModule(ModuleManager moduleManager, SpawnsData data) {
         super(moduleManager);
         this.data = data;
-        if (getLogger().getDebugLevel() >= 2) {
-            getSession().getBlur().getPlugin().getCommandsManager().builder().registerMethods(new Commands());
+        if (getLogger().getDebugLevel() >= 2 && COMMANDS == null) {
+            COMMANDS = new Commands();
+            getSession().getBlur().getPlugin().getCommandsManager().builder().registerMethods(COMMANDS);
             getSession().getBlur().getPlugin().getCommandsManager().build();
         }
     }
@@ -171,6 +173,7 @@ public class SpawnsModule extends WorldModule {
     }
 
     public static class Commands {
+
         @Command(aliases = {"spawn"}, desc = "spawn")
         public void spawn(CommandSender sender) {
             BlurPlayer blurPlayer = BlurPlugin.get().getBlur().getPlayer(((Player) sender));
