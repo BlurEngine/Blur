@@ -179,7 +179,7 @@ public class ModuleLoader {
                 if (!accessible) {
                     ctor.setAccessible(false);
                 }
-                return module;
+                return moduleManager.addModule(module);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 Throwable t = e;
                 if (e.getCause() != null) {
