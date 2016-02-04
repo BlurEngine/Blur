@@ -98,6 +98,9 @@ public class SpawnsModule extends WorldModule {
     public void spawnPlayer(@Nonnull BlurPlayer blurPlayer, @Nonnull Spawn spawn) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         Preconditions.checkNotNull(spawn, "spawn cannot be null.");
+        if (blurPlayer.getPlayer().isDead()) {
+            blurPlayer.getPlayer().spigot().respawn();
+        }
 
         Location location = getNextSpawnLocationFor(blurPlayer.getPlayer());
         getLogger().finer("Spawning %s at %s", blurPlayer.getName(), location);
