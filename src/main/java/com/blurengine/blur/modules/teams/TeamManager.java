@@ -122,4 +122,13 @@ public class TeamManager extends Module {
     public Collection<BlurTeam> getTeams() {
         return Collections.unmodifiableCollection(teams.values());
     }
+
+    @EventHandler
+    public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
+        // TODO make initial team setting optional. E.g. if they game has already started, set them to spectators only.
+        if (isSession(event.getSession()) && getSpectatorTeam() != null) { // spectator team is null because this might be root session.
+            getTeams().stream().filter(t -> !t.equals(getSpectatorTeam())).collect(CommonCollectors.singleRandom()).get()
+                .addPlayer(event.getBlurPlayer());
+        }
+    }
 }
