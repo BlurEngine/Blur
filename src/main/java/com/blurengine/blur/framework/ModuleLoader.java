@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import com.blurengine.blur.BlurPlugin;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.modules.filters.Filter;
@@ -80,6 +81,10 @@ public class ModuleLoader {
         Preconditions.checkNotNull(moduleClass, "moduleClass cannot be null.");
         if (dataClasses.containsKey(moduleClass)) {
             return false;
+        }
+        
+        if(moduleClass.isAnnotationPresent(Deprecated.class)) {
+            BlurPlugin.get().getLog().warning("Registering deprecated class to ModuleLoader: %s", moduleClass.getName());
         }
 
         ModuleInfo annotation = moduleClass.getDeclaredAnnotation(ModuleInfo.class);
