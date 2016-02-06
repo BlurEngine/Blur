@@ -18,7 +18,7 @@ package com.blurengine.blur.modules.teams.events;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.teams.SessionTeam;
+import com.blurengine.blur.modules.teams.BlurTeam;
 
 import org.bukkit.event.HandlerList;
 
@@ -26,14 +26,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Called when a {@link SessionTeam}'s name changes.
+ * Called when a {@link BlurTeam}'s name changes.
  */
 public class TeamRenameEvent extends TeamEvent {
 
     private String oldName;
     private String newName;
 
-    public TeamRenameEvent(@Nonnull SessionTeam team, @Nonnull String oldName, @Nullable String newName) {
+    public TeamRenameEvent(@Nonnull BlurTeam team, @Nonnull String oldName, @Nullable String newName) {
         super(team);
         this.oldName = Preconditions.checkNotNull(oldName, "oldName cannot be null.");
         this.newName = Preconditions.checkNotNull(newName, "newName cannot be null.");

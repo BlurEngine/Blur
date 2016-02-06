@@ -18,7 +18,7 @@ package com.blurengine.blur.serializers;
 
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.framework.Module;
-import com.blurengine.blur.modules.teams.serializer.TeamSerializer.ListTeamSerializer;
+import com.blurengine.blur.modules.teams.TeamSerializer.ListTeamSerializer;
 
 import java.util.ArrayList;
 import java.util.Collection;

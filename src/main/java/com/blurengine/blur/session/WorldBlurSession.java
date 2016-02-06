@@ -19,6 +19,9 @@ package com.blurengine.blur.session;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.modules.teams.PlayersTeam;
+import com.blurengine.blur.modules.teams.SpectatorTeam;
+import com.blurengine.blur.modules.teams.TeamManager;
 
 import org.bukkit.World;
 
@@ -35,12 +38,23 @@ public class WorldBlurSession extends BlurSession {
     public WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world) {
         super(Preconditions.checkNotNull(parentSession, "parentSession cannot be null."), null);
         this.world = Preconditions.checkNotNull(world, "world cannot be null.");
+        init();
     }
 
     private WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world, @Nonnull ModuleManager moduleManager) {
         super(Preconditions.checkNotNull(parentSession, "parentSession cannot be null."),
             Preconditions.checkNotNull(moduleManager, "moduleManager cannot be null."));
         this.world = Preconditions.checkNotNull(world, "world cannot be null.");
+        init();
+    }
+
+    private void init() {
+        TeamManager teamManager = getModuleManager().getTeamManager();
+        teamManager.setSpectatorTeam(new SpectatorTeam(teamManager));
+
+        if (teamManager.getTeams().size() == 1) { // Spectator only
+            teamManager.registerTeam(new PlayersTeam(teamManager));
+        }
     }
 
     public WorldBlurSession createChildSession(@Nonnull World world) {

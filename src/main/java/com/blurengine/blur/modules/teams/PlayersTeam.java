@@ -19,11 +19,11 @@ package com.blurengine.blur.modules.teams;
 /**
  * Represents a {@link BlurTeam} designed for spectating players.
  */
-public class SpectatorTeam extends BlurTeam {
+public class PlayersTeam extends BlurTeam {
 
-    public static final String TEAM_ID = "spectators";
+    public static final String TEAM_ID = "players";
 
-    public SpectatorTeam(TeamManager manager) {
-        super(manager, BlurTeam.builder().id(TEAM_ID).name("Spectators").max(9001).maxOverfill(9001));
+    public PlayersTeam(TeamManager manager) {
+        super(manager, BlurTeam.builder().id(TEAM_ID).name("Players").max(9001).maxOverfill(9001));
     }
 }

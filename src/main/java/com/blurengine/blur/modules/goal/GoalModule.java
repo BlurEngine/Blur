@@ -24,6 +24,7 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.teams.SpectatorTeam;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.modules.goal.GoalModule.GoalModuleData;
 import com.supaham.commons.utils.DurationUtils;
@@ -59,7 +60,7 @@ public class GoalModule extends Module {
             Integer deaths = this.deaths.getOrDefault(bp, 0);
             this.deaths.put(bp, ++deaths);
             if (deaths >= lives) {
-                // TODO set player team.
+                getModuleManager().getTeamManager().getSpectatorTeam().addPlayer(bp);
             }
         }
     }

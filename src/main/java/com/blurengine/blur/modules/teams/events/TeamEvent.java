@@ -18,22 +18,22 @@ package com.blurengine.blur.modules.teams.events;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.teams.SessionTeam;
 import com.blurengine.blur.events.session.BlurSessionEvent;
+import com.blurengine.blur.modules.teams.BlurTeam;
 
 /**
- * Represents a {@link SessionTeam} event.
+ * Represents a {@link BlurTeam} event.
  */
 public abstract class TeamEvent extends BlurSessionEvent {
 
-    protected final SessionTeam team;
+    protected final BlurTeam team;
 
-    public TeamEvent(SessionTeam team) {
+    public TeamEvent(BlurTeam team) {
         super(Preconditions.checkNotNull(team, "team cannot be null.").getManager().getSession());
         this.team = team;
     }
 
-    public SessionTeam getTeam() {
+    public BlurTeam getTeam() {
         return team;
     }
 }

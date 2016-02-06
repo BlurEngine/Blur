@@ -29,8 +29,8 @@ import com.blurengine.blur.framework.serializer.ModuleNotFoundException;
 import com.blurengine.blur.framework.serializer.ModuleSerializer;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
-import com.blurengine.blur.modules.teams.serializer.BlurTeam;
-import com.blurengine.blur.modules.teams.serializer.TeamSerializer;
+import com.blurengine.blur.modules.teams.BlurTeam;
+import com.blurengine.blur.modules.teams.TeamSerializer;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 
 import java.io.File;

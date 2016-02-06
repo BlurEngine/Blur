@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.teams.serializer;
-
-import com.google.common.base.Preconditions;
+package com.blurengine.blur.modules.teams;
 
 import com.blurengine.blur.framework.BlurSerializer;
-import com.blurengine.blur.modules.teams.NametagVisibility;
 import com.blurengine.blur.framework.ModuleLoader;
-import com.blurengine.blur.modules.teams.TeamManager;
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
 import com.supaham.commons.serializers.ListSerializer;
 
@@ -32,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import pluginbase.config.annotation.Name;
 import pluginbase.config.annotation.SerializeWith;
@@ -52,8 +50,8 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         } else if (serialized instanceof Map) {
             return deserializeTeam((Map<String, Object>) serialized);
         } else if (serialized instanceof String) {
-            BlurTeam blurTeam = getManager().getTeamById(serialized.toString());
-            return Preconditions.checkNotNull(blurTeam, "Could not find team by id '%s'.", serialized);
+            return getManager().getTeamById(serialized.toString())
+                .orElseThrow(() -> new NullPointerException("Could not find team by id '" + serialized + "'."));
         }
         throw new IllegalArgumentException("Expected List or Map, got data type of " + serialized.getClass().getName() + ".");
     }
@@ -65,20 +63,19 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         BlurTeam blurTeam = null;
         if (map.size() > 1 && id.isPresent()) {
             id.orElseThrow(() -> new IllegalArgumentException("Team must have an id."));
-            blurTeam = this.moduleLoader.deserializeTo(map, new BlurTeamData()).toTeam();
+            blurTeam = this.moduleLoader.deserializeTo(map, new BlurTeamData()).toTeam(getManager());
         }
 
         // If no team was defined, then we must have an id reference
         if (blurTeam == null) {
             String teamId = id.orElseThrow(() -> new NullPointerException("no blurTeam id or blurTeam definition."));
-            blurTeam = getManager().getTeamById(teamId);
-            Preconditions.checkNotNull(blurTeam, "Could not find team by id '%s'.", teamId);
+            blurTeam = getManager().getTeamById(teamId).orElseThrow(() -> new NullPointerException("Could not find team by id '" + teamId + "'."));
         }
 
-        getManager().addTeam(blurTeam);
+        getManager().registerTeam(blurTeam);
         return blurTeam;
     }
-    
+
     public TeamManager getManager() {
         return this.moduleLoader.getModuleManager().getTeamManager();
     }
@@ -105,9 +102,9 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         @Name("nametag-visibility")
         private NametagVisibility nametagVisibility = NametagVisibility.EVERYONE;
 
-        public BlurTeam toTeam() {
+        public BlurTeam toTeam(@Nonnull TeamManager teamManager) {
             return BlurTeam.builder().id(id).name(name).chatPrefix(chatPrefix).color(color).max(max).maxOverfill(maxOverfill)
-                .nametagVisibility(nametagVisibility).build();
+                .nametagVisibility(nametagVisibility).build(teamManager);
         }
     }
 }

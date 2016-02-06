@@ -14,45 +14,56 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules.teams.serializer;
+package com.blurengine.blur.modules.teams;
 
-import com.blurengine.blur.modules.teams.NametagVisibility;
+import com.google.common.base.Preconditions;
+
 import com.blurengine.blur.modules.filters.Filter;
-import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
+import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
+import com.blurengine.blur.session.BlurPlayer;
+import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.scoreboard.Team;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
-
-import pluginbase.config.annotation.Name;
-import pluginbase.config.annotation.SerializeWith;
+import javax.annotation.Nullable;
 
 /**
  * Represents a team that is utilized by {@link BlurTeam}.
  */
 public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
-    private String id;
-    private String name = null;
-    @Name("chat-prefix")
-    @SerializeWith(ColorStringSerializer.class)
-    private String chatPrefix = ChatColor.WHITE.toString();
-    private Color color = Color.WHITE;
-    private int max = 10;
-    @Name("max-overfill")
-    private int maxOverfill = 12;
-    @Name("nametag-visibility")
-    private NametagVisibility nametagVisibility = NametagVisibility.EVERYONE;
+    private final String id;
+    private String name;
+    private final String chatPrefix;
+    private final Color color;
+    private final int max;
+    private final int maxOverfill;
+    private final NametagVisibility nametagVisibility;
+
+    private final TeamManager manager;
+    final Team bukkitTeam;
+    final Set<BlurPlayer> players = new HashSet<>();
 
     public static Builder builder() {
         return new Builder();
     }
 
-    BlurTeam() {}
+    public BlurTeam(@Nonnull TeamManager teamManager, @Nonnull Builder builder) {
+        Preconditions.checkNotNull(teamManager, "teamManager cannot be null.");
+        Preconditions.checkNotNull(builder, "builder cannot be null.");
 
-    public BlurTeam(@Nonnull Builder builder) {
+        this.manager = teamManager;
+        
         this.id = builder.id;
         this.name = builder.name;
         this.chatPrefix = builder.chatPrefix;
@@ -60,10 +71,16 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         this.max = builder.max;
         this.maxOverfill = builder.maxOverfill;
         this.nametagVisibility = builder.nametagVisibility;
+        
+        this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getName());
+        this.bukkitTeam.setDisplayName(getName());
+        this.bukkitTeam.setPrefix(getChatPrefix());
+        this.bukkitTeam.setNameTagVisibility(getNametagVisibility().getBukkit());
     }
 
     @Override
-    public int compareTo(BlurTeam o) {
+    public int compareTo(@Nonnull BlurTeam o) {
+        Preconditions.checkNotNull(o, "o cannot be null.");
         return getId().compareTo(o.getId());
     }
 
@@ -89,17 +106,46 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
     public FilterResponse test(Object object) {
         if (object instanceof BlurTeam) {
             return FilterResponse.from(this.equals(object));
-            // TODO handle players
+        } else if (object instanceof BlurPlayer) {
+            return FilterResponse.from(this.players.contains(object));
         }
         return FilterResponse.ABSTAIN;
     }
 
+    public boolean addPlayer(@Nonnull BlurPlayer blurPlayer) {
+        return manager.addPlayerToTeam(blurPlayer, this);
+    }
+
+    public boolean removePlayer(@Nonnull BlurPlayer blurPlayer) {
+        return manager.removePlayerFromTeam(blurPlayer).isPresent();
+    }
+
+    public Collection<BlurPlayer> getPlayers() {
+        return Collections.unmodifiableCollection(players);
+    }
+
+    public TeamManager getManager() {
+        return manager;
+    }
+
+    @Nonnull
     public String getId() {
         return id;
     }
 
+    @Nonnull
     public String getName() {
         return name;
+    }
+
+    public void setName(@Nullable String name) {
+        String oldName = getName();
+        if (Objects.equals(this.name, name) || getName().equals(name)) {
+            return;
+        }
+        this.name = name;
+        this.bukkitTeam.setDisplayName(getChatPrefix() + name);
+        EventUtils.callEvent(new TeamRenameEvent(this, oldName, name));
     }
 
     public String getChatPrefix() {
@@ -116,6 +162,14 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
     public int getMaxOverfill() {
         return maxOverfill;
+    }
+
+    public boolean isFull() {
+        return this.players.size() >= getMax();
+    }
+
+    public boolean isOverfilled() {
+        return this.players.size() >= getMaxOverfill();
     }
 
     public NametagVisibility getNametagVisibility() {
@@ -169,12 +223,13 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
             return this;
         }
 
-        public BlurTeam build() {
+        public BlurTeam build(@Nonnull TeamManager teamManager) {
+            Preconditions.checkNotNull(teamManager, "teamManager cannot be null.");
             StringUtils.checkNotNullOrEmpty(id, "id");
             if (name == null) {
                 name = id;
             }
-            return new BlurTeam(this);
+            return new BlurTeam(teamManager, this);
         }
     }
 }

@@ -18,7 +18,7 @@ package com.blurengine.blur.modules.goal;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.teams.SessionTeam;
+import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 
@@ -47,13 +47,13 @@ public interface Winner {
 
     class TeamWinner implements Winner {
 
-        private final SessionTeam team;
+        private final BlurTeam team;
 
-        public TeamWinner(SessionTeam team) {
+        public TeamWinner(BlurTeam team) {
             this.team = Preconditions.checkNotNull(team, "team cannot be null.");
         }
 
-        public SessionTeam getTeam() {
+        public BlurTeam getTeam() {
             return team;
         }
     }
