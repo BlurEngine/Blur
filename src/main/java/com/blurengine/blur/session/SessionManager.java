@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.session;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import com.blurengine.blur.Blur;
@@ -24,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 /**
  * Represents a {@link BlurSession} manager. Only one SessionManager instance should exist at any one time. 
@@ -39,6 +42,21 @@ public class SessionManager {
 
     public Blur getBlur() {
         return blur;
+    }
+
+    public boolean hasSession(@Nonnull BlurSession blurSession) {
+        Preconditions.checkNotNull(blurSession, "blurSession cannot be null.");
+        return this.blurSessions.contains(blurSession);
+    }
+
+    public boolean addSession(@Nonnull BlurSession blurSession) {
+        Preconditions.checkNotNull(blurSession, "blurSession cannot be null.");
+        return this.blurSessions.add(blurSession);
+    }
+
+    public boolean removeSession(@Nonnull BlurSession blurSession) {
+        Preconditions.checkNotNull(blurSession, "blurSession cannot be null.");
+        return this.blurSessions.remove(blurSession);
     }
 
     public Collection<BlurSession> getBlurSessions() {
