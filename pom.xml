@@ -109,6 +109,16 @@
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.supaham.commons</pattern>
+                                    <shadedPattern>com.blurengine.blur.internal.commons</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>pluginbase</pattern>
+                                    <shadedPattern>com.blurengine.blur.internal.pluginbase</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
