@@ -63,6 +63,11 @@
             <artifactId>commons-bukkit</artifactId>
             <version>${commons-bukkit.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.supaham.supervisor</groupId>
+            <artifactId>supervisor-bukkit</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
         <!-- Present via spigot software -->
         <dependency>
             <groupId>org.apache.commons</groupId>

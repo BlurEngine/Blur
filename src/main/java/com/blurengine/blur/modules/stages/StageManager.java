@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.stages;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.framework.InternalModule;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleLoader;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 @ModuleInfo(name = "BlurStageManager")
+@InternalModule
 public class StageManager extends Module {
 
     public static final String DEFAULT_STAGE_NAME = "Default";
