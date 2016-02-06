@@ -22,12 +22,12 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import com.blurengine.blur.BlurPlugin;
+import com.blurengine.blur.framework.serializer.ModuleNotFoundException;
+import com.blurengine.blur.framework.serializer.ModuleSerializer;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
-import com.blurengine.blur.framework.serializer.ModuleNotFoundException;
-import com.blurengine.blur.framework.serializer.ModuleSerializer;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.BlurTeam;
@@ -82,8 +82,8 @@ public class ModuleLoader {
         if (dataClasses.containsKey(moduleClass)) {
             return false;
         }
-        
-        if(moduleClass.isAnnotationPresent(Deprecated.class)) {
+
+        if (moduleClass.isAnnotationPresent(Deprecated.class)) {
             BlurPlugin.get().getLog().warning("Registering deprecated class to ModuleLoader: %s", moduleClass.getName());
         }
 
