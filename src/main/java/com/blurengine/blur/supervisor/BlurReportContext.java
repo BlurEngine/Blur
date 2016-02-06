@@ -17,7 +17,6 @@
 package com.blurengine.blur.supervisor;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 import com.blurengine.blur.Blur;
 import com.blurengine.blur.BlurPlugin;
@@ -27,6 +26,7 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.session.SessionManager;
 import com.blurengine.blur.session.WorldBlurSession;
+import com.supaham.commons.utils.MapBuilder;
 import com.supaham.supervisor.bukkit.SupervisorPlugin;
 import com.supaham.supervisor.report.AbstractReportContextEntry;
 import com.supaham.supervisor.report.ReportContext;
@@ -36,6 +36,7 @@ import com.supaham.supervisor.report.ReportSpecifications.ReportLevel;
 import com.supaham.supervisor.report.SimpleReportFile;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -72,48 +73,67 @@ public class BlurReportContext extends ReportContext {
         @Override
         public void run() {
             append("active-sessions", sessionManager.getBlurSessions().size());
-            sessionManager.getBlurSessions().forEach(this::sessionToFile);
+            sessionManager.getBlurSessions().forEach(s -> addFile(new SessionFile(this, s)));
         }
+    }
 
-        private void sessionToFile(BlurSession blurSession) {
-            SimpleReportFile file = createFile(blurSession.getName().replaceAll("\\s+", "-"), blurSession.getName());
-            file.append("enabled", blurSession.isEnabled());
-            file.append("started", blurSession.isStarted());
-            file.append("paused", blurSession.isPaused());
-            file.append("on_stop_task_count", blurSession.getOnStopTasks().size());
-            file.append("player_count", blurSession.getPlayers().size());
+    private final class SessionFile extends SimpleReportFile {
+
+        public SessionFile(BlurContext context, BlurSession blurSession) {
+            super(context, blurSession.getName().replaceAll("\\s+", "-"), blurSession.getName());
+
+            append("enabled", blurSession.isEnabled());
+            append("started", blurSession.isStarted());
+            append("paused", blurSession.isPaused());
+            append("on_stop_task_count", blurSession.getOnStopTasks().size());
+            append("player_count", blurSession.getPlayers().size());
             if (blurSession instanceof WorldBlurSession) {
                 WorldBlurSession wbs = (WorldBlurSession) blurSession;
-                file.append("world_name", wbs.getWorld().getName());
+                append("world_name", wbs.getWorld().getName());
             }
-            file.append("children_session", blurSession.getChildrenSessions().stream()
+            append("children_session", blurSession.getChildrenSessions().stream()
                 .map(BlurSession::getName).collect(Collectors.toList()));
 
-            file.append("modules", blurSession.getModuleManager().getModules().values().stream()
+            append("modules", blurSession.getModuleManager().getModules().values().stream()
                 .map(this::moduleToString).filter(Objects::nonNull).collect(Collectors.toList()));
         }
 
         private Object moduleToString(Module module) {
-            return moduleInfoToString(module.getClass(), module.getModuleInfo());
+            // Only log internal modules if the report level is >= VERBOSE and they extend SupervisorContext.
+            if (getReportLevel() < ReportLevel.VERBOSE
+                && (module.getClass().getDeclaredAnnotation(InternalModule.class) != null
+                && !(module instanceof SupervisorContext))) {
+                return null;
+            }
+            LinkedHashMap<Object, Object> map = moduleInfoToString(module.getClass(), module.getModuleInfo());
+
+            if (module instanceof SupervisorContext) {
+                Amendable amendable = new SimpleAmendable();
+                ((SupervisorContext) module).run(amendable); // Fill amendable
+                map.put("data", amendable);
+            }
+            return map;
         }
 
         private Object moduleToString(Class<? extends Module> moduleClass) {
+            // Only log internal modules if the report level is >= VERBOSE.
+            if (getReportLevel() < ReportLevel.VERBOSE && moduleClass.getDeclaredAnnotation(InternalModule.class) != null) {
+                return null;
+            }
             return moduleInfoToString(moduleClass, moduleClass.getDeclaredAnnotation(ModuleInfo.class));
         }
 
-        private Object moduleInfoToString(Class<? extends Module> clazz, ModuleInfo info) {
+        private LinkedHashMap<Object, Object> moduleInfoToString(Class<? extends Module> clazz, ModuleInfo info) {
             if (info == null) {
                 return null;
             }
-            // Only log internal modules if the report level is >= VERBOSE.
-            if (getReportLevel() < ReportLevel.VERBOSE && clazz.getDeclaredAnnotation(InternalModule.class) != null) {
-                return null;
-            }
-            return ImmutableMap.of("name", info.name(),
-                "module_class", clazz.getName(),
-                "data_class", info.dataClass().getName(),
-                "load", info.load(),
-                "depends", Arrays.stream(info.depends()).map(this::moduleToString).collect(Collectors.toList()));
+            return MapBuilder.newLinkedHashMap()
+                .put("name", info.name())
+                .put("module_class", clazz.getName())
+                .put("data_class", info.dataClass().getName())
+                .put("load", info.load())
+                .put("depends", Arrays.stream(info.depends()).map(this::moduleToString).collect(Collectors.toList()))
+                .build();
         }
     }
 }
