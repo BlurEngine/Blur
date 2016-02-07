@@ -24,12 +24,12 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.includes.IncludesModule.IncludesData;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.SerializerSet;
 
@@ -42,7 +42,7 @@ public class ModuleSerializer implements BlurSerializer<Module> {
     }
 
     @Override
-    public Module deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public Module deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         }

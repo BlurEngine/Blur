@@ -20,12 +20,12 @@ import com.blurengine.blur.properties.LocationSet.LocationSetPropertyHandler;
 import com.supaham.commons.bukkit.utils.LocationUtils;
 
 import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import pluginbase.config.annotation.HandlePropertyWith;
@@ -115,7 +115,7 @@ public class LocationSet extends HashSet<Location> {
      * @return the matched {@link Location} if found, otherwise null
      */
     @Nullable
-    private Location fuzzySpawnMatch(@NotNull Location location) {
+    private Location fuzzySpawnMatch(@Nonnull Location location) {
         for (Location spawn : this) {
             if (spawn.distance(location) <= (distanceThreshold > 0 ? distanceThreshold
                 : DISTANCE_THRESHOLD)) {
@@ -164,25 +164,25 @@ public class LocationSet extends HashSet<Location> {
     public static final class LocationSetPropertyHandler implements PropertyHandler {
 
         @Override
-        public void set(@NotNull FieldInstance field, @NotNull String newValue)
+        public void set(@Nonnull FieldInstance field, @Nonnull String newValue)
             throws PropertyVetoException, UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void add(@NotNull FieldInstance field, @NotNull String valueToAdd)
+        public void add(@Nonnull FieldInstance field, @Nonnull String valueToAdd)
             throws PropertyVetoException, UnsupportedOperationException {
             ((List<Location>) field.getValue()).add(LocationUtils.deserialize(valueToAdd));
         }
 
         @Override
-        public void remove(@NotNull FieldInstance field, @NotNull String valueToRemove)
+        public void remove(@Nonnull FieldInstance field, @Nonnull String valueToRemove)
             throws PropertyVetoException, UnsupportedOperationException {
             ((List<Location>) field.getValue()).remove(LocationUtils.deserialize(valueToRemove));
         }
 
         @Override
-        public void clear(@NotNull FieldInstance field, @Nullable String valueToClear)
+        public void clear(@Nonnull FieldInstance field, @Nullable String valueToClear)
             throws PropertyVetoException, UnsupportedOperationException {
             ((List<Location>) field.getValue()).clear();
         }

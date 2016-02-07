@@ -24,12 +24,13 @@ import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
 import org.bukkit.util.BlockVector;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.SerializerSet;
 
@@ -42,7 +43,7 @@ final class ExtentSerializers {
         }
 
         @Override
-        public UnionExtent deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet)
+        public UnionExtent deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet)
             throws IllegalArgumentException {
             if (serialized instanceof List) {
 

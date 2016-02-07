@@ -23,13 +23,12 @@ import com.supaham.commons.serializers.ListSerializer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.annotation.Name;
 import pluginbase.config.annotation.SerializeWith;
@@ -44,7 +43,7 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
     }
 
     @Override
-    public BlurTeam deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public BlurTeam deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         } else if (serialized instanceof Map) {

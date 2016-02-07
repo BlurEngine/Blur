@@ -22,10 +22,11 @@ import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.Serializer;
 import pluginbase.config.serializers.SerializerSet;
@@ -37,7 +38,7 @@ public interface BlurSerializer<T> extends Serializer<T> {
 
     @Nullable
     @Override
-    default Object serialize(@Nullable T object, @NotNull SerializerSet serializerSet) {
+    default Object serialize(@Nullable T object, @Nonnull SerializerSet serializerSet) {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 

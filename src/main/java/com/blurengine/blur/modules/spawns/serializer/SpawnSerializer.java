@@ -18,10 +18,9 @@ package com.blurengine.blur.modules.spawns.serializer;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.extents.Extent;
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
+import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.SpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
@@ -30,18 +29,14 @@ import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.serializers.ListSerializer;
 
-import org.apache.commons.lang.math.NumberUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import pluginbase.config.annotation.SerializeWith;
 import pluginbase.config.serializers.SerializerSet;
 
 /**
@@ -57,7 +52,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
     }
 
     @Override
-    public Spawn deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public Spawn deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         return getSpawn(serialized);
     }
     
@@ -82,7 +77,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
             Object pitch = map.get("pitch");
             destination.direction = new FixedSpawnDirection(yaw == null ? 0 : Float.parseFloat(yaw.toString()),
                 pitch == null ? 0 : Float.parseFloat(pitch.toString()));
-        } else if(map.containsKey("point-to")) {
+        } else if (map.containsKey("point-to")) {
             destination.direction = new PointToSpawnDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
         }
         return moduleLoader.deserializeTo(map, destination).toSpawn();

@@ -18,11 +18,8 @@ package com.blurengine.blur.modules.extents.serializer;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.framework.BlurSerializer;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.blurengine.blur.modules.extents.Extent;
 
 import java.util.Map;
 
@@ -52,13 +49,13 @@ public abstract class ExtentTypeSerializer<T extends Extent> implements BlurSeri
 
     @Nullable
     @Override
-    public Object serialize(@Nullable T object, @NotNull SerializerSet serializerSet) {
+    public Object serialize(@Nullable T object, @Nonnull SerializerSet serializerSet) {
         return object == null ? null : serialize(object);
     }
 
     @Nullable
     @Override
-    public T deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public T deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         }

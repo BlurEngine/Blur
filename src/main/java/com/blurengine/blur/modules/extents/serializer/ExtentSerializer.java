@@ -31,9 +31,6 @@ import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.serializers.ListSerializer;
 import com.supaham.commons.utils.ArrayUtils;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.SerializerSet;
 
@@ -94,7 +94,7 @@ public class ExtentSerializer implements BlurSerializer<Extent> {
     }
 
     @Override
-    public Extent deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public Extent deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         } else if (serialized instanceof Map) {

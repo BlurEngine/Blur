@@ -20,18 +20,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
+import com.blurengine.blur.framework.BlurSerializer;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.FilterManager;
-import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.filters.lexer.FilterRecursiveDescentParser;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializers.Team;
-import com.blurengine.blur.framework.BlurSerializer;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.serializers.ListSerializer;
 import com.supaham.commons.utils.ArrayUtils;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -40,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import pluginbase.config.serializers.SerializerSet;
 
@@ -88,7 +87,7 @@ public class FilterSerializer implements BlurSerializer<Filter> {
     }
 
     @Override
-    public Filter deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public Filter deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         } else if (serialized instanceof Map) {

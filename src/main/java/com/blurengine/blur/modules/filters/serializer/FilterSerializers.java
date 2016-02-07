@@ -18,10 +18,10 @@ package com.blurengine.blur.modules.filters.serializer;
 
 import com.blurengine.blur.modules.extents.UnionExtent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.SerializerSet;
 
@@ -34,7 +34,7 @@ final class FilterSerializers {
         }
 
         @Override
-        public UnionExtent deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet)
+        public UnionExtent deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet)
             throws IllegalArgumentException {
             if (serialized instanceof List) {
 

@@ -21,10 +21,10 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.framework.BlurSerializer;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.serializers.Serializer;
 import pluginbase.config.serializers.SerializerSet;
@@ -52,13 +52,13 @@ public abstract class FilterTypeSerializer<T extends Filter> implements BlurSeri
 
     @Nullable
     @Override
-    public Object serialize(@Nullable T object, @NotNull SerializerSet serializerSet) {
+    public Object serialize(@Nullable T object, @Nonnull SerializerSet serializerSet) {
         return object == null ? null : serialize(object);
     }
 
     @Nullable
     @Override
-    public T deserialize(@Nullable Object serialized, @NotNull Class wantedType, @NotNull SerializerSet serializerSet) {
+    public T deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         if (serialized == null) {
             return null;
         }
