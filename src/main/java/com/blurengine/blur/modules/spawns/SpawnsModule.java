@@ -33,6 +33,7 @@ import com.blurengine.blur.serializers.SpawnList;
 import com.blurengine.blur.session.BlurPlayer;
 import com.sk89q.intake.Command;
 import com.supaham.commons.utils.CollectionUtils;
+import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -42,9 +43,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
+import javaslang.control.Match;
 import pluginbase.config.annotation.Name;
 
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
@@ -133,21 +136,25 @@ public class SpawnsModule extends WorldModule {
 
                 // The following code is a layer of convenience for the user input
                 // if input is null or true set to 'default', if 'false' set to null, meaning don't spawn players on start.
-                Object o = asMap.get("spawn-on-start");
-                if (o == null || o instanceof Boolean) {
-                    setSpawnOnStart(asMap, (Boolean) o);
-                } else if (o instanceof String) {
-                    String s = o.toString().trim();
-                    if (s.isEmpty()) {
-                        setSpawnOnStart(asMap, null);
-                    }
-                    if ("false".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s)) {
-                        setSpawnOnStart(asMap, Boolean.parseBoolean(o.toString()));
-                    }
+                Function<Boolean, String> bFunction = b -> b ? "default" : null;
+                String aDefault = Match.of(asMap.get("spawn-on-start"))
+                    .whenType(Boolean.class).then(bFunction::apply)
+                    .whenIs(null).then(bFunction.apply(true))
+                    .otherwise(o -> {
+                        String str = o.toString().trim();
+                        return str.isEmpty() ? "default" : StringUtils.parseBoolean(str).map(bFunction).orElse(str);
+                    })
+                    .getOrElse((String) null); // Allow null
+                if (aDefault == null) { // Explicit null, don't deserialize spawn-on-start.
+                    asMap.remove("spawn-on-start");
+                } else {
+                    asMap.put("spawn-on-start", aDefault);
                 }
+
                 if (!asMap.containsKey("default")) {
                     asMap.put("default", "default");
                 }
+
                 serialized.load(this);
             } else {
                 defaultSpawn = moduleManager.getModuleLoader().getSpawnSerializer().deserialize("default", null, null);
@@ -162,16 +169,6 @@ public class SpawnsModule extends WorldModule {
                 this.spawns.add(this.defaultSpawn);
             }
             return new SpawnsModule(moduleManager, this);
-        }
-
-        private void setSpawnOnStart(Map<String, Object> map, Boolean b) {
-            if (b == null) {
-                map.put("spawn-on-start", "default");
-            } else if (b) {
-                map.put("spawn-on-start", "default");
-            } else {
-                map.remove("spawn-on-start");
-            }
         }
     }
 

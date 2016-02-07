@@ -76,6 +76,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.javaslang</groupId>
+            <artifactId>javaslang</artifactId>
+            <version>2.0.0-RC3</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>1.9.0-rc1</version>
@@ -111,6 +117,7 @@
                                     <include>com.supaham.commons:commons-bukkit</include>
                                     <include>ninja.leaping.configurate:configurate-core</include>
                                     <include>ninja.leaping.configurate:configurate-hocon</include>
+                                    <include>com.javaslang:javaslang</include>
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
