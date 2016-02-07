@@ -23,6 +23,9 @@ import com.blurengine.blur.modules.extents.Extent;
 
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import pluginbase.config.serializers.Serializer;
 import pluginbase.config.serializers.SerializerSet;
 
