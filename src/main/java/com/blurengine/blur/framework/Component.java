@@ -16,35 +16,23 @@
 
 package com.blurengine.blur.framework;
 
-import com.google.common.base.Preconditions;
-
 import com.blurengine.blur.countdown.Countdown;
-import com.blurengine.blur.events.session.BlurSessionEvent;
-import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.utils.TaskBuilder;
 import com.supaham.commons.bukkit.TickerTask;
-import com.supaham.commons.bukkit.text.FancyMessage;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import pluginbase.logging.PluginLogger;
-
 /**
  * Represents a component class that serves as a general class for using in modules. An example of a component is {@link Countdown}.
  */
-public interface Component extends Listener {
+public interface Component extends Listener, SessionHelperInterface {
 
     /**
      * Called when this module is being loaded, which is when the session is being loaded. At that point in time, only the map has been
@@ -210,72 +198,10 @@ public interface Component extends Listener {
             }
         };
     }
-    
-    /* ================================
-     * >> UTILITY METHODS
-     * ================================ */
 
-    default boolean isSession(@Nonnull BlurSessionEvent sessionEvent) {
-        Preconditions.checkNotNull(sessionEvent, "sessionEvent cannot be null.");
-        return isSession(sessionEvent.getSession());
-    }
-
-    default boolean isSession(@Nonnull BlurSession session) {
-        Preconditions.checkNotNull(session, "session cannot be null.");
-        return getSession().equals(session);
-    }
-    
-    /* ================================
-     * >> DELEGATE METHODS
-     * ================================ */
-
-    default void broadcastMessage(@Nonnull String message, Object... args) {
-        Preconditions.checkNotNull(message, "message cannot be null.");
-        getSession().broadcastMessage(message, args);
-    }
-
-    default void broadcastMessage(@Nonnull FancyMessage fancyMessage) {
-        getSession().broadcastMessage(Preconditions.checkNotNull(fancyMessage, "fancyMessage cannot be null."));
-    }
+    @Override
+    @Nonnull
     default BlurSession getSession() {
         return getModuleManager().getSession();
-    }
-
-    default Collection<BlurPlayer> getPlayers() {
-        return getSession().getPlayers().values();
-    }
-
-    @Nonnull
-    default Set<BlurPlayer> getPlayers(@Nonnull Predicate<BlurPlayer> predicate) {
-        Preconditions.checkNotNull(predicate, "predicate cannot be null.");
-        return getSession().getPlayers(predicate);
-    }
-
-    @Nonnull
-    default Optional<BlurPlayer> getAnyPlayer(@Nonnull Predicate<BlurPlayer> predicate) {
-        Preconditions.checkNotNull(predicate, "predicate cannot be null.");
-        return getSession().getAnyPlayer(predicate);
-    }
-
-    @Nonnull
-    default Stream<BlurPlayer> getPlayersStream() {
-        return getSession().getPlayersStream();
-    }
-
-    @Nonnull
-    default BlurPlayer getPlayer(@Nonnull Player player) {
-        Preconditions.checkNotNull(player, "player cannot be null.");
-        return getSession().getPlayer(player);
-    }
-
-    @Nonnull
-    default Optional<BlurPlayer> getPlayer(@Nonnull UUID uuid) {
-        Preconditions.checkNotNull(uuid, "uuid cannot be null.");
-        return getSession().getPlayer(uuid);
-    }
-
-    @Nonnull
-    default PluginLogger getLogger() {
-        return getModuleManager().getLogger();
     }
 }
