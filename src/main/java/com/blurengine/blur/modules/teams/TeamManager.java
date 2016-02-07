@@ -77,6 +77,11 @@ public class TeamManager extends Module implements SupervisorContext {
         this.teams.put(blurTeam.getId(), blurTeam);
     }
 
+    @Nonnull
+    public BlurTeam getPlayerTeam(BlurPlayer blurPlayer) {
+        return this.playerTeams.get(blurPlayer);
+    }
+
     protected boolean addPlayerToTeam(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurTeam blurTeam) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         Preconditions.checkNotNull(blurTeam, "blurTeam cannot be null.");
