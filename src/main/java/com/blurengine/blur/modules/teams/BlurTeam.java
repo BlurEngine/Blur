@@ -50,9 +50,9 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
     private final int maxOverfill;
     private final NametagVisibility nametagVisibility;
 
-    private final TeamManager manager;
-    final Team bukkitTeam;
-    final Set<BlurPlayer> players = new HashSet<>();
+    private final transient TeamManager manager;
+    final transient Team bukkitTeam;
+    final transient Set<BlurPlayer> players = new HashSet<>();
 
     public static Builder builder() {
         return new Builder();

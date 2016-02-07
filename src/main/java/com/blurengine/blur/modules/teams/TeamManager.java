@@ -27,7 +27,10 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.modules.teams.events.PlayerChangeTeamEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
+import com.blurengine.blur.supervisor.Amendable;
+import com.blurengine.blur.supervisor.SupervisorContext;
 import com.supaham.commons.CommonCollectors;
+import com.supaham.commons.utils.BeanUtils;
 
 import org.bukkit.event.EventHandler;
 
@@ -36,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -45,7 +49,7 @@ import javax.annotation.Nonnull;
  */
 @ModuleInfo(name = "BlurTeamManager")
 @InternalModule
-public class TeamManager extends Module {
+public class TeamManager extends Module implements SupervisorContext {
 
     public static final String FILTER_PREFIX = "team-";
     private SpectatorTeam spectatorTeam;
@@ -130,5 +134,20 @@ public class TeamManager extends Module {
             getTeams().stream().filter(t -> !t.equals(getSpectatorTeam())).collect(CommonCollectors.singleRandom()).get()
                 .addPlayer(event.getBlurPlayer());
         }
+    }
+
+    /* ================================
+     * >> SUPERVISOR
+     * ================================ */
+
+    @Override
+    public void run(@Nonnull Amendable amendable) {
+        amendable.append("teams", teams.values().stream().map(this::team).collect(Collectors.toList()));
+        amendable.append("player_teams", playerTeams.entrySet().stream()
+            .map(e -> Collections.singletonMap(e.getKey().getName(), e.getValue().getId())).collect(Collectors.toList()));
+    }
+
+    private Object team(BlurTeam blurTeam) {
+        return BeanUtils.getPropertiesList(blurTeam, getModuleManager().getModuleLoader().getSerializerSet());
     }
 }
