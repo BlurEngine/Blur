@@ -19,8 +19,10 @@ package com.blurengine.blur.modules.goal;
 import com.blurengine.blur.events.players.PlayerDeathEvent;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
-import com.blurengine.blur.modules.goal.Winner.PlayerWinner;
 import com.blurengine.blur.framework.WorldModule;
+import com.blurengine.blur.modules.goal.Winner.TeamWinner;
+import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
 
@@ -36,12 +38,22 @@ public class LastTeamAliveWinnerModule extends WorldModule {
     }
 
     void check() {
-        if (players.size() == 1) {
-            // TODO
-            PlayerWinner playerWinner = new PlayerWinner(players.iterator().next());
         List<BlurPlayer> players = getSession().getPlayers(Predicates.ALIVE);
+        BlurTeam blurTeam = getTeamManager().getPlayerTeam(players.get(0));
+        boolean allAliveAreSameTeam = getPlayersStream().allMatch(p -> getTeamManager().getPlayerTeam(p).equals(blurTeam));
+        if (allAliveAreSameTeam) {
+            TeamWinner teamWinner = new TeamWinner(blurTeam);
+            getSession().callEvent(new GoalWinnerEvent(getSession(), teamWinner));
+            getStagesManager().nextStage(StageChangeReason.OBJECTIVE_SUCCESS);
         }
-        getSession().stop();
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        if (getTeamManager().getTeams().size() <= 2) { // Spectator and one other team.
+            throw new IllegalStateException("LastTeamAliveWinner requires at least two teams to function.");
+        }
     }
 
     @EventHandler

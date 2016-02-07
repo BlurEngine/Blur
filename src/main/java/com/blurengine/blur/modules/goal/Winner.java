@@ -27,9 +27,16 @@ import com.blurengine.blur.session.BlurSession;
  */
 public interface Winner {
 
+    String getName();
+
     class NullWinner implements Winner {
 
         public static final NullWinner INSTANCE = new NullWinner();
+
+        @Override
+        public String getName() {
+            return "null";
+        }
     }
 
     class PlayerWinner implements Winner {
@@ -38,6 +45,11 @@ public interface Winner {
 
         public PlayerWinner(BlurPlayer blurPlayer) {
             this.blurPlayer = Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
+        }
+
+        @Override
+        public String getName() {
+            return blurPlayer.getName();
         }
 
         public BlurPlayer getBlurPlayer() {
@@ -51,6 +63,11 @@ public interface Winner {
 
         public TeamWinner(BlurTeam team) {
             this.team = Preconditions.checkNotNull(team, "team cannot be null.");
+        }
+
+        @Override
+        public String getName() {
+            return team.getName();
         }
 
         public BlurTeam getTeam() {
