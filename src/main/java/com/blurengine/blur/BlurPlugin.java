@@ -67,14 +67,16 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
 
         // Load from serialized modules, here's how the whoooole chain starts!
         moduleManager.getModuleLoader().load(getSettings().getModules());
+        CommonCommands.DEBUG.builder(this, "b").register();
+        
+        // SUPERVISOR
+        if (getServer().getPluginManager().getPlugin("Supervisor") != null) {
+            BlurReportContext.load(this);
+        }
 
         if (!enableMetrics()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }
-        CommonCommands.DEBUG.builder(this, "b").register();
-        if (getServer().getPluginManager().getPlugin("Supervisor") != null) {
-            BlurReportContext.load(this);
         }
 
         // Immediately load, enable and start the root session to get the wheels going.
