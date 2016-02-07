@@ -232,8 +232,8 @@ public abstract class BlurSession {
      *
      * @return filtered set of players
      */
-    public Set<BlurPlayer> getPlayers(Predicate<BlurPlayer> predicate) {
-        return getPlayersStream().filter(predicate).collect(Collectors.toSet());
+    public List<BlurPlayer> getPlayers(Predicate<BlurPlayer> predicate) {
+        return getPlayersStream().filter(predicate).collect(Collectors.toList());
     }
 
     /**

@@ -17,26 +17,26 @@
 package com.blurengine.blur.modules.goal;
 
 import com.blurengine.blur.events.players.PlayerDeathEvent;
-import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.goal.Winner.PlayerWinner;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
 
 import org.bukkit.event.EventHandler;
 
-import java.util.Set;
+import java.util.List;
 
 @ModuleInfo(name = "LastPlayerAliveWinner")
-public class LastPlayerAliveWinnerModule extends Module {
+public class LastPlayerAliveWinnerModule extends WorldModule {
 
     public LastPlayerAliveWinnerModule(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
     void check() {
-        Set<BlurPlayer> players = getSession().getPlayers(Predicates.ALIVE);
+        List<BlurPlayer> players = getSession().getPlayers(Predicates.ALIVE);
         if (players.size() == 1) {
             PlayerWinner playerWinner = new PlayerWinner(players.iterator().next());
         }
