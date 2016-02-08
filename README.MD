@@ -7,6 +7,10 @@ Blur is a module-based Game Engine, defining functionality through blocks of var
 
 Here is an example of a SurvivalGames gamemode map configuration [map.yml](https://gist.github.com/SupaHam/286b137f4cfc17d9e549).
 
+# Issues
+Thanks to Atlassian, Blur uses JIRA for its issue tracking and management system. Before considering making a report please head over to our [issue
+tracker](https://blurengine.atlassian.net/) to make a report.
+
 # Documentation
 Documentation can be found over at [https://blurengine.com](https://blurengine.com).
 
