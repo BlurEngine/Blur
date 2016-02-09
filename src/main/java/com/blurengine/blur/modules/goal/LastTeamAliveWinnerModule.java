@@ -28,6 +28,7 @@ import com.blurengine.blur.session.BlurSession.Predicates;
 
 import org.bukkit.event.EventHandler;
 
+import java.util.Collections;
 import java.util.List;
 
 @ModuleInfo(name = "LastTeamAliveWinner")
@@ -43,7 +44,7 @@ public class LastTeamAliveWinnerModule extends WorldModule {
         boolean allAliveAreSameTeam = getPlayersStream().allMatch(p -> getTeamManager().getPlayerTeam(p).equals(blurTeam));
         if (allAliveAreSameTeam) {
             TeamWinner teamWinner = new TeamWinner(blurTeam);
-            getSession().callEvent(new GoalWinnerEvent(getSession(), teamWinner));
+            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(teamWinner)));
             getStagesManager().nextStage(StageChangeReason.OBJECTIVE_SUCCESS);
         }
     }

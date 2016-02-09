@@ -27,6 +27,7 @@ import com.blurengine.blur.session.BlurSession.Predicates;
 
 import org.bukkit.event.EventHandler;
 
+import java.util.Collections;
 import java.util.List;
 
 @ModuleInfo(name = "LastPlayerAliveWinner")
@@ -40,7 +41,7 @@ public class LastPlayerAliveWinnerModule extends WorldModule {
         List<BlurPlayer> players = getSession().getPlayers(Predicates.ALIVE);
         if (players.size() == 1) {
             PlayerWinner playerWinner = new PlayerWinner(players.iterator().next());
-            getSession().callEvent(new GoalWinnerEvent(getSession(), playerWinner));
+            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(playerWinner)));
             getStagesManager().nextStage(StageChangeReason.OBJECTIVE_SUCCESS);
         }
     }
