@@ -18,6 +18,7 @@ package com.blurengine.blur.session;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.filters.Filter;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
@@ -25,13 +26,15 @@ import com.supaham.commons.bukkit.text.FancyMessage;
 
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 import javax.annotation.Nonnull;
 
 
 /**
  * Represents a player that belongs to a {@link BlurSession}.
  */
-public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
+public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation, Filter {
 
     private final BukkitPlayerManager manager;
     BlurSession blurSession;
@@ -89,5 +92,17 @@ public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation {
 
     protected void setAlive(boolean alive) {
         this.alive = alive;
+    }
+
+    @Override
+    public FilterResponse test(Object object) {
+        if (object instanceof Player) {
+            return FilterResponse.from(getPlayer() == object);
+        } else if (object instanceof UUID) {
+            return FilterResponse.from(getUuid().equals(object));
+        } else if (object instanceof String) {
+            return FilterResponse.from(getName().equals(object));
+        }
+        return FilterResponse.ABSTAIN;
     }
 }
