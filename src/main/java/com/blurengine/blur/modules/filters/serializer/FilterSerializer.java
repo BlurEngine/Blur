@@ -117,6 +117,7 @@ public class FilterSerializer implements BlurSerializer<Filter> {
     }
 
     public Filter deserializeStringToFilter(String id, String string) {
+        getManager().checkNonExistant(id);
         Filter filter = new FilterRecursiveDescentParser(this.filterGetter, string).call();
         getManager().addFilter(id, filter);
         return filter;

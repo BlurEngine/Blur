@@ -48,9 +48,13 @@ public class FilterManager extends Module {
     public FilterManager(ModuleManager moduleManager) {
         super(moduleManager);
     }
+    
+    public void checkNonExistant(String id) {
+        Preconditions.checkArgument(id == null || !this.filters.containsKey(id), "filter with id '%s' already exists.", id);
+    }
 
     public void addFilter(String id, Filter filter) {
-        Preconditions.checkArgument(id == null || !this.filters.containsKey(id), "filter with id '%s' already exists.", id);
+        checkNonExistant(id);
         if (id == null) {
             id = UUID.randomUUID().toString();
             while (this.filters.containsKey(id)) {
