@@ -22,8 +22,8 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
-import com.blurengine.blur.serializers.ModuleList;
 import com.blurengine.blur.modules.includes.IncludesModule.IncludesData;
+import com.blurengine.blur.serializers.ModuleList;
 import com.supaham.commons.Joiner;
 
 import java.io.File;
@@ -34,15 +34,19 @@ import java.util.List;
 @ModuleInfo(name = "Includes", dataClass = IncludesData.class)
 public class IncludesModule extends Module {
 
-    public IncludesModule(ModuleManager moduleManager, List<Module> includes) {
+    public IncludesModule(ModuleManager moduleManager) {
         super(moduleManager);
-        includes.forEach(this::addSubmodule);
     }
 
     public static final class IncludesData implements ModuleData {
 
         private List<String> includes;
 
+        /*
+         * This piece of work includes external files into the current session. It is important to note that this actually does nothing to the
+         * IncludesModule other than create a new instance. The actual inclusion of the module is done by the deserialization process by
+         * calling deserializeYAMLFileTo, which then uses ModuleList and that includes it in the session.
+         */
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
             if (serialized.getAsObject() instanceof List) {
@@ -65,7 +69,7 @@ public class IncludesModule extends Module {
                     IncludeFileData includeData = new IncludeFileData();
                     moduleManager.getModuleLoader().deserializeYAMLFileTo(file, includeData);
                     // Configurate treats present empty lists as null.
-                    if(includeData.modules == null || includeData.modules.isEmpty()) {
+                    if (includeData.modules == null || includeData.modules.isEmpty()) {
                         moduleManager.getLogger().warning("Empty includes.");
                     } else {
                         moduleManager.getLogger().finer("Adding %d includes.", includeData.modules.size());
@@ -79,7 +83,7 @@ public class IncludesModule extends Module {
             if (_nonFiles.size() > 0) {
                 moduleManager.getLogger().severe("The following must be files: " + Joiner.on(", ").join(_nonFiles));
             }
-            return new IncludesModule(moduleManager, includes);
+            return new IncludesModule(moduleManager);
         }
     }
 
