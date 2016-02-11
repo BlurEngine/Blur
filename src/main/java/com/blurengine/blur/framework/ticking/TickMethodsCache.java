@@ -146,6 +146,15 @@ public final class TickMethodsCache {
             this.tick = Preconditions.checkNotNull(tick, "tick cannot be null.");
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TickMethod)) {
+                return false;
+            }
+            TickMethod o2 = (TickMethod) obj;
+            return this.method.equals(o2.method);
+        }
+
         public TaskBuilder toBuilder(@Nonnull Object tickable) {
             Preconditions.checkNotNull(tickable, "tickable cannot be null.");
             long delay = TimeUtils.parseDurationMs(tick.delay());
