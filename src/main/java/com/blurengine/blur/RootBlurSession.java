@@ -33,11 +33,4 @@ public class RootBlurSession extends BlurSession {
         super(Preconditions.checkNotNull(manager, "manager cannot be null."), null);
         manager.addSession(this);
     }
-
-    @Override
-    public <T extends BlurSession> T addChildSession(T session) {
-        T t = super.addChildSession(session);
-        getSessionManager().addSession(session);
-        return t;
-    }
 }

@@ -132,6 +132,8 @@ public abstract class BlurSession {
     public <T extends BlurSession> T addChildSession(T session) {
         // Future precaution, this will never be the case as of the time of writing this as equals() has not been overridden.
         Preconditions.checkState(this.childrenSessions.add(session), "New session somehow already exists.");
+        // Add this child session to the SessionManager to easily keep track of it.
+        getSessionManager().addSession(session);
         return session;
     }
 
