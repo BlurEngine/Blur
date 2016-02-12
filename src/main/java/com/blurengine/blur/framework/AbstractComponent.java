@@ -225,9 +225,8 @@ public abstract class AbstractComponent implements Component {
     public boolean removeTask(@Nonnull TickerTask task) {
         Preconditions.checkNotNull(task, "task cannot be null.");
         if (this.tasks.remove(task)) {
-            if (this.state != ComponentState.UNLOADED) {
-                task.stop();
-            }
+            // Always attempt to stop a task when removing it, no errors are thrown.
+            task.stop();
             return true;
         }
         return false;
