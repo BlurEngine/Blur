@@ -30,6 +30,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ModuleInfo(name = "Includes", dataClass = IncludesData.class)
 public class IncludesModule extends Module {
@@ -54,7 +56,6 @@ public class IncludesModule extends Module {
             } else if (serialized.getAsObject() instanceof String) {
                 this.includes = Collections.singletonList(serialized.getAsString());
             }
-            List<Module> includes = new ArrayList<>();
 
             List<File> _inexistant = new ArrayList<>();
             List<File> _nonFiles = new ArrayList<>();
@@ -72,8 +73,9 @@ public class IncludesModule extends Module {
                     if (includeData.modules == null || includeData.modules.isEmpty()) {
                         moduleManager.getLogger().warning("Empty includes.");
                     } else {
-                        moduleManager.getLogger().finer("Adding %d includes.", includeData.modules.size());
-                        includes.addAll(includeData.modules);
+                        List<String> collect = includeData.modules.stream().map(m -> m.getModuleInfo().name()).collect(Collectors.toList());
+                        moduleManager.getLogger().fine("Added %d includes.", collect.size());
+                        moduleManager.getLogger().finer("Includes: %s", Joiner.on(", ").join(collect));
                     }
                 }
             }
