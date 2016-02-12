@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import com.blurengine.blur.utils.TaskBuilder;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.utils.ReflectionUtils;
+import com.supaham.commons.utils.ThrowableUtils;
 import com.supaham.commons.utils.TimeUtils;
 
 import org.apache.commons.lang.ClassUtils;
@@ -170,7 +171,8 @@ public final class TickMethodsCache {
                     this.method.invoke(tickable, task);
                 }
             } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                // Skip over InvocationTargetException and straight to the error for readability.
+                ThrowableUtils.getCause(e).printStackTrace();
             }
         }
     }
