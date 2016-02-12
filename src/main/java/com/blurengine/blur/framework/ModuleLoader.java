@@ -253,8 +253,7 @@ public class ModuleLoader {
 
     public boolean deserializeYAMLFileTo(File file, Object destination) {
         try {
-            Object load = SerializationUtils.yaml(file).build().load();
-            SerializationUtils.loadToObject(load, destination, serializerSet);
+            SerializationUtils.yaml(file).setAlternateSerializerSet(serializerSet).build().loadToObject(destination);
             return true;
         } catch (SendablePluginBaseException | IOException e) {
             e.printStackTrace();
