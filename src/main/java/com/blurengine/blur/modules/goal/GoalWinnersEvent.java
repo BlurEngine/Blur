@@ -31,13 +31,13 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Represents an event where a {@link Winner} has completed a goal.
+ * Represents an event where a winner has completed a goal.
  */
 public class GoalWinnersEvent extends BlurSessionEvent {
 
-    private final List<Winner> winners;
+    private final List<Object> winners;
 
-    public GoalWinnersEvent(@Nonnull BlurSession blurSession, @Nonnull Collection<Winner> winners) {
+    public GoalWinnersEvent(@Nonnull BlurSession blurSession, @Nonnull Collection<Object> winners) {
         super(blurSession);
         Preconditions.checkNotNull(winners, "winner cannot be null.");
         this.winners = new ArrayList<>(winners);
@@ -49,15 +49,15 @@ public class GoalWinnersEvent extends BlurSessionEvent {
      * @return immutable list
      */
     @Nonnull
-    public List<Winner> getWinners() {
+    public List<Object> getWinners() {
         return Collections.unmodifiableList(this.winners);
     }
 
-    public boolean addWinner(@Nonnull Winner winner) {
+    public boolean addWinner(@Nonnull Object winner) {
         return this.winners.add(winner);
     }
 
-    public boolean removeWinner(@Nonnull Winner winner) {
+    public boolean removeWinner(@Nonnull Object winner) {
         return this.winners.remove(winner);
     }
 

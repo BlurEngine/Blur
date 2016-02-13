@@ -22,6 +22,13 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ticking.BAutoInt;
 import com.blurengine.blur.framework.ticking.Tick;
 import com.blurengine.blur.framework.ticking.TickField;
+import com.blurengine.blur.modules.goal.GoalModule;
+import com.supaham.commons.bukkit.TickerTask;
+
+import org.bukkit.ChatColor;
+
+import java.util.List;
+import java.util.OptionalDouble;
 
 /**
  * Dummy module to test module functionality.
@@ -56,11 +63,26 @@ public class DummyModule extends Module {
         getLogger().info("Enabled!");
         displayTicks();
     }
-    
+
     // This method is automatically called every second after the first second. See Tickable interface for more information.
-    @Tick(interval = "1ms", delay = "1s")
+    @Tick(interval = "10s", delay = "1s")
     private void displayTicks() {
         getLogger().info("ticks: " + ticks.get());
         getLogger().info("ticks2: " + ticks2.get());
+    }
+
+    @Tick(interval = "2s")
+    private void addScoreToPlayers(TickerTask task) {
+        List<GoalModule> modules = getSession().getModule(GoalModule.class);
+        if (modules.isEmpty()) {
+            task.stop();
+            return;
+        }
+        GoalModule goalModule = modules.get(0);
+        getSession().getPlayersStream().forEach(p -> {
+            OptionalDouble score = goalModule.getScore(p);
+            goalModule.addScore(p, 10);
+            p.sendMessage(ChatColor.GREEN + "10 points to Gryffindor. Previously " + score.orElse(0));
+        });
     }
 }

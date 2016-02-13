@@ -20,7 +20,6 @@ import com.blurengine.blur.events.players.PlayerDeathEvent;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.WorldModule;
-import com.blurengine.blur.modules.goal.Winner.TeamWinner;
 import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.session.BlurPlayer;
@@ -43,8 +42,7 @@ public class LastTeamAliveWinnerModule extends WorldModule {
         BlurTeam blurTeam = getTeamManager().getPlayerTeam(players.get(0));
         boolean allAliveAreSameTeam = getPlayersStream().allMatch(p -> getTeamManager().getPlayerTeam(p).equals(blurTeam));
         if (allAliveAreSameTeam) {
-            TeamWinner teamWinner = new TeamWinner(blurTeam);
-            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(teamWinner)));
+            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(blurTeam)));
             getStagesManager().nextStage(StageChangeReason.OBJECTIVE_SUCCESS);
         }
     }

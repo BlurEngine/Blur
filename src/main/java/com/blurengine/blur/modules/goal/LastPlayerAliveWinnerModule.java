@@ -20,7 +20,6 @@ import com.blurengine.blur.events.players.PlayerDeathEvent;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.WorldModule;
-import com.blurengine.blur.modules.goal.Winner.PlayerWinner;
 import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
@@ -40,8 +39,7 @@ public class LastPlayerAliveWinnerModule extends WorldModule {
     void check() {
         List<BlurPlayer> players = getSession().getPlayers(Predicates.ALIVE);
         if (players.size() == 1) {
-            PlayerWinner playerWinner = new PlayerWinner(players.iterator().next());
-            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(playerWinner)));
+            getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(players.iterator().next())));
             getStagesManager().nextStage(StageChangeReason.OBJECTIVE_SUCCESS);
         }
     }
