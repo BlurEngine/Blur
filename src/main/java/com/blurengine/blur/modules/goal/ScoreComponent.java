@@ -127,7 +127,6 @@ public class ScoreComponent extends AbstractComponent {
         Preconditions.checkNotNull(scorer, "scorer cannot be null.");
         Score foundScore = this.scores.get(scorer);
         if (foundScore == null) {
-//            this.scores.put(scorer, score = new Score(scorer, goal, decrementing, initial));
             ScoreGoalData data = getGoalDataFor(scorer);
             this.scores.put(scorer, foundScore = new Score(scorer, data));
         }
