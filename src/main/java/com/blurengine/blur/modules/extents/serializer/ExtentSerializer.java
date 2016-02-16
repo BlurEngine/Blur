@@ -19,16 +19,16 @@ package com.blurengine.blur.modules.extents.serializer;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
+import com.blurengine.blur.framework.BlurSerializer;
+import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Block;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cuboid;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cylinder;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Union;
-import com.blurengine.blur.framework.BlurSerializer;
-import com.blurengine.blur.framework.ModuleLoader;
+import com.blurengine.blur.serializers.ExtentList;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
-import com.supaham.commons.serializers.ListSerializer;
 import com.supaham.commons.utils.ArrayUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link Extent} serializer. Keep in mind this is for single extents. For a {@link List} of extents, see {@link ListExtentSerializer}.
+ * Represents an {@link Extent} serializer. Keep in mind this is for single extents. For a {@link List} of extents, see {@link ExtentList}.
  */
 public class ExtentSerializer implements BlurSerializer<Extent> {
 
@@ -152,14 +152,5 @@ public class ExtentSerializer implements BlurSerializer<Extent> {
 
     public ExtentManager getManager() {
         return this.moduleLoader.getModuleManager().getExtentManager();
-    }
-
-
-    public static class ListExtentSerializer extends ListSerializer<Extent> {
-
-        @Override
-        public Class<Extent> getTypeClass() {
-            return Extent.class;
-        }
     }
 }

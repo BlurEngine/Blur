@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
@@ -215,9 +216,9 @@ public class GoalModule extends Module implements SupervisorContext {
     /* Not handled by PB, handled in ScoreGoalDeserializer. */
     public static final class ScoreGoalCase {
 
-        private final StageChangeReason result;
-        private final double goal;
-        private final Relational<Number> goalRelational;
+        private StageChangeReason result;
+        private double goal;
+        private Relational<Number> goalRelational;
 
         public ScoreGoalCase(StageChangeReason result, double goal, Relational<Number> goalRelational) {
             this.result = result;
@@ -247,6 +248,49 @@ public class GoalModule extends Module implements SupervisorContext {
         }
     }
 
+    /**
+     *
+     * <b>Case #1</b>: The following serialized goal-case may be seen as a major convenience to many people since all it takes is a simple integer:
+     * <pre>
+     * {
+     *   "goals": 12 // This means the goal is 12 points
+     * }
+     * </pre>
+     *
+     * <b>Case #2</b>: The following map defines a goal-case in general, see Case #2 for what might be preceding:<br />
+     *
+     * <pre>
+     * {
+     *   "goals": {
+     *      initial-score: 1,
+     *      cases: {
+     *        // Although optional, either one must be defined.
+     *        fail: <0, 
+     *        succeed: ">2"
+     *      }
+     *   }
+     * }</pre>
+     *
+     * <b>Case #3</b>: Similar to case #2, a goal may be defined but applied to a specific filter, used to identify entities in the session. <br />
+     * P.S. The filter may be a string id or definition (which would be unidentifiable).
+     * <pre>
+     * {
+     *   "goals": {
+     *     "my_filter": {
+     *       initial-score: 1,
+     *       ...
+     *     }
+     *   }
+     * }</pre>
+     *
+     * <b>Case #4</b>: Similar to case #1 and #3, where the value may be an integer but may also be applied to a specific filter.
+     * <pre>
+     * {
+     *   "goals": {
+     *      "my_filter": 1
+     *   }
+     * }</pre>
+     */
     private static final class ScoreGoalDeserializer implements BlurSerializer<List<ScoreGoalData>> {
 
         @Override
@@ -257,75 +301,114 @@ public class GoalModule extends Module implements SupervisorContext {
             }
 
             List<ScoreGoalData> result = new ArrayList<>();
-            FilterSerializer filterSerializer = serializerSet.getSerializerInstance(FilterSerializer.class);
+            FilterSerializer filterSerializer = (FilterSerializer) serializerSet.getClassSerializer(Filter.class);
 
-            if (serialized instanceof Map) {
-                for (Entry<String, Object> entry : ((Map<String, Object>) serialized).entrySet()) {
-                    Filter filter = filterSerializer.deserializeStringToFilter(entry.getKey()); // Deserialize or throw error
-
-                    ScoreGoalData scoreGoalData = new ScoreGoalData();
-                    scoreGoalData.filter = filter;
-
-                    // Value is of something similar to: {
-                    //   initial-score: 1,
-                    //   cases: {
-                    //     // Although optional, either one must be defined.
-                    //     fail: <0, 
-                    //     succeed: ">2"
-                    //   }
-                    // }
-                    if (entry.getValue() instanceof Map) {
-                        Map map = (Map) entry.getValue();
-
-                        // initial-score
-                        scoreGoalData.initialScore = Match.of(map.get("initial-score"))
-                            .whenType(Number.class).then(number -> number)
-                            .whenType(String.class).then(Double::parseDouble)
-                            .otherwise(0.).get().doubleValue();
-
-                        // Cases must be defined as that rationalises the whole configuration section.
-                        Preconditions.checkArgument(map.containsKey("cases"), "Cases must be defined in GoalModule.");
-                        Object cases = map.get("cases");
-                        if (cases instanceof Map) {
-                            Map casesMap = ((Map) cases);
-
-                            // Handle fail case
-                            if (casesMap.containsKey("fail")) {
-                                String fail = casesMap.get("fail").toString();
-                                double goal = Double.parseDouble(RelationalUtils.fixString(fail, RelationalUtils.operator(fail)));
-                                Relational<Number> relational = RelationalUtils.deserializeNumber(fail);
-                                scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_FAILED, goal, relational));
-                            }
-
-                            // Handle succeed case
-                            if (casesMap.containsKey("succeed")) {
-                                String succeed = casesMap.get("succeed").toString();
-                                double goal = Double.parseDouble(RelationalUtils.fixString(succeed, RelationalUtils.operator(succeed)));
-                                Relational<Number> relational = RelationalUtils.deserializeNumber(succeed);
-                                scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, relational));
-                            }
-
-                            Preconditions.checkArgument(!scoreGoalData.cases.isEmpty(), "at least one case must be defined in GoalModule.");
-                        }
+            if (serialized instanceof List) { // List of goals
+                for (Object o : ((List<Object>) serialized)) {
+                    if (!(o instanceof Map)) {
+                        filterSerializer.getManager().getLogger().severe("One goal is not in the correct format: " + o);
+                        continue;
                     }
-                    // Value provided is just a string/number, assume that-that is the goal to trigger OBJECTIVE_SUCCESS.
-                    else if (entry.getValue() != null) {
-                        double goal = Double.parseDouble(entry.getValue().toString());
-                        Relational<Number> rel = Relationals.number(goal);
-                        scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, rel));
+
+                    // Each entry in the list of _goals_ must be in the form of a map.
+                    Map<String, Object> map = (Map<String, Object>) o;
+
+                    // This is a single entry map which consists of a filter represented as a String in the Key.
+                    // See Case #2 and Case #3
+                    if (map.size() == 1) {
+                        Entry<String, Object> entry = map.entrySet().iterator().next();
+                        Filter filter = filterSerializer.deserializeStringToFilter(entry.getKey());
+                        result.add(doGeneral(entry.getValue(), filter, filterSerializer));
                     } else {
-                        throw new IllegalArgumentException(entry.getKey() + " has must have a value in GoalModule.");
+                        result.add(doMap(map, null, filterSerializer));
                     }
-                    result.add(scoreGoalData);
                 }
-            } else { // Value provided is just a string, assume that-that is the goal to trigger OBJECTIVE_SUCCESS.
-                double goal = Double.parseDouble(serialized.toString());
-                Relational<Number> rel = Relationals.number(goal);
-                ScoreGoalData scoreGoalData = new ScoreGoalData();
-                scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, rel));
-                result.add(scoreGoalData);
+            } else if (serialized instanceof Map) { // Single goal
+                result.add(doMap((Map) serialized, null, filterSerializer));
+            } else {
+                /*
+                 * Case #1
+                 */
+                result.add(doGeneral(serialized, null, null));
             }
             return result;
+        }
+
+        @SuppressWarnings("Duplicates")
+        private ScoreGoalData doGeneral(Object o, Filter filter, FilterSerializer filterSerializer) {
+            if (o instanceof Map) {
+                /*
+                 * Case #2
+                 */
+                return doMap(((Map) o), filter, filterSerializer);
+            } else if (o instanceof String || o instanceof Number) {
+                // Value provided is just a string, assume that-that is the goal to trigger OBJECTIVE_SUCCESS.
+                /*
+                 * Case #1
+                 */
+                ScoreGoalData scoreGoalData = new ScoreGoalData();
+                scoreGoalData.cases.add(successCase(Double.parseDouble(o.toString())));
+                return scoreGoalData;
+            }
+            return null;
+        }
+
+        private ScoreGoalCase successCase(Number number) {
+            return new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, number.doubleValue(), Relationals.number(number));
+        }
+
+        private ScoreGoalCase failureCase(Number number) {
+            return new ScoreGoalCase(StageChangeReason.OBJECTIVE_FAILED, number.doubleValue(), Relationals.number(number));
+        }
+
+        /**
+         * Handles Case #2
+         */
+        @SuppressWarnings("Duplicates")
+        private ScoreGoalData doMap(Map map, Filter filter, FilterSerializer filterSerializer) {
+            ScoreGoalData scoreGoalData = new ScoreGoalData();
+
+            // Optional filter may be provided in the map goal case.
+            if (filter == null && filterSerializer != null && map.containsKey("filter")) {
+                // Check if filter contains before doing this code as a precaution in case someone intentionally is setting filter to null.
+                // Alternatively, ensure it is treated as absent, so that in the case of ScoreGoalData having a default Filter it wouldn't be overridden.
+                filter = Optional.ofNullable(map.get("filter")).map(s -> filterSerializer.deserialize(s, null)).orElse(null);
+                scoreGoalData.filter = filter;
+            } else if (filter != null) {
+                scoreGoalData.filter = filter;
+            }
+
+            // initial-score
+            scoreGoalData.initialScore = Match.of(map.get("initial-score"))
+                .whenType(Number.class).then(number -> number)
+                .whenType(String.class).then(Double::parseDouble)
+                .otherwise(0.).get().doubleValue();
+
+            // Cases must be defined as that rationalises the whole configuration section.
+            Preconditions.checkArgument(map.containsKey("cases"), "Cases must be defined in GoalModule.");
+            Object cases = map.get("cases");
+            if (cases instanceof Map) {
+                Map casesMap = ((Map) cases);
+
+                // Handle fail case
+                if (casesMap.containsKey("fail")) {
+                    String fail = casesMap.get("fail").toString();
+                    double goal = Double.parseDouble(RelationalUtils.fixString(fail, RelationalUtils.operator(fail)));
+                    scoreGoalData.cases.add(failureCase(goal));
+                }
+
+                // Handle succeed case
+                if (casesMap.containsKey("succeed")) {
+                    String succeed = casesMap.get("succeed").toString();
+                    double goal = Double.parseDouble(RelationalUtils.fixString(succeed, RelationalUtils.operator(succeed)));
+                    Relational<Number> relational = RelationalUtils.deserializeNumber(succeed);
+                    scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, relational));
+                }
+
+                Preconditions.checkArgument(!scoreGoalData.cases.isEmpty(), "at least one case must be defined in GoalModule.");
+            }
+
+            return scoreGoalData;
         }
     }
 }

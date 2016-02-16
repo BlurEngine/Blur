@@ -16,28 +16,53 @@
 
 package com.blurengine.blur.serializers;
 
+import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.modules.spawns.Spawn;
-import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer.ListSpawnSerializer;
+import com.blurengine.blur.serializers.SpawnList.SpawnListSerializer;
+import com.supaham.commons.collections.PossiblyImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pluginbase.config.annotation.SerializeWith;
+import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link ArrayList} of {@link Spawn} specifically designed for easy serialization.
+ * Represents a {@link List} of {@link Spawn} specifically designed for easy serialization.
  */
-@SerializeWith(ListSpawnSerializer.class)
-public class SpawnList extends ArrayList<Spawn> {
+@SerializeWith(SpawnListSerializer.class)
+public class SpawnList extends PossiblyImmutableList<Spawn> {
 
-    public SpawnList(int initialCapacity) {
-        super(initialCapacity);
-    }
+    public static final SpawnList EMPTY = new SpawnList();
 
     public SpawnList() {
+        super();
+    }
+
+    public SpawnList(int initialCapacity) {
+        super(new ArrayList<>(initialCapacity));
     }
 
     public SpawnList(Collection<? extends Spawn> c) {
-        super(c);
+        super(new ArrayList<>(c));
+    }
+
+    public static final class SpawnListSerializer implements BlurSerializer<SpawnList> {
+
+        @Override
+        public SpawnList deserialize(Object serialized, Class wantedType, SerializerSet serializerSet) throws IllegalArgumentException {
+            if (serialized == null) {
+                return EMPTY;
+            }
+            pluginbase.config.serializers.Serializer<Spawn> ser = serializerSet.getClassSerializer(Spawn.class);
+            if (serialized instanceof List) {
+                return new SpawnList(((List<Object>) serialized).stream().map(o -> ser.deserialize(o, Spawn.class, serializerSet)).collect(Collectors.toList()));
+            } else {
+                return new SpawnList(Collections.singletonList(ser.deserialize(serialized, Spawn.class, serializerSet)));
+            }
+        }
     }
 }

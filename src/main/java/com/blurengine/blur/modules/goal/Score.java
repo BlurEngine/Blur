@@ -42,6 +42,7 @@ class Score {
     public Score(@Nonnull Object object, @Nonnull ScoreGoalData goalData) {
         this.object = Preconditions.checkNotNull(object, "object cannot be null.");
         this.goalData = Preconditions.checkNotNull(goalData, "goalData cannot be null.");
+        reset(); // Set initial
     }
 
     public Optional<StageChangeReason> checkGoalMet() {

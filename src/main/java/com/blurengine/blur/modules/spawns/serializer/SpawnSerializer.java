@@ -26,6 +26,7 @@ import com.blurengine.blur.modules.spawns.SpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
+import com.blurengine.blur.serializers.SpawnList;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.serializers.ListSerializer;
 
@@ -40,7 +41,7 @@ import javax.annotation.Nullable;
 import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents a {@link Spawn} serializer. Keep in mind this is for single spawns. For a {@link List} of spawns, see {@link ListSpawnSerializer}.
+ * Represents a {@link Spawn} serializer. Keep in mind this is for single spawns. For a {@link List} of spawns, see {@link SpawnList}.
  */
 @SuppressWarnings("Duplicates")
 public class SpawnSerializer implements BlurSerializer<Spawn> {
@@ -129,14 +130,6 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
             return new Spawn(getExtent(serialized.toString()));
         } else {
             throw new IllegalArgumentException("Expected String or Map, got Spawn data type of " + serialized.getClass().getName() + ".");
-        }
-    }
-
-    public static class ListSpawnSerializer extends ListSerializer<Spawn> {
-
-        @Override
-        public Class<Spawn> getTypeClass() {
-            return Spawn.class;
         }
     }
 

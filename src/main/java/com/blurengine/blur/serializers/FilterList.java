@@ -16,29 +16,53 @@
 
 package com.blurengine.blur.serializers;
 
+import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.filters.serializer.FilterSerializer.ListFilterSerializer;
-import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.serializers.FilterList.FilterListSerializer;
+import com.supaham.commons.collections.PossiblyImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pluginbase.config.annotation.SerializeWith;
+import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link ArrayList} of {@link Filter} specifically designed for easy serialization.
+ * Represents a {@link List} of {@link Filter} specifically designed for easy serialization.
  */
-@SerializeWith(ListFilterSerializer.class)
-public class FilterList extends ArrayList<Module> {
+@SerializeWith(FilterListSerializer.class)
+public class FilterList extends PossiblyImmutableList<Filter> {
+
+    public static final FilterList EMPTY = new FilterList();
+
+    private FilterList() {
+        super();
+    }
 
     public FilterList(int initialCapacity) {
-        super(initialCapacity);
+        super(new ArrayList<>(initialCapacity));
     }
 
-    public FilterList() {
+    public FilterList(Collection<? extends Filter> c) {
+        super(new ArrayList<>(c));
     }
 
-    public FilterList(Collection<? extends Module> c) {
-        super(c);
+    public static final class FilterListSerializer implements BlurSerializer<FilterList> {
+
+        @Override
+        public FilterList deserialize(Object serialized, Class wantedType, SerializerSet serializerSet) throws IllegalArgumentException {
+            if (serialized == null) {
+                return EMPTY;
+            }
+            pluginbase.config.serializers.Serializer<Filter> ser = serializerSet.getClassSerializer(Filter.class);
+            if (serialized instanceof List) {
+                return new FilterList(((List<Object>) serialized).stream().map(o -> ser.deserialize(o, Filter.class, serializerSet)).collect(Collectors.toList()));
+            } else {
+                return new FilterList(Collections.singletonList(ser.deserialize(serialized, Filter.class, serializerSet)));
+            }
+        }
     }
 }

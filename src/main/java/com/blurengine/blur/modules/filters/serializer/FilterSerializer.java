@@ -27,7 +27,6 @@ import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.modules.filters.lexer.FilterRecursiveDescentParser;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializers.Team;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
-import com.supaham.commons.serializers.ListSerializer;
 import com.supaham.commons.utils.ArrayUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -183,13 +182,5 @@ public class FilterSerializer implements BlurSerializer<Filter> {
 
     public FilterManager getManager() {
         return this.moduleLoader.getModuleManager().getFilterManager();
-    }
-
-    public static class ListFilterSerializer extends ListSerializer<Filter> {
-
-        @Override
-        public Class<Filter> getTypeClass() {
-            return Filter.class;
-        }
     }
 }

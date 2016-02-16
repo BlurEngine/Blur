@@ -16,29 +16,53 @@
 
 package com.blurengine.blur.serializers;
 
+import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.modules.extents.Extent;
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializer.ListExtentSerializer;
-import com.blurengine.blur.framework.Module;
+import com.blurengine.blur.serializers.ExtentList.ExtentListSerializer;
+import com.supaham.commons.collections.PossiblyImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pluginbase.config.annotation.SerializeWith;
+import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link ArrayList} of {@link Extent} specifically designed for easy serialization.
+ * Represents a {@link List} of {@link Extent} specifically designed for easy serialization.
  */
-@SerializeWith(ListExtentSerializer.class)
-public class ExtentList extends ArrayList<Module> {
+@SerializeWith(ExtentListSerializer.class)
+public class ExtentList extends PossiblyImmutableList<Extent> {
 
-    public ExtentList(int initialCapacity) {
-        super(initialCapacity);
-    }
+    public static final ExtentList EMPTY = new ExtentList();
 
     public ExtentList() {
+        super();
     }
 
-    public ExtentList(Collection<? extends Module> c) {
-        super(c);
+    public ExtentList(int initialCapacity) {
+        super(new ArrayList<>(initialCapacity));
+    }
+
+    public ExtentList(Collection<? extends Extent> c) {
+        super(new ArrayList<>(c));
+    }
+
+    public static final class ExtentListSerializer implements BlurSerializer<ExtentList> {
+
+        @Override
+        public ExtentList deserialize(Object serialized, Class wantedType, SerializerSet serializerSet) throws IllegalArgumentException {
+            if (serialized == null) {
+                return EMPTY;
+            }
+            pluginbase.config.serializers.Serializer<Extent> ser = serializerSet.getClassSerializer(Extent.class);
+            if (serialized instanceof List) {
+                return new ExtentList(((List<Object>) serialized).stream().map(o -> ser.deserialize(o, Extent.class, serializerSet)).collect(Collectors.toList()));
+            } else {
+                return new ExtentList(Collections.singletonList(ser.deserialize(serialized, Extent.class, serializerSet)));
+            }
+        }
     }
 }

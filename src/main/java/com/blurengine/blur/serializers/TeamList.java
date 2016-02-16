@@ -16,29 +16,53 @@
 
 package com.blurengine.blur.serializers;
 
-import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.framework.Module;
-import com.blurengine.blur.modules.teams.TeamSerializer.ListTeamSerializer;
+import com.blurengine.blur.framework.BlurSerializer;
+import com.blurengine.blur.modules.teams.BlurTeam;
+import com.blurengine.blur.serializers.TeamList.TeamListSerializer;
+import com.supaham.commons.collections.PossiblyImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pluginbase.config.annotation.SerializeWith;
+import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link ArrayList} of {@link Filter} specifically designed for easy serialization.
+ * Represents a {@link List} of {@link BlurTeam} specifically designed for easy serialization.
  */
-@SerializeWith(ListTeamSerializer.class)
-public class TeamList extends ArrayList<Module> {
+@SerializeWith(TeamListSerializer.class)
+public class TeamList extends PossiblyImmutableList<BlurTeam> {
 
-    public TeamList(int initialCapacity) {
-        super(initialCapacity);
-    }
+    public static final TeamList EMPTY = new TeamList();
 
     public TeamList() {
+        super();
     }
 
-    public TeamList(Collection<? extends Module> c) {
-        super(c);
+    public TeamList(int initialCapacity) {
+        super(new ArrayList<>(initialCapacity));
+    }
+
+    public TeamList(Collection<? extends BlurTeam> c) {
+        super(new ArrayList<>(c));
+    }
+
+    public static final class TeamListSerializer implements BlurSerializer<TeamList> {
+
+        @Override
+        public TeamList deserialize(Object serialized, Class wantedType, SerializerSet serializerSet) throws IllegalArgumentException {
+            if (serialized == null) {
+                return EMPTY;
+            }
+            pluginbase.config.serializers.Serializer<BlurTeam> ser = serializerSet.getClassSerializer(BlurTeam.class);
+            if (serialized instanceof List) {
+                return new TeamList(((List<Object>) serialized).stream().map(o -> ser.deserialize(o, BlurTeam.class, serializerSet)).collect(Collectors.toList()));
+            } else {
+                return new TeamList(Collections.singletonList(ser.deserialize(serialized, BlurTeam.class, serializerSet)));
+            }
+        }
     }
 }

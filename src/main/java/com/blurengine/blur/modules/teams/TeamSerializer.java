@@ -79,14 +79,6 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         return this.moduleLoader.getModuleManager().getTeamManager();
     }
 
-    public static class ListTeamSerializer extends ListSerializer<BlurTeam> {
-
-        @Override
-        public Class<BlurTeam> getTypeClass() {
-            return BlurTeam.class;
-        }
-    }
-
     private static final class BlurTeamData {
 
         private String id;

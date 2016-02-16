@@ -16,28 +16,53 @@
 
 package com.blurengine.blur.serializers;
 
+import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.Module;
-import com.blurengine.blur.framework.serializer.ListModuleSerializer;
+import com.blurengine.blur.serializers.ModuleList.ModuleListSerializer;
+import com.supaham.commons.collections.PossiblyImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pluginbase.config.annotation.SerializeWith;
+import pluginbase.config.serializers.SerializerSet;
 
 /**
- * Represents an {@link ArrayList} of {@link Module} specifically designed for easy serialization.
+ * Represents a {@link ArrayList} of {@link Module} specifically designed for easy serialization.
  */
-@SerializeWith(ListModuleSerializer.class)
-public class ModuleList extends ArrayList<Module> {
+@SerializeWith(ModuleListSerializer.class)
+public class ModuleList extends PossiblyImmutableList<Module> {
 
-    public ModuleList(int initialCapacity) {
-        super(initialCapacity);
-    }
+    public static final ModuleList EMPTY = new ModuleList();
 
     public ModuleList() {
+        super();
+    }
+
+    public ModuleList(int initialCapacity) {
+        super(new ArrayList<>(initialCapacity));
     }
 
     public ModuleList(Collection<? extends Module> c) {
-        super(c);
+        super(new ArrayList<>(c));
+    }
+
+    public static final class ModuleListSerializer implements BlurSerializer<ModuleList> {
+
+        @Override
+        public ModuleList deserialize(Object serialized, Class wantedType, SerializerSet serializerSet) throws IllegalArgumentException {
+            if (serialized == null) {
+                return EMPTY;
+            }
+            pluginbase.config.serializers.Serializer<Module> ser = serializerSet.getClassSerializer(Module.class);
+            if (serialized instanceof List) {
+                return new ModuleList(((List<Object>) serialized).stream().map(o -> ser.deserialize(o, Module.class, serializerSet)).collect(Collectors.toList()));
+            } else {
+                return new ModuleList(Collections.singletonList(ser.deserialize(serialized, Module.class, serializerSet)));
+            }
+        }
     }
 }

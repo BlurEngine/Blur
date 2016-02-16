@@ -125,7 +125,7 @@ public class SpawnsModule extends WorldModule {
 
         @Name("default")
         private Spawn defaultSpawn;
-        private SpawnList spawns = new SpawnList();
+        private SpawnList spawns;
         @Name("spawn-on-start")
         private Spawn spawnOnStart;
 
@@ -162,7 +162,7 @@ public class SpawnsModule extends WorldModule {
 
             checkNotNull(this.defaultSpawn, "default cannot be null.");
             if (this.spawns == null) {
-                this.spawns = new SpawnList();
+                this.spawns = new SpawnList(1);
             }
 
             if (this.spawns.isEmpty()) {
