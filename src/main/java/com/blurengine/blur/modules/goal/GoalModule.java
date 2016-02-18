@@ -71,7 +71,7 @@ public class GoalModule extends Module implements SupervisorContext {
     public GoalModule(ModuleManager moduleManager, GoalModuleData data) {
         super(moduleManager);
         this.data = data;
-        this.scoring = new ScoreComponent(moduleManager, data.goals);
+        this.scoring = new ScoreComponent(moduleManager, data.score);
 
         newTask(this::timeIsUp).delay(this.data.timeLimit).build();
     }
@@ -125,7 +125,7 @@ public class GoalModule extends Module implements SupervisorContext {
         config.put("default-winner", data.defaultWinner);
 
         config.put("scores", this.scoring.getScores());
-        config.put("goals", data.goals.stream().map(g -> MapBuilder.newHashMap().put("initial-score", g.initialScore).put("filter", g.filter)
+        config.put("score_goals", data.score.stream().map(g -> MapBuilder.newHashMap().put("initial-score", g.initialScore).put("filter", g.filter)
             .put("cases", g.cases).build()).collect(Collectors.toList()));
 
         amendable.append("config", config);
@@ -144,25 +144,10 @@ public class GoalModule extends Module implements SupervisorContext {
         @Name("default-winner")
         private Filter defaultWinner;
         @SerializeWith(ScoreGoalDeserializer.class)
-        private List<ScoreGoalData> goals = new ArrayList<>();
+        private List<ScoreGoalData> score = new ArrayList<>();
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
-            if (serialized.getAsObject() instanceof Map) {
-                Map<String, Object> map = serialized.getAsMap();
-                // Convenient all-goal goal configuration
-                if (map.containsKey("goal")) {
-                    // In order to ensure expected output, force only goal to be present.
-                    check(!map.containsKey("goals"), "Only goal OR goals may be present at one time.");
-                    Object rawGoal = map.remove("goal");
-                    if (rawGoal instanceof Number) {
-                        ScoreGoalData scoreGoalData = new ScoreGoalData();
-                        double goal = ((Number) rawGoal).doubleValue();
-                        scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, Relationals.number(goal)));
-                        goals.add(scoreGoalData);
-                    }
-                }
-            }
             serialized.load(this);
             return new GoalModule(moduleManager, this);
         }
@@ -179,8 +164,8 @@ public class GoalModule extends Module implements SupervisorContext {
             return defaultWinner;
         }
 
-        public List<ScoreGoalData> getGoals() {
-            return Collections.unmodifiableList(goals);
+        public List<ScoreGoalData> getScore() {
+            return Collections.unmodifiableList(score);
         }
     }
 
@@ -253,7 +238,7 @@ public class GoalModule extends Module implements SupervisorContext {
      * <b>Case #1</b>: The following serialized goal-case may be seen as a major convenience to many people since all it takes is a simple integer:
      * <pre>
      * {
-     *   "goals": 12 // This means the goal is 12 points
+     *   "score": 12 // This means the goal is 12 points
      * }
      * </pre>
      *
@@ -261,7 +246,7 @@ public class GoalModule extends Module implements SupervisorContext {
      *
      * <pre>
      * {
-     *   "goals": {
+     *   "score": {
      *      initial-score: 1,
      *      cases: {
      *        // Although optional, either one must be defined.
@@ -275,7 +260,7 @@ public class GoalModule extends Module implements SupervisorContext {
      * P.S. The filter may be a string id or definition (which would be unidentifiable).
      * <pre>
      * {
-     *   "goals": {
+     *   "score": {
      *     "my_filter": {
      *       initial-score: 1,
      *       ...
@@ -286,7 +271,7 @@ public class GoalModule extends Module implements SupervisorContext {
      * <b>Case #4</b>: Similar to case #1 and #3, where the value may be an integer but may also be applied to a specific filter.
      * <pre>
      * {
-     *   "goals": {
+     *   "score": {
      *      "my_filter": 1
      *   }
      * }</pre>
@@ -310,7 +295,7 @@ public class GoalModule extends Module implements SupervisorContext {
                         continue;
                     }
 
-                    // Each entry in the list of _goals_ must be in the form of a map.
+                    // Each entry in the list of _score_ must be in the form of a map.
                     Map<String, Object> map = (Map<String, Object>) o;
 
                     // This is a single entry map which consists of a filter represented as a String in the Key.
