@@ -18,8 +18,6 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
-import com.blurengine.blur.modules.extents.serializer.ExtentSerializers;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import org.bukkit.util.BlockVector;
@@ -36,8 +34,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
- * Represents an {@link Extent} that consists of {@link Vector}s, radius, and offset in radians. This is used in {@link ExtentSerializers.AutoCircle}
- * which is an {@link ExtentSerializer}.
+ * Represents an {@link Extent} that consists of {@link Vector}s, radius, and offset in radians.
  */
 public class AutoCircleExtent implements Extent {
 
