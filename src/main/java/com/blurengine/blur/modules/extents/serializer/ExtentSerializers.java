@@ -16,6 +16,9 @@
 
 package com.blurengine.blur.modules.extents.serializer;
 
+import com.google.common.base.Preconditions;
+
+import com.blurengine.blur.modules.extents.AutoCircleExtent;
 import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.CuboidExtent;
 import com.blurengine.blur.modules.extents.CylinderExtent;
@@ -24,10 +27,13 @@ import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -105,5 +111,36 @@ final class ExtentSerializers {
 
         @Override
         protected void deserializedPreHandler(Object o) {} // No data type requirements
+    }
+
+    static final class AutoCircle extends ExtentTypeSerializer<AutoCircleExtent> {
+
+        public AutoCircle(ExtentSerializer parent) {
+            super(parent);
+        }
+
+        @Override
+        protected AutoCircleExtent deserialize(Object object) {
+            Map map = (Map) object;
+            Vector base = getVector(map, "base");
+            double radius = getDouble(map, "radius");
+            Preconditions.checkArgument(radius > 0, "radius must be greater than 0.");
+
+            int points = getInt(map, "points");
+            Preconditions.checkArgument(points > 0, "points must be greater than 0.");
+
+            double offsetAngle = Optional.ofNullable(map.get("offset-angle")).map(Object::toString).map(Double::parseDouble).orElse(0.);
+            double x = base.getX();
+            double z = base.getZ();
+
+            double offsetRadians = Math.toRadians(offsetAngle); // Must convert offset in degrees to radians to comply with minecraft.
+            List<Vector> pointsList = IntStream.range(0, points).mapToObj(i -> {
+                double angle = ((double) i / points) * Math.PI * 2 + offsetRadians;
+                double dX = Math.cos(angle) * radius + x;
+                double dZ = Math.sin(angle) * radius + z;
+                return new Vector(dX, base.getY(), dZ);
+            }).collect(Collectors.toList());
+            return new AutoCircleExtent(pointsList, radius, offsetRadians);
+        }
     }
 }

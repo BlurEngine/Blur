@@ -23,6 +23,7 @@ import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.ExtentManager;
+import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.AutoCircle;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Block;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cuboid;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cylinder;
@@ -61,6 +62,7 @@ public class ExtentSerializer implements BlurSerializer<Extent> {
         EXTENT_SERIALIZERS.put("union", Union.class);
         EXTENT_SERIALIZERS.put("cylinder", Cylinder.class);
         EXTENT_SERIALIZERS.put("block", Block.class);
+        EXTENT_SERIALIZERS.put("auto-circle", AutoCircle.class);
     }
 
     /**
