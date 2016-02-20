@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.extents;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.filters.Filter;
+import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 import com.supaham.commons.utils.RandomUtils;
 
@@ -39,6 +40,17 @@ import javax.annotation.Nonnull;
  * of {@link #iterator()} so please be sure to read the specific documentation for more information.
  */
 public interface Extent extends Filter, Iterable<BlockVector> {
+
+    /**
+     * Returns whether an {@link BlurPlayer} is within this {@link Extent}.
+     *
+     * @param blurPlayer player to test
+     *
+     * @return whether the {@code blurPlayer} is within this extent
+     */
+    default boolean contains(@Nonnull BlurPlayer blurPlayer) {
+        return contains(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.").getLocation());
+    }
 
     /**
      * Returns whether an {@link Entity} is within this {@link Extent}.
@@ -108,9 +120,9 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      * @return whether {@code x}, {@code y}, {@code z} are within this extent
      */
     boolean contains(double x, double y, double z);
-    
+
     double getVolume();
-    
+
     default Vector getRandomLocation() {
         return getRandomLocation(RandomUtils.getRandom());
     }
