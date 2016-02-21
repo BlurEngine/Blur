@@ -33,6 +33,7 @@ import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.includes.IncludesModule;
 import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
+import com.blurengine.blur.modules.misc.SimpleParticlesModule;
 import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
@@ -91,6 +92,7 @@ public class Blur {
         ModuleLoader.register(GoalModule.class);
         ModuleLoader.register(LobbyModule.class);
         ModuleLoader.register(CheckpointsModule.class);
+        ModuleLoader.register(SimpleParticlesModule.class);
     }
 
     public CommonPlugin getPlugin() {
