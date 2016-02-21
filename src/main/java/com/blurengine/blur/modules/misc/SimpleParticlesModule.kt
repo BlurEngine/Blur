@@ -29,6 +29,7 @@ import com.blurengine.blur.modules.extents.UnionExtent
 import com.blurengine.blur.modules.misc.SimpleParticlesModule.SimpleParticlesData
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ListMultimap
+import com.supaham.commons.bukkit.utils.ImmutableBlockVector
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import org.bukkit.Effect
 import java.time.Duration
@@ -80,7 +81,29 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
     }
 
     fun doCuboid(extent: CuboidExtent): List<ImmutableVector> {
-        return emptyList() // TODO
+        val result = ArrayList<ImmutableVector>()
+        val min = extent.minimumPoint
+        val max = extent.maximumPoint
+        (min.y.toInt()..max.y.toInt()).forEach { y ->
+            // Top Left to top right
+            (min.blockX..max.blockX).forEach { x ->
+                result.add(ImmutableBlockVector(x, y, min.z.toInt()))
+            }
+            // Top right to bottom right
+            (max.blockZ downTo min.blockZ).forEach { z ->
+                result.add(ImmutableBlockVector(max.blockX, y, z))
+            }
+            // Bottom right to bottom left
+            (min.blockZ..max.blockZ).forEach { z ->
+                result.add(ImmutableBlockVector(min.blockX, y, z))
+            }
+            // Bottom left to top left
+            (max.blockX downTo min.blockX).forEach { x ->
+                result.add(ImmutableBlockVector(x, y, max.z.toInt()))
+            }
+        }
+        // LOOP THROUGH WALLS AND MULTIPLY BY HEIGHT
+        return result
     }
 
     class SimpleParticlesData : ModuleData {
