@@ -146,9 +146,11 @@ public class ExtentSerializer implements BlurSerializer<Extent> {
             String extentId = id.orElseThrow(() -> new NullPointerException("no extent id or extent definition."));
             extent = getManager().getNonNullExtentById(extentId);
         }
-
-        String idStr = id.orElse(null);
-        getManager().addExtent(idStr, extent);
+        // Extent was defined, add it.
+        else {
+            String idStr = id.orElse(null);
+            getManager().addExtent(idStr, extent);
+        }
         return extent;
     }
 
