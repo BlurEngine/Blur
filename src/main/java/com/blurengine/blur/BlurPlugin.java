@@ -60,6 +60,7 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         module.setState(State.ACTIVE);
         PlayerListeners.defaultSpeeds(this);
         registerEvents(this);
+        registerEvents(new BlurListener(this));
 
         this.blur = new Blur(this);
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
