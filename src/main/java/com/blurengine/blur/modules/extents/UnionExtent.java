@@ -24,11 +24,9 @@ import org.bukkit.util.Vector;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Represents a Union of {@link Extent}s which helps for grouping multiple Extents in one. 
@@ -103,5 +101,14 @@ public class UnionExtent implements Extent {
                 return next;
             }
         };
+    }
+
+    /**
+     * Returns an immutable collection of {@link Extent}s that this Union consists of.
+     * 
+     * @return immutable collection of extents
+     */
+    public Collection<Extent> getExtents() {
+        return Collections.unmodifiableCollection(extents);
     }
 }
