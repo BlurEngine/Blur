@@ -102,7 +102,6 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
                 result.add(ImmutableBlockVector(x, y, max.z.toInt()))
             }
         }
-        // LOOP THROUGH WALLS AND MULTIPLY BY HEIGHT
         return result
     }
 

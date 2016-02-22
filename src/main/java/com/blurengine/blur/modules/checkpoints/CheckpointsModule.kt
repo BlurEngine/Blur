@@ -51,7 +51,7 @@ class CheckpointsModule(manager: ModuleManager, val data: CheckpointsData) : Mod
             }
         }
 
-        
+
         // player has reached the last point.        
         if (current >= this.data.points.size) {
             session.callEvent(GoalWinnersEvent(session, setOf<Any>(bp)))
