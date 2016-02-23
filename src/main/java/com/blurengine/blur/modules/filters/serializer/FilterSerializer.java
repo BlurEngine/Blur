@@ -156,9 +156,10 @@ public class FilterSerializer implements BlurSerializer<Filter> {
             String filterId = id.orElseThrow(() -> new NullPointerException("no filter id or filter definition."));
             filter = getManager().getFilterById(filterId);
             Preconditions.checkNotNull(filter, "Could not find filter by id '%s'.", id);
+        } else {
+            getManager().addFilter(id.orElse(null), filter);
         }
 
-        getManager().addFilter(id.orElse(null), filter);
         return filter;
     }
 
