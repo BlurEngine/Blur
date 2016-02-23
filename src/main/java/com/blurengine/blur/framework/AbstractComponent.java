@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -43,6 +44,7 @@ public abstract class AbstractComponent implements Component {
     final Set<Listener> listeners = new HashSet<>();
     final Set<TickerTask> tasks = new HashSet<>();
     final Multimap<Object, TickerTask> tickableTasks = HashMultimap.create();
+    final Set<TickerTask> tasksThatHaveBeenRan = new HashSet<>();
 
     private ComponentState state = ComponentState.UNLOADED;
 
@@ -67,11 +69,13 @@ public abstract class AbstractComponent implements Component {
         if (!setState(ComponentState.LOADED)) {
             return false;
         }
+        this.tasksThatHaveBeenRan.clear();
 
         this.listeners.forEach(getSession().getBlur().getPlugin()::registerEvents);
         this.tasks.forEach(TickerTask::start);
-        // FIXME maybe don't remove the task, but log it as being run
-        this.tasks.removeIf(t -> t.getInterval() < 0); // Remove all single-run tasks
+        // TODO Fix further by modifying the TickerTask class to support pauses, etc. 
+        // Identify all single-run tasks
+        this.tasksThatHaveBeenRan.addAll(this.tasks.stream().filter(t -> t.getInterval() < 0).collect(Collectors.toList()));
 
         load();
         return true;
@@ -84,6 +88,7 @@ public abstract class AbstractComponent implements Component {
         }
         this.listeners.forEach(getSession().getBlur().getPlugin()::unregisterEvents);
         this.tasks.forEach(TickerTask::stop);
+        this.tasksThatHaveBeenRan.clear();
 
         unload();
         return true;
