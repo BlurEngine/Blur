@@ -30,6 +30,10 @@ import javax.annotation.Nonnull;
 public abstract class BlurPlayerEvent extends BlurSessionEvent {
 
     protected final BlurPlayer blurPlayer;
+    
+    public BlurPlayerEvent(@Nonnull BlurPlayer blurPlayer) {
+        this(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession());
+    }
 
     public BlurPlayerEvent(BlurPlayer blurPlayer, @Nonnull BlurSession session) {
         super(Preconditions.checkNotNull(session, "session cannot be null."));
