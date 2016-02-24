@@ -16,6 +16,10 @@
 
 package com.blurengine.blur.framework;
 
+import java.util.function.Supplier;
+
+import kotlin.UninitializedPropertyAccessException;
+
 /**
  * This is an empty interface meant to identify classes that are created by a {@link Module} to store configurable data.
  */
@@ -46,6 +50,28 @@ public interface ModuleData {
     default void check(boolean b, String message, Object... args) throws ModuleParseException {
         if (!b) {
             throw new ModuleParseException(String.format(message, args));
+        }
+    }
+
+    default <T> T checkNotNullLateInit(Supplier<T> o, String message) throws ModuleParseException {
+        try {
+            T t = o.get();
+            if (t == null) {
+                throw new ModuleParseException(message);
+            }
+            return t; 
+        } catch (UninitializedPropertyAccessException e) {
+            throw new ModuleParseException(message);
+        }
+    }
+
+    default void checkLateInit(Supplier<Boolean> b, String message) throws ModuleParseException {
+        try {
+            if (!b.get()) {
+                throw new ModuleParseException(message);
+            }
+        } catch (UninitializedPropertyAccessException e) {
+            throw new ModuleParseException(message);
         }
     }
 }
