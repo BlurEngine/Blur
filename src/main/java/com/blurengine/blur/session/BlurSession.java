@@ -89,6 +89,7 @@ public abstract class BlurSession {
     private final Set<BlurSession> childrenSessions = new HashSet<>();
     private File rootDirectory = new File(".");
     private String name = getClass().getSimpleName(); // Default session name to short class name
+    private int ticksPerSecond = 20;
 
     private final CommonScoreboard scoreboard;
     private boolean enabled;
@@ -102,6 +103,7 @@ public abstract class BlurSession {
     private final List<Runnable> onStopTasks = new ArrayList<>();
 
     {
+        setTicksPerSecond(20);
         // Bukkit hasn't fully initialized yet (this is the RootBlurSession)
         if (Bukkit.getScoreboardManager() != null) {
             this.scoreboard = new CommonScoreboard();
@@ -142,6 +144,8 @@ public abstract class BlurSession {
             return;
         }
         getLogger().fine("Enabling %s", getName());
+        Preconditions.checkArgument(getTicksPerSecond() > 0, "ticksPerSecond must be greater than 0.");
+
         long startedAt = System.currentTimeMillis();
         getBlur().getPlugin().registerEvents(this.listener);
         this.moduleManager.load();
@@ -336,6 +340,27 @@ public abstract class BlurSession {
     public boolean removeOnStopTask(@Nonnull Runnable runnable) {
         Preconditions.checkNotNull(runnable, "runnable cannot be null.");
         return this.onStopTasks.remove(runnable);
+    }
+
+    public int getTicksPerSecond() {
+        return ticksPerSecond;
+    }
+
+    // TODO publicize when it's fully implemented. This needs to cater for external libraries such as SupaCommons which is fixed to 20. 
+    protected void setTicksPerSecond(int ticksPerSecond) {
+        Preconditions.checkArgument(ticksPerSecond > 0, "ticksPerSecond must be greater than 0.");
+        this.ticksPerSecond = ticksPerSecond;
+        ticksAsMs = 1000 / ticksPerSecond;
+    }
+
+    private int ticksAsMs;
+
+    public int getTicksAsMs() {
+        return this.ticksAsMs;
+    }
+
+    public int millisecondsToTicks(long ms) {
+        return (int) ms / ticksAsMs;
     }
     
     /* ================================
