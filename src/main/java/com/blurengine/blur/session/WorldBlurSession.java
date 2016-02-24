@@ -49,6 +49,12 @@ public class WorldBlurSession extends BlurSession {
     }
 
     private void init() {
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        // Load a default players team if no team is present at the time of the game starting.
         TeamManager teamManager = getModuleManager().getTeamManager();
         teamManager.setSpectatorTeam(new SpectatorTeam(teamManager));
 
