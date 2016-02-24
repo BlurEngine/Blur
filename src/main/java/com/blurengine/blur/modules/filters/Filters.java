@@ -19,12 +19,18 @@ package com.blurengine.blur.modules.filters;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.filters.Filter.FilterResponse;
+import com.supaham.commons.bukkit.utils.MaterialUtils;
 import com.supaham.commons.utils.RandomUtils;
 
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import java.util.Random;
 import java.util.function.Predicate;
@@ -96,6 +102,14 @@ public class Filters {
 
     public static Filter damageCause(@Nonnull DamageCause damageCause) {
         return new DamageCauseFilter(Preconditions.checkNotNull(damageCause, "damageCause cannot be null."));
+    }
+
+    public static Filter material(@Nonnull Material material) {
+        return material(new MaterialData(material, (byte) -1));
+    }
+
+    public static Filter material(@Nonnull MaterialData materialData) {
+        return new MaterialFilter(Preconditions.checkNotNull(materialData, "materialData cannot be null."));
     }
     
     /* ================================
@@ -240,6 +254,32 @@ public class Filters {
                 return FilterResponse.from(damageCause == object);
             } else if (object instanceof EntityDamageEvent) {
                 return FilterResponse.from(damageCause == ((EntityDamageEvent) object).getCause());
+            } else {
+                return FilterResponse.ABSTAIN;
+            }
+        }
+    }
+
+    private static final class MaterialFilter implements Filter {
+
+        private final MaterialData materialData;
+
+        public MaterialFilter(MaterialData materialData) {
+            this.materialData = materialData;
+        }
+
+        @Override
+        public FilterResponse test(Object object) {
+            if (object instanceof MaterialData) {
+                return FilterResponse.from(MaterialUtils.same((MaterialData) object, this.materialData));
+            } else if (object instanceof Block) {
+                return FilterResponse.from(MaterialUtils.same((Block) object, this.materialData));
+            } else if (object instanceof BlockState) {
+                return FilterResponse.from(MaterialUtils.same(((BlockState) object).getBlock(), this.materialData));
+            } else if (object instanceof ItemStack) {
+                return FilterResponse.from(MaterialUtils.same((ItemStack) object, this.materialData));
+            } else if (object instanceof Material && this.materialData.getData() <= 0) {
+                return FilterResponse.from(MaterialUtils.same((Material) object, (byte) -1, this.materialData));
             } else {
                 return FilterResponse.ABSTAIN;
             }
