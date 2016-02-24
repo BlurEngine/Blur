@@ -125,11 +125,12 @@ public class LobbyModule extends WorldModule {
         try {
             WorldBlurSession childSession = mapLoaderModule.createSessionFromDirectory(mapLoaderModule.nextMap());
 
-            // Add players to the new session immediately
-            getSession().getPlayersStream().forEach(childSession::addPlayer);
-
             // Make the wheels on the bus go round and round.
             childSession.enable();
+
+            // Add current lobby players to the new session immediately
+            getSession().getPlayersStream().forEach(childSession::addPlayer);
+
             if (!data.delay.isZero()) {
                 newTask(childSession::start).delay(data.delay).build();
             } else {
