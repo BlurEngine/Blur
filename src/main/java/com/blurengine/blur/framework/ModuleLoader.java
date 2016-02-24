@@ -33,6 +33,7 @@ import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.modules.teams.TeamSerializer;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
+import com.supaham.commons.utils.ThrowableUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -225,6 +226,9 @@ public class ModuleLoader {
         try {
             return this.moduleManager.addModule(moduleData.parse(this.moduleManager, new SerializedModule(this, data)));
         } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("deserializing")) { // PluginBase wrapped RuntimeException
+                e = (Exception) ThrowableUtils.getCause(e);
+            }
             // exception must have a message in order to not go all spammy with stacktraces.
             if (e.getMessage() != null && this.moduleManager.getLogger().getDebugLevel() == 0) {
                 this.moduleManager.getLogger().severe("Error loading Module %s: %s", moduleInfo.name(), e.getMessage());
