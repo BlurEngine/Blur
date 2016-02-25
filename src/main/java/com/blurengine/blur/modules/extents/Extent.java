@@ -123,6 +123,17 @@ public interface Extent extends Filter, Iterable<BlockVector> {
 
     double getVolume();
 
+    /**
+     * Returns a mutable version of this extent. The mutability will all be handled by the extension class, so be sure to read the documentation for
+     * each extent class, as the mutable extent might modify the original extent.
+     *
+     * @return mutable extent
+     * @throws UnsupportedOperationException thrown if the extent does not support mutability
+     */
+    default MutableExtent mutable() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
     default Vector getRandomLocation() {
         return getRandomLocation(RandomUtils.getRandom());
     }
