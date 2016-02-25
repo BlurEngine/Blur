@@ -174,9 +174,21 @@ public class FilterSerializer implements BlurSerializer<Filter> {
             return Preconditions.checkNotNull(getManager().getFilterById(value.toString()), "Could not find filter by id '%s'.", value);
         }
 
-        String id = key;
-        Preconditions.checkArgument(value instanceof Map, "Filter value of %s must be Map. Got type %s", id, value.getClass().getName());
-        Filter filter = deserializeMapToFilter((Map<String, Object>) value);
+        Filter filter = null;
+        String id = null;
+        // If key starts with !, it's an explicit filter id
+        if (!key.startsWith("!")) {
+            FilterTypeSerializer<?> ser = this.serializers.get(key);
+            if (ser != null) {
+                filter = ser.deserialize(value, Filter.class, moduleLoader.getSerializerSet());
+            }
+        }
+        if (filter == null) {
+            id = (key.startsWith("!") ? key.substring(1) : key).trim();
+            Preconditions.checkArgument(!id.isEmpty(), "A filter id is empty with the data: %s", value);
+            Preconditions.checkArgument(value instanceof Map, "Filter value of '%s' must be Map. Got type %s", id, value.getClass().getName());
+            filter = deserializeMapToFilter((Map<String, Object>) value);
+        }
         getManager().addFilter(id, filter);
         return filter;
     }
