@@ -140,7 +140,7 @@ final class ExtentSerializers {
                 double dZ = Math.sin(angle) * radius + z;
                 return new Vector(dX, base.getY(), dZ);
             }).collect(Collectors.toList());
-            return new AutoCircleExtent(pointsList, radius, offsetRadians);
+            return new AutoCircleExtent(base, pointsList, radius, offsetRadians);
         }
     }
 }
