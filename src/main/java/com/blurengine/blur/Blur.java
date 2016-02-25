@@ -43,6 +43,7 @@ import com.supaham.commons.bukkit.CommonPlugin;
 import com.supaham.commons.bukkit.modules.ModuleContainer;
 
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 
 import javax.annotation.Nonnull;
 
@@ -52,12 +53,22 @@ import pluginbase.logging.PluginLogger;
  * Blur main class.
  */
 public class Blur {
+    
+    public static final String BLUR_ADMIN_PERMISSION = "blur.admin";
+    public static final String BLUR_DEV_PERMISSION = "blur.dev";
 
     private final CommonPlugin plugin;
     private final ModuleContainer moduleContainer;
     private final SessionManager sessionManager;
     private final BlurPlayerManager playerManager;
     private final PluginLogger logger;
+    
+    public static boolean isAdmin(Permissible permissible) {
+        return permissible.hasPermission(BLUR_ADMIN_PERMISSION);
+    }
+    public static boolean isDev(Permissible permissible) {
+        return permissible.hasPermission(BLUR_DEV_PERMISSION) || isAdmin(permissible);
+    }
 
     public Blur(@Nonnull CommonPlugin plugin) {
         this.plugin = Preconditions.checkNotNull(plugin, "plugin cannot be null.");
