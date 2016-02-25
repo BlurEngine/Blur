@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
@@ -38,18 +39,20 @@ import javax.annotation.Nonnull;
  */
 public class AutoCircleExtent implements Extent {
 
-    private final List<Vector> pointsList;
-    private final double radius;
-    private final double offsetRadians;
+    protected Vector base;
+    protected List<Vector> pointsList;
+    protected double radius;
+    protected double offsetRadians;
 
-    private int lastPoint;
-    private List<BlockVector> bvCache;
+    protected int lastPoint;
+    protected List<BlockVector> bvCache;
 
-    public AutoCircleExtent(@Nonnull Collection<Vector> pointsList, double radius, double offsetRadians) {
+    public AutoCircleExtent(@Nonnull Vector base, @Nonnull Collection<Vector> pointsList, double radius, double offsetRadians) {
+        Preconditions.checkNotNull(base, "base cannot be null.");
         Preconditions.checkNotNull(pointsList, "points cannot be null.");
-        Preconditions.checkArgument(!pointsList.isEmpty(), "points must not be empty.");
         Preconditions.checkArgument(radius > 0, "radius must be greater than 0.");
 
+        this.base = base;
         if (pointsList instanceof List) {
             this.pointsList = Collections.unmodifiableList((List<Vector>) pointsList);
         } else {
@@ -68,6 +71,13 @@ public class AutoCircleExtent implements Extent {
     @Override
     public double getVolume() {
         return pointsList.size();
+    }
+
+    @Override
+    public MutableExtent mutable() throws UnsupportedOperationException {
+        MutableAutoCircleExtent mutable = new MutableAutoCircleExtent(this.base, this.radius, this.pointsList.size(), this.offsetRadians);
+        mutable.pointsList = new ArrayList<>(this.pointsList);
+        return mutable;
     }
 
     /**
@@ -112,5 +122,66 @@ public class AutoCircleExtent implements Extent {
 
     public double getOffsetRadians() {
         return offsetRadians;
+    }
+
+    public static final class MutableAutoCircleExtent extends AutoCircleExtent implements MutableExtent {
+
+        private int points;
+        private boolean dirty = true;
+
+        public MutableAutoCircleExtent(@Nonnull Vector base, double radius, int points, double offsetRadians) {
+            super(base, new ArrayList<>(), radius, offsetRadians);
+            setPoints(points);
+            regenerate();
+        }
+
+        public void setBase(@Nonnull Vector base) {
+            if (!this.base.equals(base)) {
+                this.base = Preconditions.checkNotNull(base, "base cannot be null.");
+                this.dirty = true;
+            }
+        }
+
+        public void setPoints(int points) {
+            if (this.points != points) {
+                Preconditions.checkArgument(points > 0, "points cannot be less than 1.");
+                this.points = points;
+                this.dirty = true;
+            }
+        }
+
+        public void setOffsetRadius(double offsetRadians) {
+            if (this.offsetRadians  != offsetRadians) {
+                this.offsetRadians = offsetRadians;
+                this.dirty = true;
+            }
+        }
+
+        public void setRadius(double radius) {
+            if (this.radius != radius) {
+                Preconditions.checkArgument(radius > 0, "radius must be greater than 0.");
+                this.radius = radius;
+                this.dirty = true;
+            }
+        }
+
+        public void regenerate() {
+            if (!dirty) {
+                return;
+            }
+            double x = base.getX();
+            double z = base.getZ();
+            this.pointsList = IntStream.range(0, points).mapToObj(i -> {
+                double angle = ((double) i / points) * Math.PI * 2 + offsetRadians;
+                double dX = Math.cos(angle) * radius + x;
+                double dZ = Math.sin(angle) * radius + z;
+                return new Vector(dX, base.getY(), dZ);
+            }).collect(Collectors.toList());
+        }
+
+        @Override
+        public MutableExtent mutable() {
+            return this;
+        }
     }
 }
