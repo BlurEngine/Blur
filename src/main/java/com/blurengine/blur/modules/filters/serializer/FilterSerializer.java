@@ -25,7 +25,7 @@ import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.modules.filters.lexer.FilterRecursiveDescentParser;
-import com.blurengine.blur.modules.filters.serializer.FilterSerializers.Team;
+import com.blurengine.blur.modules.filters.serializer.FilterSerializers.Material;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.ArrayUtils;
 
@@ -52,7 +52,7 @@ public class FilterSerializer implements BlurSerializer<Filter> {
     private final Function<String, Filter> filterGetter = s -> getManager().getFilterById(s);
 
     static {
-        FILTER_SERIALIZERS.put("team", Team.class);
+        FILTER_SERIALIZERS.put("material", Material.class);
     }
 
     /**
