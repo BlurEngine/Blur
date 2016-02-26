@@ -80,8 +80,10 @@ public class SpawnsModule extends WorldModule {
         if (isSession(event)) {
             if (event.getSession().isStarted()) {
                 spawnPlayer(event.getBlurPlayer(), getNextSpawn());
-            } else {
-                spawnPlayer(event.getBlurPlayer(), data.spawnOnStart == null ? data.defaultSpawn : data.spawnOnStart);
+// FIXME This code is commented out as it causes the players to spawn when the session hasn't started. This isn't ideal as it causes two spawns to occur
+// when the session is created via LobbyModule or the likes.
+//            } else {
+//                spawnPlayer(event.getBlurPlayer(), data.spawnOnStart == null ? data.defaultSpawn : data.spawnOnStart);
             }
         }
     }
