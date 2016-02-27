@@ -58,7 +58,7 @@ public class WorldBlurSession extends BlurSession {
         TeamManager teamManager = getModuleManager().getTeamManager();
         teamManager.setSpectatorTeam(new SpectatorTeam(teamManager));
 
-        if (teamManager.getTeams().size() == 1) { // Spectator only
+        if (teamManager.getTeams().size() == 0) {
             teamManager.registerTeam(new PlayersTeam(teamManager));
         }
     }

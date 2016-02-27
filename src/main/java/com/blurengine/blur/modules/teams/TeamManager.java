@@ -29,11 +29,13 @@ import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.supervisor.Amendable;
 import com.blurengine.blur.supervisor.SupervisorContext;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.utils.BeanUtils;
 
 import org.bukkit.event.EventHandler;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -125,19 +127,26 @@ public class TeamManager extends Module implements SupervisorContext {
         Preconditions.checkNotNull(spectatorTeam, "spectatorTeam cannot be null.");
         Preconditions.checkState(this.spectatorTeam == null, "spectatorTeam has already been set.");
         this.spectatorTeam = spectatorTeam;
-        registerTeam(spectatorTeam);
+        // The reason for not calling registerTeam is that SpectatorTeam will always be present in all games and could be obnoxious every time 
+        // a user calls #getTeam() with the intention of getting teams related to the gameplay.
+        getModuleManager().getFilterManager().addFilter(FILTER_PREFIX + spectatorTeam.getId(), spectatorTeam);
     }
 
     public Collection<BlurTeam> getTeams() {
         return Collections.unmodifiableCollection(teams.values());
     }
 
+    public Collection<BlurTeam> getTeamsWithSpectator() {
+        ArrayList<BlurTeam> result = new ArrayList<>(this.teams.values());
+        result.add(this.spectatorTeam);
+        return result;
+    }
+
     @EventHandler
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         // TODO make initial team setting optional. E.g. if they game has already started, set them to spectators only.
         if (isSession(event.getSession()) && getSpectatorTeam() != null) { // spectator team is null because this might be root session.
-            getTeams().stream().filter(t -> !t.equals(getSpectatorTeam())).collect(CommonCollectors.singleRandom()).get()
-                .addPlayer(event.getBlurPlayer());
+            getTeams().stream().collect(CommonCollectors.singleRandom()).get().addPlayer(event.getBlurPlayer());
         }
     }
 
