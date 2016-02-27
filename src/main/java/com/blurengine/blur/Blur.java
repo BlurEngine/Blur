@@ -23,6 +23,7 @@ import com.blurengine.blur.modules.DummyModule;
 import com.blurengine.blur.modules.InvulnerableModule;
 import com.blurengine.blur.modules.MapInfoModule;
 import com.blurengine.blur.modules.checkpoints.CheckpointsModule;
+import com.blurengine.blur.modules.controlpoints.ControlPointsModule;
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.framework.ModuleLoader;
@@ -104,6 +105,7 @@ public class Blur {
         ModuleLoader.register(LobbyModule.class);
         ModuleLoader.register(CheckpointsModule.class);
         ModuleLoader.register(SimpleParticlesModule.class);
+        ModuleLoader.register(ControlPointsModule.class);
     }
 
     public CommonPlugin getPlugin() {
