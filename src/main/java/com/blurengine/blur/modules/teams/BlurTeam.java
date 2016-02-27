@@ -63,7 +63,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         Preconditions.checkNotNull(builder, "builder cannot be null.");
 
         this.manager = teamManager;
-        
+
         this.id = builder.id;
         this.name = builder.name;
         this.chatPrefix = builder.chatPrefix;
@@ -71,7 +71,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         this.max = builder.max;
         this.maxOverfill = builder.maxOverfill;
         this.nametagVisibility = builder.nametagVisibility;
-        
+
         this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getName());
         this.bukkitTeam.setDisplayName(getName());
         this.bukkitTeam.setPrefix(getChatPrefix());
@@ -122,6 +122,10 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
     public Collection<BlurPlayer> getPlayers() {
         return Collections.unmodifiableCollection(players);
+    }
+
+    public int getPlayerCount() {
+        return this.players.size();
     }
 
     public TeamManager getManager() {
