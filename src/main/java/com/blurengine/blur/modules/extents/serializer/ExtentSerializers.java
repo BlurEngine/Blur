@@ -52,7 +52,6 @@ final class ExtentSerializers {
         public UnionExtent deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet)
             throws IllegalArgumentException {
             if (serialized instanceof List) {
-
                 return new UnionExtent(((List<Object>) serialized).stream()
                     .map(o -> getParentSerializer().deserializeExtent((Map<String, Object>) o)).collect(Collectors.toList()));
             }
@@ -83,7 +82,7 @@ final class ExtentSerializers {
         public CylinderExtent deserialize(Object serialized) throws IllegalArgumentException {
             Map<?, ?> map = (Map) serialized;
             Object height = map.get("height");
-            height = height == null ? 0D : Double.parseDouble(height.toString());
+            height = height == null ? 1D : Double.parseDouble(height.toString());
             return new CylinderExtent(new ImmutableVector(getVector(map, "base")), getDouble(map, "radius"), (Double) height);
         }
     }
