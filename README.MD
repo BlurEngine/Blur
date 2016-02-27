@@ -5,14 +5,56 @@ As you might know, creating a game can be both time consuming and expensive. So 
 
 Blur is a module-based Game Engine, defining functionality through blocks of variables that tells the engine what to do and how to do it.
 
-Here is an example of a SurvivalGames gamemode map configuration [map.yml](https://gist.github.com/SupaHam/286b137f4cfc17d9e549).
+Here is an example of a SurvivalGames gamemode map configuration [blur.yml](https://gist.github.com/SupaHam/286b137f4cfc17d9e549).
 
 # Issues
 Thanks to Atlassian, Blur uses JIRA for its issue tracking and management system. Before considering making a report please head over to our [issue
 tracker](https://blurengine.atlassian.net/) to make a report.
 
 # Documentation
-Documentation can be found over at [https://blurengine.com](https://blurengine.com).
+Complete documentation and guidance can be found over at [https://blurengine.com](https://blurengine.com).
+
+# Examples
+Create a Lobby system for breaks in between games:
+#####blur.yml
+```yaml
+modules:
+- MapLoader:
+    archive: true # Archive sessions after they are finished
+    maps:
+      file: Rotations # Load session from a file in the root directory called Rotations
+- Lobby:
+    countdown: 5s # Countdown from 5 seconds before starting
+    delay-start-session: 3s # Wait 3 seconds before teleporting to the session
+    required-players: 4 # In order for MapLoader to be triggered, at least 4 players must be online.
+- Extents:
+  - id: spawns # Create a new extent with the id of 'spawns'
+    cylinder: {base: '988, 12, 2045', radius: 5} # Construct a Cylinder at 988, 12, 2045 with the radius of 5 and height of 1
+- Spawns:
+    spawns:
+    - spawns # Add the extent of id 'spawns' as a spawning extent
+    # Alternatively:
+    # Add the extent of id 'spawns' as a spawning extent, with spawns pointing towards 986.5, 11, 2046.5
+    - spawns: {point-to: '986.5, 11, 2046.5'}
+```
+
+Create a game of Control Points:
+#####blur.yml
+```yaml
+modules:
+- Teams:
+  - {id: 'red', name: 'Red', max: 10, chat-prefix: '&c', color: 'Red'} # Red team with a soft maximum 20 slots.
+  - {id: 'blue', max-overfill: 20, chat-prefix: '&9', color: 'Blue'} # Blue team with an absolute maximum of 20 slots.
+- Goal:
+    time-limit: 15m30s # Game lasts 15 minutes and 30 seconds
+- BControlPoints:
+    capture-time: 10s # All control points take 10 seconds to capture
+    incremental: true # Capture progress is retained even after a team stops capturing the control point
+    control-points:
+    - id: center
+      capture-time: ~-2s # Capture time is 2 seconds less than the default (defined above)
+      capture: {cylinder: {base: '15, 76, -5.9', radius: 3}} # Cylinder at 15, 76, -5.9 with a radius of 3 and height of 1
+```
 
 # Disclaimer
 Blur is still in its alpha stage. Things can change around, things might break, but we can't be held responsible for that. Please help us develop Blur
