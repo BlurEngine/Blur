@@ -15,7 +15,9 @@ tracker](https://blurengine.atlassian.net/) to make a report.
 Complete documentation and guidance can be found over at [https://blurengine.com](https://blurengine.com).
 
 # Examples
-Create a Lobby system for breaks in between games:
+Here are a few examples of the things you can do with Blur. Pick and choose your modules to create your perfect game!
+
+###Lobby system for breaks in between games
 #####blur.yml
 ```yaml
 modules:
@@ -38,12 +40,12 @@ modules:
     - spawns: {point-to: '986.5, 11, 2046.5'}
 ```
 
-Create a game of Control Points:
+###A game of Control Points
 #####blur.yml
 ```yaml
 modules:
 - Teams:
-  - {id: 'red', name: 'Red', max: 10, chat-prefix: '&c', color: 'Red'} # Red team with a soft maximum 20 slots.
+  - {id: 'red', name: 'Red', max: 10, chat-prefix: '&c', color: 'Red'} # Red team with a soft maximum 10 slots.
   - {id: 'blue', max-overfill: 20, chat-prefix: '&9', color: 'Blue'} # Blue team with an absolute maximum of 20 slots.
 - Goal:
     time-limit: 15m30s # Game lasts 15 minutes and 30 seconds
@@ -53,7 +55,7 @@ modules:
     control-points:
     - id: center
       capture-time: ~-2s # Capture time is 2 seconds less than the default (defined above)
-      capture: {cylinder: {base: '15, 76, -5.9', radius: 3}} # Cylinder at 15, 76, -5.9 with a radius of 3 and height of 1
+      capture: {cylinder: {base: '15, 76, -5.9', radius: 3, height: 3}} # Cylinder at 15, 76, -5.9 with a radius of 3 and height of 3
 ```
 
 # Disclaimer
