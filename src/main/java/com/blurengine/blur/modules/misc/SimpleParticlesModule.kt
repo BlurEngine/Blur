@@ -72,7 +72,6 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
             val angle = (it.toDouble() / spacing) * Math.PI * 2.0
             val dX = Math.cos(angle) * extent.radius + extent.base.x
             val dZ = Math.sin(angle) * extent.radius + extent.base.z
-            val y = extent.base.y
             (0..extent.height.toInt()).forEach {
                 result.add(ImmutableVector(dX, extent.base.y + it, dZ))
             }
