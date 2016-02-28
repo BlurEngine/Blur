@@ -442,6 +442,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             }
 
             particlesExtent.radius = radius
+            particlesExtent.offsetRadians = progress * (Math.PI * 2)
             particlesExtent.regenerate()
             particlesExtent.pointsList.forEach {
                 module.world.spigot().playEffect(it.toLocation(module.world), Effect.COLOURED_DUST, 0, 0, 0f, 0f, 0f, 0f, 2, 64)
