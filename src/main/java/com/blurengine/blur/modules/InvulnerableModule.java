@@ -16,19 +16,21 @@
 
 package com.blurengine.blur.modules;
 
-import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
-import com.blurengine.blur.modules.InvulnerableModule.InvulnerableData;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleData;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
+import com.blurengine.blur.modules.InvulnerableModule.InvulnerableData;
+import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.TickerTask;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.time.Duration;
 
@@ -44,9 +46,12 @@ public class InvulnerableModule extends Module implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerDamage(PlayerDamagePlayerEvent event) {
-        if (isSession(event) && this.invulnerable) {
-            event.setCancelled(true);
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (this.invulnerable && event.getEntity() instanceof Player) {
+            BlurPlayer bp = getPlayer((Player) event.getEntity());
+            if (isSession(bp.getSession())) {
+                event.setCancelled(true);
+            }
         }
     }
 
