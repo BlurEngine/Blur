@@ -170,7 +170,7 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
         lateinit var id: String
         var name: String? = null
         lateinit var capture: Extent
-        lateinit var progress: Extent
+        var progress: Extent? = null
     }
 }
 
@@ -209,7 +209,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
     val id: String
     val name: String
     val captureExtent: Extent
-    val progressExtent: Extent
+    val progressExtent: Extent?
     val particles: Boolean
 
     private val teamManager = module.teamManager
