@@ -171,6 +171,7 @@ public class AutoCircleExtent implements Extent {
             }
             double x = base.getX();
             double z = base.getZ();
+            // TODO optimize by using already existing vectors.
             this.pointsList = IntStream.range(0, points).mapToObj(i -> {
                 double angle = ((double) i / points) * Math.PI * 2 + offsetRadians;
                 double dX = Math.cos(angle) * radius + x;
