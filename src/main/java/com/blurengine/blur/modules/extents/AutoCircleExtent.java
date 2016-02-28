@@ -150,8 +150,8 @@ public class AutoCircleExtent implements Extent {
             }
         }
 
-        public void setOffsetRadius(double offsetRadians) {
-            if (this.offsetRadians  != offsetRadians) {
+        public void setOffsetRadians(double offsetRadians) {
+            if (this.offsetRadians != offsetRadians) {
                 this.offsetRadians = offsetRadians;
                 this.dirty = true;
             }
