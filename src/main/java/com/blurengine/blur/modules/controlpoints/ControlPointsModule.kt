@@ -248,11 +248,13 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
     }
 
     private fun handleRelNumber(rel: RelativeNumber?, moduleRel: RelativeNumber): Double {
-        return if (rel?.isRelative ?: true) moduleRel.apply(rel?.number) else rel!!.number
+        if (rel == null) return moduleRel.number
+        return if (rel.isRelative) rel.apply(moduleRel.number) else rel.number
     }
 
     private fun handleRelDuration(rel: RelativeDuration?, moduleRel: RelativeDuration): Duration {
-        return if (rel?.isRelative ?: true) moduleRel.apply(rel?.duration) else rel!!.duration
+        if (rel == null) return moduleRel.duration
+        return if (rel.isRelative) rel.apply(moduleRel.duration) else rel.duration
     }
 
     fun addPlayer(blurPlayer: BlurPlayer): Boolean {
