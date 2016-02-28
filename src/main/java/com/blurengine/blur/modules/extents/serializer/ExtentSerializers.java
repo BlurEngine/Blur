@@ -53,9 +53,9 @@ final class ExtentSerializers {
             throws IllegalArgumentException {
             if (serialized instanceof List) {
                 return new UnionExtent(((List<Object>) serialized).stream()
-                    .map(o -> getParentSerializer().deserializeExtent((Map<String, Object>) o)).collect(Collectors.toList()));
+                    .map(o -> getParentSerializer().deserialize(o, wantedType, serializerSet)).collect(Collectors.toList()));
             }
-            return null;
+            return new UnionExtent(getParentSerializer().deserialize(serialized, wantedType, serializerSet));
         }
     }
 
