@@ -388,7 +388,8 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             private set(value) {
                 _progress = Math.max(0F, Math.min(value, 1F)) // min value of 0, max value of 1
                 module.session.callEvent(ControlPointProgressTickEvent(this@ControlPoint))
-                println("Progress $_progress progressTeam ${progressTeam?.id} captureTeam ${capturingTeam?.id} owner $_owner players ${_players.size}")
+                module.logger.finest("Progress $_progress progressTeam ${progressTeam?.id} captureTeam ${capturingTeam?.id} " +
+                        "owner ${_owner.id} players ${_players.size}")
             }
 
         private val particlesExtent = if (captureExtent is CylinderExtent && particles)
