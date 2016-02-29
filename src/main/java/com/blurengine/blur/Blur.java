@@ -18,6 +18,7 @@ package com.blurengine.blur;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.commands.BlurCommands;
 import com.blurengine.blur.modules.BoundariesModule;
 import com.blurengine.blur.modules.DummyModule;
 import com.blurengine.blur.modules.InvulnerableModule;
@@ -77,6 +78,7 @@ public class Blur {
         this.sessionManager = new SessionManager(this);
         this.playerManager = new BlurPlayerManager(plugin);
         this.logger = plugin.getLog();
+        this.plugin.getCommandsManager().builder().registerMethods(new BlurCommands(this));
     }
 
     static {
@@ -142,5 +144,9 @@ public class Blur {
 
     public PluginLogger getLogger() {
         return logger;
+    }
+    
+    public String getVersion() {
+        return this.plugin.getDescription().getVersion();
     }
 }
