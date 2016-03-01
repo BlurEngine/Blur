@@ -23,12 +23,12 @@ import com.supaham.commons.bukkit.SingleSound;
 import org.bukkit.Sound;
 
 /**
- * Represents a countdown that sets the player's exp levels as the remaining seconds. A {@link Sound#CLICK} sound is played if 10 or less seconds
- * remain.
+ * Represents a countdown that sets the player's exp levels as the remaining seconds. A {@link Sound#UI_BUTTON_CLICK} sound is played if 10 or less
+ * seconds remain.
  */
 public class GlobalGameCountdown extends CountdownWithEXP {
 
-    private static final SingleSound CLICK_SOUND = new SingleSound(Sound.CLICK);
+    private static final SingleSound CLICK_SOUND = new SingleSound(Sound.UI_BUTTON_CLICK);
 
     /**
      * Constructs a new global game countdown effect. This is equivalent to calling {@link #GlobalGameCountdown(Module, int, boolean)} with
