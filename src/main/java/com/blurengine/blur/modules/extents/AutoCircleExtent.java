@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.supaham.commons.bukkit.utils.ImmutableVector;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import org.bukkit.util.BlockVector;
@@ -107,6 +108,10 @@ public class AutoCircleExtent implements Extent {
     public boolean isInfinite() {
         return false;
     }
+    
+    public ImmutableVector getBase() {
+        return new ImmutableVector(this.base);
+    }
 
     public List<Vector> getPointsList() {
         return pointsList;
@@ -133,6 +138,10 @@ public class AutoCircleExtent implements Extent {
             super(base, new ArrayList<>(), radius, offsetRadians);
             setPoints(points);
             regenerate();
+        }
+        
+        public Vector getMutableBase() {
+            return this.base;
         }
 
         public void setBase(@Nonnull Vector base) {
