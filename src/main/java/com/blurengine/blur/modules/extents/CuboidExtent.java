@@ -59,9 +59,9 @@ public class CuboidExtent implements Extent {
 
     @Override
     public Vector getRandomLocation(Random random) {
-        double x = RandomUtils.nextDouble(min.getX(), max.getX());
-        double y = RandomUtils.nextDouble(min.getY(), max.getY());
-        double z = RandomUtils.nextDouble(min.getZ(), max.getZ());
+        double x = RandomUtils.nextDouble(random, min.getX(), max.getX());
+        double y = RandomUtils.nextDouble(random, min.getY(), max.getY());
+        double z = RandomUtils.nextDouble(random, min.getZ(), max.getZ());
         return new Vector(x, y, z);
     }
 
