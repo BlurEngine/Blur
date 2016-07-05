@@ -33,7 +33,7 @@ public class SerializedModule {
 
     // TODO be aware of current directory of this context. (Maybe rename this class to include Context)
     private final ModuleLoader moduleLoader;
-    private final Object object;
+    private Object object;
 
     public SerializedModule(@Nonnull ModuleLoader moduleLoader, @Nullable Object object) {
         this.moduleLoader = Preconditions.checkNotNull(moduleLoader, "moduleLoader cannot be null.");
@@ -42,6 +42,10 @@ public class SerializedModule {
 
     public Object getAsObject() {
         return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
     }
 
     public Integer getAsInteger() {
