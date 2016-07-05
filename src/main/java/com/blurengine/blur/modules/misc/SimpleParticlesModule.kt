@@ -29,6 +29,7 @@ import com.blurengine.blur.modules.extents.UnionExtent
 import com.blurengine.blur.modules.misc.SimpleParticlesModule.SimpleParticlesData
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ListMultimap
+import com.supaham.commons.Enums
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import org.bukkit.Effect
@@ -107,6 +108,15 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
     class SimpleParticlesData : ModuleData {
         var particles = arrayListOf<ExtentParticles>()
         override fun parse(moduleManager: ModuleManager, serialized: SerializedModule): Module? {
+            if (serialized.asObject !is Map<*, *> || serialized.asMap.containsKey("particles").not()) {
+                check(serialized.asObject is List<*>, "SimpleParticles data must either be list or map with key \"particles\".")
+                serialized.setObject(mapOf("particles" to serialized.getAsList<Any>()))
+            }
+            (serialized.asMap["particles"] as List<Map<*, *>>)
+                    .filter { it["particle"] != null }
+                    .map { it["particle"].toString() }
+                    .filter { Enums.findFuzzyByValue(Effect::class.java, it) == null }
+                    .forEach { moduleManager.logger.severe("Unknown particle type $it") } // TODO Remove item?
             serialized.load(this)
             return SimpleParticlesModule(moduleManager, this)
         }
