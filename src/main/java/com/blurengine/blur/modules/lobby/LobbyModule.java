@@ -57,9 +57,8 @@ public class LobbyModule extends WorldModule {
     public LobbyModule(ModuleManager moduleManager, LobbyData data) {
         super(moduleManager);
         this.data = data;
-        if (!data.countdown.isZero()) {
-            this.countdown = new LobbyCountdown();
-        }
+        this.countdown = new LobbyCountdown();
+    }
 
     @EventHandler
     public void onMapLoaderPreLoad(MapLoaderPreLoadEvent event) {
@@ -170,7 +169,7 @@ public class LobbyModule extends WorldModule {
     private final class LobbyCountdown extends GlobalGameCountdown {
 
         public LobbyCountdown() {
-            super(LobbyModule.this, (int) (data.countdown.toMillis() / 50));
+            super(LobbyModule.this, Math.max(1, (int) (data.countdown.toMillis() / 50)));
         }
 
         @Override
