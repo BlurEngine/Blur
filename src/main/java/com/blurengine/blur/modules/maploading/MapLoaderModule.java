@@ -26,7 +26,6 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
-import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule.MapLoaderData;
 import com.blurengine.blur.properties.BlurConfig;
 import com.blurengine.blur.session.WorldBlurSession;
@@ -90,13 +89,12 @@ public class MapLoaderModule extends Module {
     public void load() {
         super.load();
 
-        if (this.mapPaths.isEmpty()) {
-            getLogger().warning("No maps to load!");
+        if (getSession().callEvent(new MapLoaderPreLoadEvent(this)).isCancelled()) {
             return;
         }
 
-        // FIXME Temporary hack to allow LobbyModule to load the maps in it's own way.
-        if (!getModuleManager().getModule(LobbyModule.class).isEmpty()) {
+        if (this.mapPaths.isEmpty()) {
+            getLogger().warning("No maps to load!");
             return;
         }
 

@@ -31,6 +31,7 @@ import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.lobby.LobbyModule.LobbyData;
 import com.blurengine.blur.modules.maploading.MapLoadException;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
+import com.blurengine.blur.modules.maploading.MapLoaderPreLoadEvent;
 import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
@@ -59,6 +60,11 @@ public class LobbyModule extends WorldModule {
         if (!data.countdown.isZero()) {
             this.countdown = new LobbyCountdown();
         }
+
+    @EventHandler
+    public void onMapLoaderPreLoad(MapLoaderPreLoadEvent event) {
+        // Cancel any initial MapLoaderModule loading events since we handle it in LobbyCountdown.
+        event.setCancelled(true);
     }
 
     @EventHandler
