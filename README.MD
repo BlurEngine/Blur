@@ -35,7 +35,7 @@ The preceding Blur config is a demonstration of a Lobby environment. There are a
 - Extents: Extent defintions in the map. Only one with the id `default-spawns` is created to eventually spawn players at `0, 60, 0` randomised in a 15 block radius.
 - Spawns: Enables the spawn modules so that joining players can be teleported to the lobby at all times. By default, it will search for a `default-spawns` extent to use.
 
-A more verbose version:
+A more customised version:
 ##### blur.yml
 ```yaml
 modules:
