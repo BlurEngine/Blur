@@ -150,7 +150,7 @@ public class LobbyModule extends WorldModule {
 
     public static final class LobbyData implements ModuleData {
 
-        private Duration countdown = Duration.ZERO;
+        private Duration countdown = Duration.ofSeconds(15);
         @Name("delay-start-session")
         private Duration delay = Duration.ZERO;
 
