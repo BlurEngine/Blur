@@ -1,4 +1,4 @@
-name: ${name}
+name: ${plugin.name}
 main: ${main.class}
 version: ${project.version}-git-${git.commit.id.abbrev}
 load: STARTUP

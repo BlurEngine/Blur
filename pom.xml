@@ -26,6 +26,7 @@
     <name>Blur</name>
 
     <properties>
+        <plugin.name>BlurEngine</plugin.name>
         <main.package>com.blurengine.blur</main.package>
         <main.class>${main.package}.BlurPlugin</main.class>
 
