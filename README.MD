@@ -17,8 +17,26 @@ Complete documentation and guidance can be found over at [https://blurengine.com
 # Examples
 Here are a few examples of the things you can do with Blur. Pick and choose your modules to create your perfect game!
 
-###Lobby system for breaks in between games
-#####blur.yml
+### Lobby system for breaks in between games
+##### blur.yml
+```yaml
+modules:
+- MapLoader:
+    maps: {file: Rotations}
+- Lobby
+- Extents:
+  - id: default-spawns
+    cylinder: {base: '0, 60, 0', radius: 15}
+- Spawns
+```
+The preceding Blur config is a demonstration of a Lobby environment. There are a total of four Blur Modules used: `MapLoader`, `Lobby`, `Extents`, and `Spawns`.
+- MapLoader: Loads maps (worlds) in a file called Rotations in the Minecraft server root directory.
+- Lobby: A countdown of 15 seconds between each game and adds all players to the game automatically.
+- Extents: Extent defintions in the map. Only one with the id `default-spawns` is created to eventually spawn players at `0, 60, 0` randomised in a 15 block radius.
+- Spawns: Enables the spawn modules so that joining players can be teleported to the lobby at all times. By default, it will search for a `default-spawns` extent to use.
+
+A more verbose version:
+##### blur.yml
 ```yaml
 modules:
 - MapLoader:
@@ -37,11 +55,11 @@ modules:
     - spawns # Add the extent of id 'spawns' as a spawning extent
     # Alternatively:
     # Add the extent of id 'spawns' as a spawning extent, with spawns pointing towards 986.5, 11, 2046.5
-    - spawns: {point-to: '986.5, 11, 2046.5'}
+    #- spawns: {point-to: '986.5, 11, 2046.5'}
 ```
 
-###A game of Control Points
-#####blur.yml
+### A game of Control Points
+##### blur.yml
 ```yaml
 modules:
 - Teams:
