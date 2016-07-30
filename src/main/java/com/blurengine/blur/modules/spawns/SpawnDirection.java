@@ -81,9 +81,13 @@ public interface SpawnDirection {
         public void applyTo(Location location, Entity entity) {
             ImmutableVector target = vector;
             if (vector instanceof RelativeVector) {
-                target = ((RelativeVector) vector).with(location.toVector());
+                if (entity instanceof LivingEntity) {
+                    target = ((RelativeVector) vector).with(((LivingEntity) entity).getEyeLocation().toVector());
+                } else {
+                    target = ((RelativeVector) vector).with(location.toVector());
+                }
             }
-            
+
             // 
             Vector target2 = location.toVector().subtract(target.toVector());
             float angle = (float) Math.atan2(target2.getZ(), target2.getX());
