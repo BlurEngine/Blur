@@ -36,11 +36,11 @@ public class UnionExtent implements Extent {
     private Collection<Extent> extents;
 
     public UnionExtent(Extent... extents) {
-        this.extents = Arrays.asList(extents);
+        this(Arrays.asList(extents));
     }
 
     public UnionExtent(Collection<Extent> extents) {
-        this.extents = extents;
+        this.extents = Collections.unmodifiableCollection(extents);
     }
 
     @Override
