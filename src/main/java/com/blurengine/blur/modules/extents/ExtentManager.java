@@ -24,6 +24,7 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.session.BlurSession;
+import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.util.Vector;
 
@@ -32,8 +33,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -79,24 +82,59 @@ public class ExtentManager extends Module {
      * ================================ */
 
     @Nonnull
+    public Extent getExtentByString(String string) {
+        try {
+            return getExtentById(string);
+        } catch (ExtentNotFoundException e) {
+            try {
+                return getExtentByRegex(string);
+            } catch (ExtentNotFoundException ignored) {
+                throw e;
+            }
+        }
+    }
+
+    @Nonnull
     public Extent getOrCreateExtent(Object object) {
         if (object instanceof String) {
-            return getNonNullExtentById(object.toString());
+            return getExtentByString(object.toString());
         }
         return getModuleManager().getModuleLoader().getExtentSerializer().deserializeExtent(((Map<String, Object>) object));
     }
 
+    @Nonnull
     public Collection<Extent> getExtents() {
         return Collections.unmodifiableCollection(extents.values());
     }
 
-    public Extent getExtentById(String id) {
-        return this.extents.get(id);
+    public Extent getExtentByRegex(String regex) throws ExtentNotFoundException {
+        StringUtils.checkNotNullOrEmpty(regex, "regex");
+        return getExtentByRegex(Pattern.compile(regex));
     }
 
-    public Extent getNonNullExtentById(String id) {
+    @Nonnull
+    public Extent getExtentByRegex(Pattern pattern) throws ExtentNotFoundException {
+        Preconditions.checkNotNull(pattern, "pattern cannot be null.");
+        List<Extent> found = this.extents.entrySet().stream()
+            .filter(e -> pattern.matcher(e.getKey()).matches())
+            .map(Entry::getValue)
+            .collect(Collectors.toList());
+        switch (found.size()) {
+            case 0:
+                throw new ExtentNotFoundException(pattern);
+            case 1:
+                return found.get(0);
+            default:
+                return new UnionExtent(found);
+        }
+    }
+
+    @Nonnull
+    public Extent getExtentById(String id) throws ExtentNotFoundException {
         Extent extent = this.extents.get(id);
-        Preconditions.checkNotNull(extent, "Could not find extent by id '%s'.", id);
+        if (extent == null) {
+            throw new ExtentNotFoundException(id);
+        }
         return extent;
     }
 

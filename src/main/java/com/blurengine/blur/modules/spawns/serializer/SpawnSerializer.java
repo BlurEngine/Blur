@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.extents.Extent;
+import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.SpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
@@ -28,7 +29,6 @@ import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
 import com.blurengine.blur.serializers.SpawnList;
 import com.supaham.commons.bukkit.utils.VectorUtils;
-import com.supaham.commons.serializers.ListSerializer;
 
 import java.util.List;
 import java.util.Map;
@@ -97,15 +97,19 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
 
         String id = key;
         Preconditions.checkArgument(value instanceof Map, "Spawn value of %s must be Map. Got type %s", id, value.getClass().getName());
-        Extent extent = getExtent(id);
+        Extent extent = getExtentById(id);
         return deserializeMapToSpawn(extent, (Map<String, Object>) value);
     }
 
     /* ================================
      * >> UTILS
      * ================================ */
-    private Extent getExtent(String id) {
-        return moduleLoader.getModuleManager().getExtentManager().getNonNullExtentById(id);
+    private Extent getExtentById(String id) throws ExtentNotFoundException {
+        return moduleLoader.getModuleManager().getExtentManager().getExtentById(id);
+    }
+
+    private Extent getExtentByString(String id) throws ExtentNotFoundException {
+        return moduleLoader.getModuleManager().getExtentManager().getExtentByString(id);
     }
 
     @Nonnull
@@ -127,7 +131,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
             // More than just the Extent is provided for the Spawn Object.
             return deserializeMapToSpawn(map);
         } else if (serialized instanceof String) {
-            return new Spawn(getExtent(serialized.toString()));
+            return new Spawn(getExtentByString(serialized.toString()));
         } else {
             throw new IllegalArgumentException("Expected String or Map, got Spawn data type of " + serialized.getClass().getName() + ".");
         }
