@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.extents;
 import com.google.common.base.Preconditions;
 
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
+import com.supaham.commons.bukkit.utils.ImmutableVector;
 
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
@@ -36,9 +37,9 @@ public class BlockExtent implements Extent {
 
     public static final BlockExtent ZERO = new BlockExtent(new ImmutableBlockVector(0, 0, 0));
 
-    private ImmutableBlockVector vector;
+    private ImmutableVector vector;
 
-    public BlockExtent(@Nonnull ImmutableBlockVector vector) {
+    public BlockExtent(@Nonnull ImmutableVector vector) {
         this.vector = Preconditions.checkNotNull(vector, "vector cannot be null.");
     }
 
@@ -85,7 +86,7 @@ public class BlockExtent implements Extent {
         return false;
     }
 
-    public ImmutableBlockVector getVector() {
+    public ImmutableVector getVector() {
         return vector;
     }
 }

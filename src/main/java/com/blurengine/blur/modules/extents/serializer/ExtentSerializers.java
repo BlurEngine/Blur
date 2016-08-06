@@ -105,7 +105,7 @@ final class ExtentSerializers {
                 throw new IllegalArgumentException(
                     "Unexpected data type of " + serialized.getClass().getName() + " when deserializing Block extent.");
             }
-            return new BlockExtent(new ImmutableBlockVector(bv));
+            return new BlockExtent(new ImmutableVector(bv));
         }
 
         @Override
