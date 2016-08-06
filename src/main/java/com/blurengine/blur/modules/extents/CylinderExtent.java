@@ -23,7 +23,9 @@ import com.supaham.commons.bukkit.utils.ImmutableVector;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
@@ -70,7 +72,21 @@ public class CylinderExtent implements Extent {
 
     @Override
     public Iterator<BlockVector> iterator() {
-        throw new UnsupportedOperationException("Not supported yet."); // TODO
+        int spacing = 20;
+        List<BlockVector> result = new ArrayList<>(spacing);
+        double PI2 = Math.PI * 2.0;
+        for (int i = 0; i <= spacing; i++) {
+            double angle = ((double) i / spacing) * PI2;
+            double dX = Math.cos(angle) * this.radius + this.base.getX();
+            double dZ = Math.sin(angle) * this.radius + this.base.getZ();
+            
+            // TODO Height 1 currently counts two separate heights, should it stay like that?
+            for (int j = 0; j <= (int) this.height; j++) {
+                result.add(new BlockVector(dX, this.base.getY() + j, dZ));
+
+            }
+        }
+        return result.iterator();
     }
 
     public ImmutableVector getBase() {
