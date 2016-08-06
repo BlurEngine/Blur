@@ -33,12 +33,13 @@ import com.supaham.commons.Enums
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import org.bukkit.Effect
+import org.bukkit.util.BlockVector
 import java.time.Duration
 import java.util.ArrayList
 
 @ModuleInfo(name = "SimpleParticles", dataClass = SimpleParticlesData::class)
 class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesData) : WorldModule(manager) {
-    private val outlines: ListMultimap<Extent, ImmutableVector> = ArrayListMultimap.create()
+    private val outlines: ListMultimap<Extent, BlockVector> = ArrayListMultimap.create()
 
     init {
         first@data.particles.forEach { pdata ->
@@ -50,59 +51,9 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
             }).interval(pdata.interval).build()
         }
     }
-
-    fun doExtent(extent: Extent?): List<ImmutableVector> {
-        return when (extent) {
-            is UnionExtent -> doUnion(extent)
-            is CylinderExtent -> doCylinder(extent)
-            is CuboidExtent -> doCuboid(extent)
-            else -> emptyList()
-        }
-    }
-
-    fun doUnion(extent: UnionExtent): List<ImmutableVector> {
-        val result = ArrayList<ImmutableVector>()
-        extent.extents.forEach { result.addAll(doExtent(it)) }
-        return result
-    }
-
-    fun doCylinder(extent: CylinderExtent): List<ImmutableVector> {
-        val result = ArrayList<ImmutableVector>()
-        val spacing = 20
-        (0..spacing).map {
-            val angle = (it.toDouble() / spacing) * Math.PI * 2.0
-            val dX = Math.cos(angle) * extent.radius + extent.base.x
-            val dZ = Math.sin(angle) * extent.radius + extent.base.z
-            (0..extent.height.toInt()).forEach {
-                result.add(ImmutableVector(dX, extent.base.y + it, dZ))
-            }
-        }
-        return result
-    }
-
-    fun doCuboid(extent: CuboidExtent): List<ImmutableVector> {
-        val result = ArrayList<ImmutableVector>()
-        val min = extent.minimumPoint
-        val max = extent.maximumPoint
-        (min.y.toInt()..max.y.toInt()).forEach { y ->
-            // Top Left to top right
-            (min.blockX..max.blockX).forEach { x ->
-                result.add(ImmutableBlockVector(x, y, min.z.toInt()))
-            }
-            // Top right to bottom right
-            (max.blockZ downTo min.blockZ).forEach { z ->
-                result.add(ImmutableBlockVector(max.blockX, y, z))
-            }
-            // Bottom right to bottom left
-            (min.blockZ..max.blockZ).forEach { z ->
-                result.add(ImmutableBlockVector(min.blockX, y, z))
-            }
-            // Bottom left to top left
-            (max.blockX downTo min.blockX).forEach { x ->
-                result.add(ImmutableBlockVector(x, y, max.z.toInt()))
-            }
-        }
-        return result
+    
+    fun doExtent(extent: Extent?): List<BlockVector> {
+        return extent!!.toList()
     }
 
     class SimpleParticlesData : ModuleData {
