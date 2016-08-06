@@ -80,6 +80,7 @@
             <groupId>com.supaham.supervisor</groupId>
             <artifactId>supervisor-bukkit</artifactId>
             <version>1.3-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <!-- Present via spigot software -->
         <dependency>
