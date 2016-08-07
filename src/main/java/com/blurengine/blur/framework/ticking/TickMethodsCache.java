@@ -58,9 +58,9 @@ public final class TickMethodsCache {
      *
      * @return mutable collection of {@link TaskBuilder}
      */
-    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(@Nonnull Object tickable) {
+    public static Collection<TaskBuilder> loadTickableReturnTaskBuilders(int ticksPerSecond, @Nonnull Object tickable) {
         Preconditions.checkNotNull(tickable, "tickable cannot be null.");
-        return loadClass(tickable.getClass()).stream().map(t -> t.toBuilder(tickable)).collect(Collectors.toList());
+        return loadClass(tickable.getClass()).stream().map(t -> t.toBuilder(ticksPerSecond, tickable)).collect(Collectors.toList());
     }
 
     /**
@@ -156,10 +156,14 @@ public final class TickMethodsCache {
             return this.method.equals(o2.method);
         }
 
-        public TaskBuilder toBuilder(@Nonnull Object tickable) {
+        public TaskBuilder toBuilder(int ticksPerSecond, @Nonnull Object tickable) {
             Preconditions.checkNotNull(tickable, "tickable cannot be null.");
-            long delay = TimeUtils.parseDurationMs(tick.delay());
-            long interval = TimeUtils.parseDurationMs(tick.interval());
+            long delay = tick.delay();
+            long interval = tick.interval();
+            if (!tick.ms()) {
+                delay *= 1000 / ticksPerSecond;
+                interval *= 1000 / ticksPerSecond;
+            }
             return new TaskBuilder().run((task) -> invoke(tickable, task)).delay(delay).interval(interval).async(tick.async());
         }
 

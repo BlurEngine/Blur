@@ -184,7 +184,7 @@ public abstract class AbstractComponent implements Component {
     public boolean addTickable(@Nonnull Object tickable) {
         Preconditions.checkNotNull(tickable, "tickable cannot be null.");
         if (!this.tickableTasks.containsKey(tickable)) {
-            TickMethodsCache.loadTickableReturnTaskBuilders(tickable).forEach(t -> {
+            TickMethodsCache.loadTickableReturnTaskBuilders(getSession().getTicksPerSecond(), tickable).forEach(t -> {
                 TickerTask task = t.plugin(getSession().getBlur().getPlugin()).build();
                 addTask(task);
                 tickableTasks.put(tickable, task);

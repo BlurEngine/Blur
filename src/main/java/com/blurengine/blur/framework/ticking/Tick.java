@@ -27,8 +27,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Tick {
-    
-    String delay() default "0";
-    String interval() default "50ms";
+
+    long delay() default 0;
+    long interval() default 1;
+    boolean ms() default false;
     boolean async() default false;
 }

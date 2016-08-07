@@ -65,13 +65,13 @@ public class DummyModule extends Module {
     }
 
     // This method is automatically called every second after the first second. See Tickable interface for more information.
-    @Tick(interval = "10s", delay = "1s")
+    @Tick(interval = 10000, delay = 1000, ms = true)
     private void displayTicks() {
         getLogger().info("ticks: " + ticks.get());
         getLogger().info("ticks2: " + ticks2.get());
     }
 
-    @Tick(interval = "2s")
+    @Tick(interval = 2000, ms = true)
     private void addScoreToPlayers(TickerTask task) {
         List<GoalModule> modules = getSession().getModule(GoalModule.class);
         if (modules.isEmpty()) {
