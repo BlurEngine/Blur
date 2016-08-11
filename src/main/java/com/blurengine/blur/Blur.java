@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.commands.BlurCommands;
 import com.blurengine.blur.modules.BoundariesModule;
 import com.blurengine.blur.modules.DummyModule;
+import com.blurengine.blur.modules.FixedHungerModule;
 import com.blurengine.blur.modules.InvulnerableModule;
 import com.blurengine.blur.modules.MapInfoModule;
 import com.blurengine.blur.modules.checkpoints.CheckpointsModule;
@@ -100,6 +101,7 @@ public class Blur {
         ModuleLoader.register(IncludesModule.class);
         ModuleLoader.register(DummyModule.class);
         ModuleLoader.register(BoundariesModule.class);
+        ModuleLoader.register(FixedHungerModule.class);
         ModuleLoader.register(InvulnerableModule.class);
         ModuleLoader.register(LastPlayerAliveWinnerModule.class);
         ModuleLoader.register(LastTeamAliveWinnerModule.class);
