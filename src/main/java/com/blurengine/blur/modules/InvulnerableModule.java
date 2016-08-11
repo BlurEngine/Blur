@@ -65,7 +65,7 @@ public class InvulnerableModule extends Module implements Listener {
 
     public static final class InvulnerableData implements ModuleData {
 
-        private Duration duration;
+        private Duration duration = Duration.ofDays(30);
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
