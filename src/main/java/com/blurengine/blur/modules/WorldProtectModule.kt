@@ -21,14 +21,17 @@ import com.blurengine.blur.framework.ModuleData
 import com.blurengine.blur.framework.ModuleInfo
 import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.framework.SerializedModule
+import com.blurengine.blur.framework.WorldModule
 import com.blurengine.blur.modules.WorldProtectModule.WorldProtectData
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority.LOWEST
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockBurnEvent
+import org.bukkit.event.block.BlockEvent
 import org.bukkit.event.block.BlockFadeEvent
 import org.bukkit.event.block.BlockFormEvent
 import org.bukkit.event.block.BlockFromToEvent
@@ -40,6 +43,7 @@ import org.bukkit.event.block.LeavesDecayEvent
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityCombustEvent
+import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -49,150 +53,165 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerBucketFillEvent
+import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerShearEntityEvent
 import org.bukkit.event.vehicle.VehicleDamageEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
 import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.event.weather.WeatherEvent
+import org.bukkit.event.world.WorldEvent
 import org.bukkit.inventory.ItemStack
 import pluginbase.config.annotation.Name
 
 @ModuleInfo(name = "WorldProtect", dataClass = WorldProtectData::class)
-class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectData) : Module(moduleManager) {
+class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectData) : WorldModule(moduleManager) {
+    private fun Event.test(bool: Boolean? = null): Boolean {
+        val world = when (this) {
+            is WorldEvent -> world
+            is EntityEvent -> entity.world
+            is PlayerEvent -> player.world
+            is BlockEvent -> block.world
+            is WeatherEvent -> world
+            else -> throw UnsupportedOperationException("Unsupported event " + this.javaClass.name)
+        }
+        return getWorld() == world && (bool ?: true)
+    }
+
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
-        if (data.blockBreak) event.isCancelled = true
+        if (event.test(data.blockBreak)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent) {
-        if (data.blockPlace) event.isCancelled = true
+        if (event.test(data.blockPlace)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockIgnite(event: BlockIgniteEvent) {
-        if (data.blockIgnite) event.isCancelled = true
+        if (event.test(data.blockIgnite)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onFireDestroy(event: BlockBurnEvent) {
-        if (data.blockBurn) event.isCancelled = true
+        if (event.test(data.blockBurn)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockFade(event: BlockFadeEvent) {
-        if (data.blockFade) event.isCancelled = true
+        if (event.test(data.blockFade)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockForm(event: BlockFormEvent) {
-        if (data.blockForm) event.isCancelled = true
+        if (event.test(data.blockForm)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockFromTo(event: BlockFromToEvent) {
-        if (data.blockFromTo) event.isCancelled = true
+        if (event.test(data.blockFromTo)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockGrow(event: BlockGrowEvent) {
-        if (data.blockGrow) event.isCancelled = true
+        if (event.test(data.blockGrow)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onCactusPhysics(event: BlockPhysicsEvent) {
-        if (data.cactusPhysics && event.block.type == Material.CACTUS) event.isCancelled = true
+        if (event.test(data.cactusPhysics) && event.block.type == Material.CACTUS) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onLeavesDecay(event: LeavesDecayEvent) {
-        if (data.leavesDecay) event.isCancelled = true
+        if (event.test(data.leavesDecay)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onEntityCombust(event: EntityCombustEvent) {
-        if (data.entityCombust) event.isCancelled = true
+        if (event.test(data.entityCombust)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onEntityExplode(event: EntityExplodeEvent) {
-        if (data.entityExplode) event.blockList().clear()
+        if (event.test(data.entityExplode)) event.blockList().clear()
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onEntityBreakDoor(event: EntityBreakDoorEvent) {
-        if (data.entityBreakDoor) event.isCancelled = true
+        if (event.test(data.entityBreakDoor)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onCreatureSpawn(event: CreatureSpawnEvent) {
-        if (data.creatureSpawn) event.entity.remove()
+        if (event.test(data.creatureSpawn)) event.entity.remove()
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onHangingBreak(event: HangingBreakEvent) {
-        if (data.hangingBreak) {
+        if (event.test(data.hangingBreak)) {
             event.isCancelled = true
-        } else if (data.hangingBreakByPlayer && event is HangingBreakByEntityEvent && event.remover is Player) {
+        } else if (event.test(data.hangingBreakByPlayer) && event is HangingBreakByEntityEvent && event.remover is Player) {
             event.isCancelled = true
         }
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onHangingPlace(event: HangingPlaceEvent) {
-        if (data.hangingPlace) event.isCancelled = true
+        if (event.test(data.hangingPlace)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDamage(event: VehicleDamageEvent) {
-        if (data.vehicleDamage) event.isCancelled = true
+        if (event.test(data.vehicleDamage)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDestroy(event: VehicleDestroyEvent) {
-        if (data.vehicleDestroy) event.isCancelled = true
+        if (event.test(data.vehicleDestroy)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        if (event.hasBlock() && data.interactBlock) {
+        if (event.hasBlock() && event.test(data.interactBlock)) {
             event.isCancelled = true
         }
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPrepareItemCraft(event: PrepareItemCraftEvent) {
-        if (data.itemCraft) event.inventory.result = ItemStack(Material.AIR)
+        if (event.test(data.itemCraft)) event.inventory.result = ItemStack(Material.AIR)
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerBedEnter(event: PlayerBedEnterEvent) {
-        if (data.playerBedEnter) event.isCancelled = true
+        if (event.test(data.playerBedEnter)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBucketEmpty(event: PlayerBucketEmptyEvent) {
-        if (data.bucketEmpty) event.isCancelled = true
+        if (event.test(data.bucketEmpty)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBucketFill(event: PlayerBucketFillEvent) {
-        if (data.bucketFill) event.isCancelled = true
+        if (event.test(data.bucketFill)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerShearEntity(event: PlayerShearEntityEvent) {
-        if (data.shearEntity) event.isCancelled = true
+        if (event.test(data.shearEntity)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onWeatherChange(event: WeatherChangeEvent) {
-        if (data.weatherChange) event.isCancelled = true
+        if (event.test(data.weatherChange)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onCleanUpArrows(event: ProjectileHitEvent) {
-        if (data.cleanUpArrows && event.entity.type == EntityType.ARROW) event.entity.remove()
+        if (event.test(data.cleanUpArrows) && event.entity.type == EntityType.ARROW) event.entity.remove()
     }
 
     class WorldProtectData : ModuleData {
