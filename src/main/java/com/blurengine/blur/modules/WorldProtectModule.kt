@@ -50,6 +50,9 @@ import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerBucketFillEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerShearEntityEvent
+import org.bukkit.event.vehicle.VehicleDamageEvent
+import org.bukkit.event.vehicle.VehicleDestroyEvent
 import org.bukkit.event.weather.WeatherChangeEvent
 import org.bukkit.inventory.ItemStack
 import pluginbase.config.annotation.Name
@@ -141,6 +144,16 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onVehicleDamage(event: VehicleDamageEvent) {
+        if (data.vehicleDamage) event.isCancelled = true
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onVehicleDestroy(event: VehicleDestroyEvent) {
+        if (data.vehicleDestroy) event.isCancelled = true
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
         if (event.hasBlock() && data.interactBlock) {
             event.isCancelled = true
@@ -165,6 +178,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBucketFill(event: PlayerBucketFillEvent) {
         if (data.bucketFill) event.isCancelled = true
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerShearEntity(event: PlayerShearEntityEvent) {
+        if (data.shearEntity) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
@@ -213,6 +231,10 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var hangingBreakByPlayer: Boolean = true
         @Name("hanging-place")
         var hangingPlace: Boolean = true
+        @Name("vehicle-damage")
+        var vehicleDamage: Boolean = true
+        @Name("vehicle-destroy")
+        var vehicleDestroy: Boolean = true
 
         @Name("interact-block")
         var interactBlock: Boolean = false
@@ -224,6 +246,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var bucketEmpty: Boolean = true
         @Name("bucket-fill")
         var bucketFill: Boolean = true
+        @Name("shear=entity")
+        var shearEntity: Boolean = true
 
         @Name("weather-change")
         var weatherChange: Boolean = true
