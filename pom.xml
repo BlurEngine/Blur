@@ -174,7 +174,7 @@
                                     <shadedPattern>com.blurengine.blur.internal.pluginbase</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <minimizeJar>true</minimizeJar>
+                            <!--<minimizeJar>true</minimizeJar>-->
                         </configuration>
                     </execution>
                 </executions>
