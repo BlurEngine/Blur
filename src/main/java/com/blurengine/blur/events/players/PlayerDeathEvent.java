@@ -29,15 +29,8 @@ import javax.annotation.Nonnull;
  */
 public class PlayerDeathEvent extends BlurPlayerEvent {
 
-    private final org.bukkit.event.entity.PlayerDeathEvent bukkitEvent;
-
-    public PlayerDeathEvent(@Nonnull BlurPlayer victim, @Nonnull org.bukkit.event.entity.PlayerDeathEvent bukkitEvent) {
+    public PlayerDeathEvent(@Nonnull BlurPlayer victim) {
         super(Preconditions.checkNotNull(victim, "victim cannot be null."), victim.getSession());
-        this.bukkitEvent = Preconditions.checkNotNull(bukkitEvent, "bukkitEvent cannot be null.");
-    }
-
-    public org.bukkit.event.entity.PlayerDeathEvent getBukkitEvent() {
-        return bukkitEvent;
     }
 
     private static final HandlerList handlerList = new HandlerList();
