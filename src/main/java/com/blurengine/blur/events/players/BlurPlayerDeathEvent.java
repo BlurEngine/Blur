@@ -27,9 +27,9 @@ import javax.annotation.Nonnull;
 /**
  * Represents an event that is fired when a {@link BlurPlayer} kills another {@link BlurPlayer}.
  */
-public class PlayerDeathEvent extends BlurPlayerEvent {
+public class BlurPlayerDeathEvent extends BlurPlayerEvent {
 
-    public PlayerDeathEvent(@Nonnull BlurPlayer victim) {
+    public BlurPlayerDeathEvent(@Nonnull BlurPlayer victim) {
         super(Preconditions.checkNotNull(victim, "victim cannot be null."), victim.getSession());
     }
 

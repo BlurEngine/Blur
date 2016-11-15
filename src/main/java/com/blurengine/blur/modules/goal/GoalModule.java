@@ -18,7 +18,7 @@ package com.blurengine.blur.modules.goal;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.events.players.PlayerDeathEvent;
+import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleData;
@@ -77,7 +77,7 @@ public class GoalModule extends Module implements SupervisorContext {
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
+    public void onPlayerDeath(BlurPlayerDeathEvent event) {
         if (this.data.lives > 0) {
             BlurPlayer bp = event.getBlurPlayer();
             Integer deaths = this.deaths.getOrDefault(bp, 0);

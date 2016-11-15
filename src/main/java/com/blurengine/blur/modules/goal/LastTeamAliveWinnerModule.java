@@ -16,7 +16,7 @@
 
 package com.blurengine.blur.modules.goal;
 
-import com.blurengine.blur.events.players.PlayerDeathEvent;
+import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.WorldModule;
@@ -56,7 +56,7 @@ public class LastTeamAliveWinnerModule extends WorldModule {
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
+    public void onPlayerDeath(BlurPlayerDeathEvent event) {
         if (isSession(event)) {
             check();
         }

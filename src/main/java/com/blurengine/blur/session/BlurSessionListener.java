@@ -17,6 +17,7 @@
 package com.blurengine.blur.session;
 
 import com.blurengine.blur.Blur;
+import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
 import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.Module;
 
@@ -52,7 +53,7 @@ public class BlurSessionListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         BlurPlayer blurPlayer = getPlayer(event.getEntity()).orElse(null);
         if (isSession(blurPlayer)) {
-            this.session.callEvent(new com.blurengine.blur.events.players.PlayerDeathEvent(blurPlayer, event));
+            this.session.callEvent(new BlurPlayerDeathEvent(blurPlayer));
         }
     }
 
