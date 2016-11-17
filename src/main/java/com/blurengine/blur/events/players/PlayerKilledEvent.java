@@ -27,24 +27,24 @@ import javax.annotation.Nonnull;
 /**
  * Represents an event that is fired when a {@link BlurPlayer} kills another {@link BlurPlayer}.
  */
-public class PlayerKillEvent extends BlurPlayerEvent {
+public class PlayerKilledEvent extends BlurPlayerDeathEvent {
 
-    private final BlurPlayer victim;
+    private final BlurPlayer killer;
 
-    public PlayerKillEvent(@Nonnull BlurPlayer killer, @Nonnull BlurPlayer victim) {
-        super(Preconditions.checkNotNull(killer, "killer cannot be null."), killer.getSession());
-        this.victim = Preconditions.checkNotNull(victim, "victim cannot be null.");
+    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull BlurPlayer killer) {
+        super(victim);
+        this.killer = Preconditions.checkNotNull(killer, "killer cannot be null.");
     }
 
     /**
      * Same as {@link #getBlurPlayer()}.
      */
-    public BlurPlayer getKiller() {
+    public BlurPlayer getVictim() {
         return getBlurPlayer();
     }
 
-    public BlurPlayer getVictim() {
-        return victim;
+    public BlurPlayer getKiller() {
+        return this.killer;
     }
 
     private static final HandlerList handlerList = new HandlerList();
