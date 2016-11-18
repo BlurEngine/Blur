@@ -34,7 +34,7 @@ class BlurListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void callPlayerMoveBlockEvent(PlayerMoveEvent event) {
         if (!LocationUtils.isSameBlock(event.getFrom(), event.getTo())) {
             BlurPlayer blurPlayer = plugin.getBlur().getPlayer(event.getPlayer());
