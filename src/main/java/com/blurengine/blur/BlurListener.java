@@ -16,16 +16,24 @@
 
 package com.blurengine.blur;
 
+import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerMoveBlockEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.bukkit.utils.LocationUtils;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+/*
+ * All events extend LOW to call Blur events at an early enough point in time that other code will be able to cancel these Bukkit events if necessary.
+ */
 class BlurListener implements Listener {
 
     private final BlurPlugin plugin;
@@ -40,6 +48,20 @@ class BlurListener implements Listener {
             BlurPlayer blurPlayer = plugin.getBlur().getPlayer(event.getPlayer());
             if (blurPlayer.getSession() != null) {
                 EventUtils.callEvent(new PlayerMoveBlockEvent(event, blurPlayer));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void callPlayerDamagePlayerEvent(EntityDamageByEntityEvent event) {
+        LivingEntity damager = EventUtils.getLivingEntityDamager(event);
+        if (event.getEntity() instanceof Player && damager instanceof Player) {
+            BlurPlayer blurDamager = plugin.getBlur().getPlayer((Player) damager);
+            BlurPlayer blurVictim = plugin.getBlur().getPlayer((Player) event.getEntity());
+            
+            PlayerDamagePlayerEvent damageEvent = new PlayerDamagePlayerEvent(blurDamager, blurVictim, event);
+            if (damageEvent.isCancelled()) {
+                event.setCancelled(true);
             }
         }
     }
