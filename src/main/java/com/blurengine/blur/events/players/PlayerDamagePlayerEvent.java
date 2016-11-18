@@ -34,11 +34,18 @@ public class PlayerDamagePlayerEvent extends BlurPlayerEvent implements Cancella
     private final BlurPlayer victim;
     private final EntityDamageByEntityEvent bukkitEvent;
 
-    public PlayerDamagePlayerEvent(@Nonnull BlurPlayer killer, @Nonnull BlurPlayer victim, @Nonnull EntityDamageByEntityEvent bukkitEvent) {
-        super(Preconditions.checkNotNull(killer, "killer cannot be null."), killer.getSession());
+    public PlayerDamagePlayerEvent(@Nonnull BlurPlayer damager, @Nonnull BlurPlayer victim, @Nonnull EntityDamageByEntityEvent bukkitEvent) {
+        super(Preconditions.checkNotNull(damager, "damager cannot be null."), damager.getSession());
         this.victim = Preconditions.checkNotNull(victim, "victim cannot be null.");
         this.bukkitEvent = Preconditions.checkNotNull(bukkitEvent, "bukkitEntity cannot be null.");
     }
+
+    /**
+     * Same as {@link #getBlurPlayer()}.
+     */
+    public BlurPlayer getDamager() {
+        return getBlurPlayer();
+    } 
 
     public BlurPlayer getVictim() {
         return victim;
