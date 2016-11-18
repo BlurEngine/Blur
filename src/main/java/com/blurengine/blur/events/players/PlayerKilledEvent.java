@@ -25,7 +25,7 @@ import org.bukkit.event.HandlerList;
 import javax.annotation.Nonnull;
 
 /**
- * Represents an event that is fired when a {@link BlurPlayer} kills another {@link BlurPlayer}.
+ * Represents an event that is fired when a {@link BlurPlayer} is killed by another {@link BlurPlayer}.
  */
 public class PlayerKilledEvent extends BlurPlayerDeathEvent {
 
