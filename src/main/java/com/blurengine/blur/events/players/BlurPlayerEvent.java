@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public abstract class BlurPlayerEvent extends BlurSessionEvent {
 
     protected final BlurPlayer blurPlayer;
-    
+
     public BlurPlayerEvent(@Nonnull BlurPlayer blurPlayer) {
         this(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession());
     }
@@ -40,6 +40,13 @@ public abstract class BlurPlayerEvent extends BlurSessionEvent {
         this.blurPlayer = blurPlayer;
     }
 
+    /**
+     * Returns the primary {@link BlurPlayer} involved in this event. Subclass events will have delegate methods that represent what this primary
+     * player is.
+     * <p />
+     * E.g. {@link PlayerDamagePlayerEvent} returns the damager. {@link PlayerKilledEvent} returns the player that was killed.
+     * @return primary blur player
+     */
     public BlurPlayer getBlurPlayer() {
         return blurPlayer;
     }
