@@ -16,21 +16,21 @@
 
 package com.blurengine.blur.modules.teams;
 
-import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Team.OptionStatus;
 
 /**
  * Represents a state of visibility a team's nametags can be.
  */
 public enum NametagVisibility {
-    EVERYONE(NameTagVisibility.ALWAYS), NOONE(NameTagVisibility.NEVER), ALLIES(NameTagVisibility.HIDE_FOR_OTHER_TEAMS),
-    ENEMIES(NameTagVisibility.HIDE_FOR_OWN_TEAM);
-    private final NameTagVisibility bukkit;
+    EVERYONE(OptionStatus.ALWAYS), NOONE(OptionStatus.NEVER), ALLIES(OptionStatus.FOR_OWN_TEAM),
+    ENEMIES(OptionStatus.FOR_OTHER_TEAMS);
+    private final OptionStatus bukkit;
 
-    NametagVisibility(NameTagVisibility bukkit) {
+    NametagVisibility(OptionStatus bukkit) {
         this.bukkit = bukkit;
     }
 
-    public NameTagVisibility getBukkit() {
+    public OptionStatus getBukkit() {
         return bukkit;
     }
 }

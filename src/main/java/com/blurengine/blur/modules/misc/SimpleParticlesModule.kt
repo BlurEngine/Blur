@@ -33,6 +33,7 @@ import com.supaham.commons.Enums
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import org.bukkit.Effect
+import org.bukkit.Particle
 import org.bukkit.util.BlockVector
 import java.time.Duration
 import java.util.ArrayList
@@ -46,7 +47,7 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
             outlines.putAll(pdata.extent, doExtent(pdata.extent))
             newTask({
                 outlines.get(pdata.extent).forEach {
-                    world.spigot().playEffect(it.toLocation(this.world), pdata.particle, 0, 0, 0f, 0f, 0f, 0f, 2, 64)
+                    world.spawnParticle(pdata.particle, it.toLocation(this.world), 2)
                 }
             }).interval(pdata.interval).build()
         }
@@ -66,7 +67,7 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
             (serialized.asMap["particles"] as List<Map<*, *>>)
                     .filter { it["particle"] != null }
                     .map { it["particle"].toString() }
-                    .filter { Enums.findFuzzyByValue(Effect::class.java, it) == null }
+                    .filter { Enums.findFuzzyByValue(Particle::class.java, it) == null }
                     .forEach { moduleManager.logger.severe("Unknown particle type $it") } // TODO Remove item?
             serialized.load(this)
             return SimpleParticlesModule(moduleManager, this)
@@ -74,7 +75,7 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
     }
 
     class ExtentParticles {
-        var particle: Effect? = null
+        var particle: Particle? = null
         var interval: Duration = Duration.ofSeconds(1)
         var extent: Extent? = null
     }

@@ -45,7 +45,7 @@ public class RandomCompassTargetModule extends Module {
 
     @Tick(interval = 1000, ms = true)
     private void updateCompasses() {
-        Location baitLoc = this.bait.getLocation();
-        getPlayers(Predicates.ALIVE).forEach(aliveBP -> aliveBP.setCompassTarget(baitLoc));
+        Location baitLoc = this.bait.getPlayer().getLocation();
+        getPlayers(Predicates.ALIVE).forEach(aliveBP -> aliveBP.getPlayer().setCompassTarget(baitLoc));
     }
 }

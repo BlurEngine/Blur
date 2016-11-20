@@ -30,7 +30,7 @@
         <main.package>com.blurengine.blur</main.package>
         <main.class>${main.package}.BlurPlugin</main.class>
 
-        <spigot.version>1.10.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.11-R0.1-SNAPSHOT</spigot.version>
         <commons-bukkit.version>0.5.2-SNAPSHOT</commons-bukkit.version>
         <kotlin.version>1.1-M01</kotlin.version>
     </properties>

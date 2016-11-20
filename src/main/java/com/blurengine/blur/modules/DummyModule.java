@@ -82,7 +82,7 @@ public class DummyModule extends Module {
         getSession().getPlayersStream().forEach(p -> {
             OptionalDouble score = goalModule.getScore(p);
             goalModule.addScore(p, 10);
-            p.sendMessage(ChatColor.GREEN + "10 points to Gryffindor. Previously " + score.orElse(0));
+            p.getPlayer().sendMessage(ChatColor.GREEN + "10 points to Gryffindor. Previously " + score.orElse(0));
         });
     }
 }

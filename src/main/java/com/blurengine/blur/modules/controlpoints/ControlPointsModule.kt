@@ -37,7 +37,7 @@ import com.blurengine.blur.session.BlurPlayer
 import com.supaham.commons.relatives.RelativeDuration
 import com.supaham.commons.relatives.RelativeNumber
 import org.bukkit.ChatColor
-import org.bukkit.Effect
+import org.bukkit.Particle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
@@ -67,7 +67,7 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
         val controlPoint = playerControlPoints[event.blurPlayer]
         if (controlPoint != null) {
             // Player is still inside the capture point, terminate code
-            if (controlPoint.captureExtent.contains(event.blurPlayer.location)) return
+            if (controlPoint.captureExtent.contains(event.blurPlayer.player.location)) return
 
             // Player is no longer in their previous control point, remove them from the cache.
             controlPoint.removePlayer(event.blurPlayer)
@@ -445,7 +445,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             particlesExtent.offsetRadians = progress * (Math.PI * 2)
             particlesExtent.regenerate()
             particlesExtent.pointsList.forEach {
-                module.world.spigot().playEffect(it.toLocation(module.world), Effect.COLOURED_DUST, 0, 0, 0f, 0f, 0f, 0f, 2, 64)
+                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2)
             }
         }
 

@@ -47,7 +47,7 @@ class CheckpointsModule(manager: ModuleManager, val data: CheckpointsData) : Mod
             if (checkpoint.contains(bp)) {
                 current++
                 this.playerCheckpoint.put(bp, current)
-                bp.sendMessage("${ChatColor.GREEN}Checkpoint reached, ${this.data.points.size - current} left")
+                bp.message("${ChatColor.GREEN}Checkpoint reached, ${this.data.points.size - current} left")
             }
         }
 

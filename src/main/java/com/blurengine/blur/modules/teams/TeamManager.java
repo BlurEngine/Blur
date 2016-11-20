@@ -101,7 +101,7 @@ public class TeamManager extends Module implements SupervisorContext {
         }
         getLogger().finer("Adding %s to %s team.", blurPlayer.getName(), blurTeam.getId());
         blurTeam.players.add(blurPlayer);
-        blurTeam.bukkitTeam.addPlayer(blurPlayer.getPlayer());
+        blurTeam.bukkitTeam.addEntry(blurPlayer.getName());
         this.playerTeams.put(blurPlayer, blurTeam);
         return true;
     }
@@ -113,7 +113,7 @@ public class TeamManager extends Module implements SupervisorContext {
             getLogger().finer("Removing %s from %s team.", blurPlayer.getName(), blurTeam.getId());
             blurTeam.players.remove(blurPlayer);
             if (blurTeam.bukkitTeam != null) {
-                blurTeam.bukkitTeam.removePlayer(blurPlayer.getPlayer());
+                blurTeam.bukkitTeam.removeEntry(blurPlayer.getName());
             }
         });
         return remove;

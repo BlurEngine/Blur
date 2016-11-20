@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a player that belongs to a {@link BlurSession}.
  */
-public class BlurPlayer extends CommonPlayer implements BukkitPlayerDelegation, Filter {
+public class BlurPlayer extends CommonPlayer implements Filter {
 
     private final BukkitPlayerManager manager;
     BlurSession blurSession;

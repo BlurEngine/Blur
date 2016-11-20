@@ -109,7 +109,7 @@ public class SpawnsModule extends WorldModule {
 
         Location location = getNextSpawnLocationFor(blurPlayer.getPlayer());
         getLogger().finer("Spawning %s at %s", blurPlayer.getName(), location);
-        blurPlayer.teleport(location);
+        blurPlayer.getPlayer().teleport(location);
     }
 
     public Spawn getNextSpawn() {

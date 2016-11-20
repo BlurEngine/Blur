@@ -27,6 +27,7 @@ import com.supaham.commons.utils.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.Team.Option;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getName());
         this.bukkitTeam.setDisplayName(getName());
         this.bukkitTeam.setPrefix(getChatPrefix());
-        this.bukkitTeam.setNameTagVisibility(getNametagVisibility().getBukkit());
+        this.bukkitTeam.setOption(Option.NAME_TAG_VISIBILITY, getNametagVisibility().getBukkit());
     }
 
     @Override

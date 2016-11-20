@@ -49,7 +49,7 @@ public interface Extent extends Filter, Iterable<BlockVector> {
      * @return whether the {@code blurPlayer} is within this extent
      */
     default boolean contains(@Nonnull BlurPlayer blurPlayer) {
-        return contains(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.").getLocation());
+        return contains(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.").getPlayer().getLocation());
     }
 
     /**
