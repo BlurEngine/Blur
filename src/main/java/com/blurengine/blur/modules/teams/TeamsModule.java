@@ -16,17 +16,15 @@
 
 package com.blurengine.blur.modules.teams;
 
-import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleData;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
+import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.TeamsModule.TeamsData;
 import com.blurengine.blur.serializers.TeamList;
-
-import java.util.Map;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Filter} and nothing else. Intended for user convenience.
@@ -44,11 +42,7 @@ public class TeamsModule extends Module {
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
-            if (serialized.getAsObject() instanceof Map) {
-                moduleManager.getModuleLoader().getTeamSerializer().deserialize(serialized.getAsObject(), null);
-            } else {
-                serialized.load(this);
-            }
+            serialized.load(this);
             return new TeamsModule(moduleManager);
         }
     }
