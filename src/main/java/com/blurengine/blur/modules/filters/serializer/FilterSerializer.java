@@ -94,7 +94,7 @@ public class FilterSerializer implements BlurSerializer<Filter> {
             return deserializeMapToFilter((Map<String, Object>) serialized);
         } else if (serialized instanceof String) {
             String str = serialized.toString().trim();
-            Preconditions.checkArgument(str.isEmpty(), "Filter String is empty.");
+            Preconditions.checkArgument(!str.isEmpty(), "Filter String is empty.");
             // Not ID reference. This is a definition.
             Filter found = null;
             // If the string doesn't have a whitespace, it's most likely an id reference
