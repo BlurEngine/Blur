@@ -445,7 +445,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             particlesExtent.offsetRadians = progress * (Math.PI * 2)
             particlesExtent.regenerate()
             particlesExtent.pointsList.forEach {
-                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2)
+                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2, 0.0, 0.0, 0.0, 0.0)
             }
         }
 
