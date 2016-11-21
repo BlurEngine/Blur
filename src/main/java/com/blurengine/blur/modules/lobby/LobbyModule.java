@@ -87,6 +87,7 @@ public class LobbyModule extends WorldModule {
     @EventHandler
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         if (isSession(event)) {
+            event.getBlurPlayer().reset();
             checkAndStart();
         }
     }
