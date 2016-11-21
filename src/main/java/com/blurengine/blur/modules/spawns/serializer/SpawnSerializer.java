@@ -81,7 +81,8 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
         } else if (map.containsKey("point-to")) {
             destination.direction = new PointToSpawnDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
         }
-        return moduleLoader.deserializeTo(map, destination).toSpawn();
+        moduleLoader.deserializeTo(map, destination);
+        return destination.toSpawn();
     }
 
     public Spawn deserializeSingleMapEntryToSpawn(Map<String, Object> map) {

@@ -247,12 +247,12 @@ public class ModuleLoader {
         return createModule(this.dataClassesToInfo.get(moduleData.getClass()), moduleData, data);
     }
 
-    public <T extends ModuleData> T deserializeTo(Map map, @Nonnull T moduleData) {
-        return SerializationUtils.loadToObject(map, Preconditions.checkNotNull(moduleData, "moduleData cannot be null."), serializerSet);
+    public <T extends ModuleData> void deserializeTo(Map map, @Nonnull T moduleData) {
+        SerializationUtils.loadToObject(map, Preconditions.checkNotNull(moduleData, "moduleData cannot be null."), serializerSet);
     }
 
-    public <T> T deserializeTo(Map map, @Nonnull T destination) {
-        return SerializationUtils.loadToObject(map, Preconditions.checkNotNull(destination, "destination cannot be null."), serializerSet);
+    public <T> void deserializeTo(Map map, @Nonnull T destination) {
+        SerializationUtils.loadToObject(map, Preconditions.checkNotNull(destination, "destination cannot be null."), serializerSet);
     }
 
     public boolean deserializeYAMLFileTo(File file, Object destination) {
