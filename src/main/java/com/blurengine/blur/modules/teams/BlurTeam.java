@@ -73,7 +73,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         this.maxOverfill = builder.maxOverfill;
         this.nametagVisibility = builder.nametagVisibility;
 
-        this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getName());
+        this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getId());
         this.bukkitTeam.setDisplayName(getName());
         this.bukkitTeam.setPrefix(getChatPrefix());
         this.bukkitTeam.setOption(Option.NAME_TAG_VISIBILITY, getNametagVisibility().getBukkit());
