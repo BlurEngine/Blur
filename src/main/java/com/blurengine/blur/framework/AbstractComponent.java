@@ -150,7 +150,7 @@ public abstract class AbstractComponent implements Component {
         Preconditions.checkNotNull(listener, "listener cannot be null.");
         if (this.listeners.add(listener)) {
             if (this.state != ComponentState.UNLOADED) {
-                getSession().getBlur().getPlugin().registerEvents(this);
+                getSession().getBlur().getPlugin().registerEvents(listener);
             }
             return true;
         }
@@ -162,7 +162,7 @@ public abstract class AbstractComponent implements Component {
         Preconditions.checkNotNull(listener, "listener cannot be null.");
         if (this.listeners.remove(listener)) {
             if (this.state != ComponentState.UNLOADED) {
-                getSession().getBlur().getPlugin().unregisterEvents(this);
+                getSession().getBlur().getPlugin().unregisterEvents(listener);
             }
             return true;
         }
