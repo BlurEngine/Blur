@@ -98,7 +98,7 @@ public abstract class BlurSession {
 
     private final Map<UUID, BlurPlayer> players = new HashMap<>();
 
-    private MessagePart messagePrefixMP = new MessagePart("");
+    private FancyMessage messagePrefix = new FancyMessage("");
 
     private final List<Runnable> onStopTasks = new ArrayList<>();
 
@@ -320,12 +320,12 @@ public abstract class BlurSession {
         return Collections.unmodifiableMap(players);
     }
 
-    public MessagePart getMessagePrefixMP() {
-        return messagePrefixMP;
+    public FancyMessage getMessagePrefix() {
+        return messagePrefix;
     }
 
-    public void setMessagePrefixMP(MessagePart messagePrefixMP) {
-        this.messagePrefixMP = messagePrefixMP;
+    public void setMessagePrefix(FancyMessage messagePrefix) {
+        this.messagePrefix = messagePrefix;
     }
 
     public Collection<Runnable> getOnStopTasks() {

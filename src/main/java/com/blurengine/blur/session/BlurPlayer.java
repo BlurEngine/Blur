@@ -23,9 +23,11 @@ import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
 import com.supaham.commons.bukkit.text.FancyMessage;
+import com.supaham.commons.bukkit.text.MessagePart;
 
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -75,11 +77,16 @@ public class BlurPlayer extends CommonPlayer implements Filter {
     }
 
     public void messagePrefix(String string, Object... args) {
-        message(new FancyMessage().append(blurSession.getMessagePrefixMP()).append(String.format(string, args)));
+        messagePrefix(new FancyMessage(String.format(string, args)));
     }
 
     public void messagePrefix(FancyMessage fancyMessage) {
-        message(fancyMessage.add(0, blurSession.getMessagePrefixMP()));
+        List<MessagePart> parts = blurSession.getMessagePrefix().getMessageParts();
+        // Add prefix like so to make immutable. Extreme flaw in design of FancyMessage
+        for (int i = 0; i < parts.size(); i++) {
+            fancyMessage.add(i, parts.get(i));
+        }
+        message(fancyMessage);
     }
 
     public BlurSession getSession() {
