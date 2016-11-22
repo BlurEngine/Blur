@@ -60,6 +60,7 @@ class BlurListener implements Listener {
             BlurPlayer blurVictim = plugin.getBlur().getPlayer((Player) event.getEntity());
             
             PlayerDamagePlayerEvent damageEvent = new PlayerDamagePlayerEvent(blurDamager, blurVictim, event);
+            blurDamager.getSession().callEvent(damageEvent);
             if (damageEvent.isCancelled()) {
                 event.setCancelled(true);
             }
