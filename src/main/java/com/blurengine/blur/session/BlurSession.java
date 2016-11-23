@@ -25,12 +25,12 @@ import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.session.SessionEnableEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
+import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
 import com.supaham.commons.bukkit.text.FancyMessage;
-import com.supaham.commons.bukkit.text.MessagePart;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
@@ -92,7 +92,6 @@ public abstract class BlurSession {
     private int ticksPerSecond = 20;
 
     private final CommonScoreboard scoreboard;
-    private boolean enabled;
     private boolean started;
     private boolean paused;
 
@@ -101,6 +100,7 @@ public abstract class BlurSession {
     private FancyMessage messagePrefix = new FancyMessage("");
 
     private final List<Runnable> onStopTasks = new ArrayList<>();
+    private ComponentState state = ComponentState.UNLOADED;
 
     {
         setTicksPerSecond(20);
@@ -139,25 +139,40 @@ public abstract class BlurSession {
         return session;
     }
 
-    public void enable() {
-        if (enabled) {
-            return;
+    public boolean load() {
+        if (!setState(ComponentState.LOADED)) {
+            return false;
         }
-        getLogger().fine("Enabling %s", getName());
+        getLogger().fine("Loading %s", getName());
         Preconditions.checkArgument(getTicksPerSecond() > 0, "ticksPerSecond must be greater than 0.");
-
         long startedAt = System.currentTimeMillis();
         getBlur().getPlugin().registerEvents(this.listener);
         this.moduleManager.load();
+        getLogger().fine("%s loaded in %dms", getName(), System.currentTimeMillis() - startedAt);
+        return true;
+    }
+
+    public boolean enable() {
+        if (!setState(ComponentState.ENABLED)) {
+            return false;
+        }
+        getLogger().fine("Enabling %s", getName());
+        long startedAt = System.currentTimeMillis();
         this.moduleManager.enable();
-        this.enabled = true;
         // Delay event by a tick to give the server time to catch up if it took too long loading the session.
         new TickerTask(getBlur().getPlugin(), 1, () -> callEvent(new SessionEnableEvent(this))).start();
         getLogger().fine("%s enabled in %dms", getName(), System.currentTimeMillis() - startedAt);
+        return true;
     }
 
-    public void start() {
-        if (!this.enabled) {
+    public boolean start() {
+        if (this.started) {
+            return false;
+        }
+        if (!this.state.isLoaded()) {
+            load();
+        }
+        if (this.state != ComponentState.ENABLED) {
             enable();
         }
         getLogger().fine("Starting %s", getName());
@@ -165,6 +180,7 @@ public abstract class BlurSession {
         callEvent(new SessionStartEvent(this));
         this.started = true;
         getLogger().fine("%s started in %dms", getName(), System.currentTimeMillis() - startedAt);
+        return true;
     }
 
     public void stop() {
@@ -173,7 +189,6 @@ public abstract class BlurSession {
         }
         getLogger().fine("Stopping %s", getName());
         long startedAt = System.currentTimeMillis();
-        this.enabled = false;
         this.started = false;
         callEvent(new SessionStopEvent(this));
         this.childrenSessions.forEach(BlurSession::stop);
@@ -300,8 +315,8 @@ public abstract class BlurSession {
         return scoreboard;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public ComponentState getState() {
+        return state;
     }
 
     public boolean isStarted() {
@@ -387,6 +402,14 @@ public abstract class BlurSession {
 
     public Server getServer() {
         return getBlur().getPlugin().getServer();
+    }
+
+    private boolean setState(ComponentState state) {
+        if (this.state.isAcceptable(state)) {
+            this.state = state;
+            return true;
+        }
+        return false;
     }
 
     public enum Predicates implements Predicate<BlurPlayer> {

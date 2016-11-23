@@ -132,6 +132,7 @@ public class LobbyModule extends WorldModule {
             WorldBlurSession childSession = mapLoaderModule.createSessionFromDirectory(mapLoaderModule.nextMap());
 
             // Make the wheels on the bus go round and round.
+            childSession.load();
             childSession.enable();
 
             // Add current lobby players to the new session immediately

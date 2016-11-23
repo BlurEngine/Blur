@@ -82,7 +82,7 @@ public class BlurReportContext extends ReportContext {
         public SessionFile(BlurContext context, BlurSession blurSession) {
             super(context, blurSession.getName().replaceAll("\\s+", "-"), blurSession.getName());
 
-            append("enabled", blurSession.isEnabled());
+            append("state", blurSession.getState());
             append("started", blurSession.isStarted());
             append("paused", blurSession.isPaused());
             append("on_stop_task_count", blurSession.getOnStopTasks().size());
