@@ -52,15 +52,19 @@ public class WorldBlurSession extends BlurSession {
     }
 
     @Override
-    public void enable() {
-        super.enable();
-        // Load a default players team if no team is present at the time of the game starting.
-        TeamManager teamManager = getModuleManager().getTeamManager();
-        teamManager.setSpectatorTeam(new SpectatorTeam(teamManager));
+    public boolean load() {
+        if (super.load()) {
+            // This code is done here, right after all modules load, so that modules can do team controlled features whilst in the enabling stage.
+            // Load a default players team if no team is present at the time of the game starting.
+            TeamManager teamManager = getModuleManager().getTeamManager();
+            teamManager.setSpectatorTeam(new SpectatorTeam(teamManager));
 
-        if (teamManager.getTeams().size() == 0) {
-            teamManager.registerTeam(new PlayersTeam(teamManager));
+            if (teamManager.getTeams().size() == 0) {
+                teamManager.registerTeam(new PlayersTeam(teamManager));
+            }
+            return true;
         }
+        return false;
     }
 
     public WorldBlurSession createChildSession(@Nonnull World world) {
