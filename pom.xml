@@ -32,7 +32,7 @@
 
         <spigot.version>1.11-R0.1-SNAPSHOT</spigot.version>
         <commons-bukkit.version>0.5.3-SNAPSHOT</commons-bukkit.version>
-        <kotlin.version>1.1-M01</kotlin.version>
+        <kotlin.version>1.1-M03</kotlin.version>
     </properties>
 
     <repositories>
