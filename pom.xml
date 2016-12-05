@@ -163,6 +163,7 @@
                                     <include>org.jetbrains.kotlin:*</include>
                                 </includes>
                             </artifactSet>
+                            <finalName>${project.name}-${git.commit.id.abbrev}</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
