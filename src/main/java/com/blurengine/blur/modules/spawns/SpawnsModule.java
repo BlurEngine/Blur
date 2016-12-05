@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.spawns;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.BlurPlugin;
+import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.framework.Module;
@@ -40,6 +41,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.Map;
@@ -88,11 +90,20 @@ public class SpawnsModule extends WorldModule {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlurPlayerRespawn(BlurPlayerRespawnEvent event) {
+        if (isSession(event)) {
+            spawnPlayer(event.getBlurPlayer());
+        }
+    }
+
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         BlurPlayer blurPlayer = getSession().getPlayer(event.getPlayer());
         if (isSession(blurPlayer.getSession())) {
-            event.setRespawnLocation(getNextSpawnLocationFor(event.getPlayer()));
+            Location location = getNextSpawnLocationFor(event.getPlayer());
+            getLogger().finer("Spawning %s at %s", blurPlayer.getName(), location);
+            event.setRespawnLocation(location);
         }
     }
 
