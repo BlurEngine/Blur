@@ -39,6 +39,7 @@ import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
 import com.blurengine.blur.modules.misc.SimpleParticlesModule;
 import com.blurengine.blur.modules.spawns.SpawnsModule;
+import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurPlayer;
@@ -112,6 +113,7 @@ public class Blur {
         ModuleLoader.register(SimpleParticlesModule.class);
         ModuleLoader.register(ControlPointsModule.class);
         ModuleLoader.register(WorldProtectModule.class);
+        ModuleLoader.register(StaggeredGroupRespawnsModule.class);
     }
 
     public CommonPlugin getPlugin() {
