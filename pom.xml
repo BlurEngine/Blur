@@ -109,6 +109,8 @@
     </dependencies>
 
     <build>
+        <!-- Must be placed here (not shade plugin) to ensure generation of original-* jar to manage CI jar exclusion properly. -->
+        <finalName>${project.name}-${git.commit.id.abbrev}</finalName>
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -163,7 +165,6 @@
                                     <include>org.jetbrains.kotlin:*</include>
                                 </includes>
                             </artifactSet>
-                            <finalName>${project.name}-${git.commit.id.abbrev}</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
