@@ -51,7 +51,9 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
     @EventHandler
     fun onBlurPlayerRespawn(event: BlurPlayerRespawnEvent) {
-        theDead.remove(event.blurPlayer)
+        if (isSession(event)) {
+            theDead.remove(event.blurPlayer)
+        }
     }
 
     @Tick
