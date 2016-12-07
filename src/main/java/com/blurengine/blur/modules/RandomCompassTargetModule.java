@@ -37,7 +37,7 @@ public class RandomCompassTargetModule extends Module {
 
     @Tick(interval = 30000, ms = true)
     private void updateBait() {
-        getAnyPlayer(Predicates.ALIVE).ifPresent(p -> {
+        getRandomPlayer(Predicates.ALIVE).ifPresent(p -> {
             this.bait = p;
             broadcastMessage(new FancyMessage().safeAppend("&e" + this.bait.getName() + " got baited!"));
         });

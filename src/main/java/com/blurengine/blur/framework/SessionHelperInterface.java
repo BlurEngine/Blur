@@ -91,9 +91,8 @@ public interface SessionHelperInterface {
     }
 
     @Nonnull
-    default Optional<BlurPlayer> getAnyPlayer(@Nonnull Predicate<BlurPlayer> predicate) {
-        Preconditions.checkNotNull(predicate, "predicate cannot be null.");
-        return getSession().getAnyPlayer(predicate);
+    default Optional<BlurPlayer> getRandomPlayer(@Nonnull Predicate<BlurPlayer> predicate) {
+        return getSession().getRandomPlayer(predicate);
     }
 
     @Nonnull

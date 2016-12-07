@@ -28,6 +28,7 @@ import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
+import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
 import com.supaham.commons.bukkit.text.FancyMessage;
@@ -264,8 +265,10 @@ public abstract class BlurSession {
      *
      * @return filtered set of players
      */
-    public Optional<BlurPlayer> getAnyPlayer(Predicate<BlurPlayer> predicate) {
-        return getPlayersStream().filter(predicate).findAny();
+    @Nonnull
+    public Optional<BlurPlayer> getRandomPlayer(@Nonnull Predicate<BlurPlayer> predicate) {
+        Preconditions.checkNotNull(predicate, "predicate cannot be null.");
+        return getPlayersStream().filter(predicate).collect(CommonCollectors.singleRandom());
     }
 
     public Stream<BlurPlayer> getPlayersStream() {
