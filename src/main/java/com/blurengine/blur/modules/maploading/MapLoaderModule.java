@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.maploading;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.framework.Module;
@@ -86,8 +87,13 @@ public class MapLoaderModule extends Module {
     }
 
     @Override
-    public void load() {
-        super.load();
+    public void unload() {
+        super.unload();
+        this.sessions.forEach(this::unloadMap);
+    }
+
+    @EventHandler
+    public void onSessionStart(SessionStartEvent event) {
 
         if (getSession().callEvent(new MapLoaderPreLoadEvent(this)).isCancelled()) {
             return;
@@ -107,12 +113,6 @@ public class MapLoaderModule extends Module {
         } catch (MapLoadException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void unload() {
-        super.unload();
-        this.sessions.forEach(this::unloadMap);
     }
 
     private void unloadMap(WorldBlurSession session) {
