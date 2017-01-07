@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -139,7 +140,20 @@ public class TeamManager extends Module implements SupervisorContext {
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         // TODO make initial team setting optional. E.g. if they game has already started, set them to spectators only.
         if (isSession(event.getSession()) && getSpectatorTeam() != null) { // spectator team is null because this might be root session.
-            getTeams().stream().collect(CommonCollectors.singleRandom()).get().addPlayer(event.getBlurPlayer());
+            List<BlurTeam> smallestTeams = new ArrayList<>(teams.size());
+            int size = Integer.MAX_VALUE;
+            for (BlurTeam blurTeam : getTeams()) {
+                if (blurTeam.getPlayerCount() < size) {
+                    smallestTeams.clear();
+                    size = blurTeam.getPlayerCount();
+                }
+                if (blurTeam.getPlayerCount() == size) {
+                    smallestTeams.add(blurTeam);
+                }
+            }
+            BlurTeam blurTeam = smallestTeams.stream().collect(CommonCollectors.singleRandom()).get();
+            getLogger().finer("Adding %s to team %s with size %s", event.getBlurPlayer().getDisplayName(), blurTeam.getId(), size);
+            blurTeam.addPlayer(event.getBlurPlayer());
         }
     }
 
