@@ -81,7 +81,7 @@ public class SpawnsModule extends WorldModule {
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         if (isSession(event)) {
             if (event.getSession().isStarted()) {
-                spawnPlayer(event.getBlurPlayer(), getNextSpawn());
+                event.getBlurPlayer().respawn();
 // FIXME This code is commented out as it causes the players to spawn when the session hasn't started. This isn't ideal as it causes two spawns to occur
 // when the session is created via LobbyModule or the likes.
 //            } else {

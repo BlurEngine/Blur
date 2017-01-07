@@ -69,12 +69,12 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                     if (logger.debugLevel >= 2) {
                         logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
                     }
-                    session.callEvent(BlurPlayerRespawnEvent(it.key))
+                    it.key.respawn()
                 }
             } else {
                 passedMinWait.filter { it.value >= data.maxTimer.toMillis() }.forEach {
                     logger.finer("${it.key.name} waited ${data.maxTimer.seconds}s.")
-                    session.callEvent(BlurPlayerRespawnEvent(it.key))
+                    it.key.respawn()
                 }
             }
         }
