@@ -144,4 +144,17 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         setAlive(true);
         getSession().callEvent(event);
     }
+
+    /* ================================
+     * >> DELEGATE METHODS
+     * ================================ */
+
+    public String getDisplayName() {
+        return getPlayer().getDisplayName();
+    }
+    
+    /* ================================
+     * >> /DELEGATE METHODS
+     * ================================ */
+
 }
