@@ -26,6 +26,7 @@ import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.scoreboard.Team.Option;
 
@@ -109,6 +110,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
             return FilterResponse.from(this.equals(object));
         } else if (object instanceof BlurPlayer) {
             return FilterResponse.from(this.players.contains(object));
+        } else if (object instanceof Player) {
+            return FilterResponse.from(this.players.contains(manager.getPlayer((Player) object)));
         }
         return FilterResponse.ABSTAIN;
     }
