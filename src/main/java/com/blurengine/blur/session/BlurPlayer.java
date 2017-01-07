@@ -18,6 +18,10 @@ package com.blurengine.blur.session;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
+import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
+import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
+import com.blurengine.blur.events.players.PlayerKilledEvent;
 import com.blurengine.blur.modules.filters.Filter;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
@@ -111,5 +115,33 @@ public class BlurPlayer extends CommonPlayer implements Filter {
             return FilterResponse.from(getName().equals(object));
         }
         return FilterResponse.ABSTAIN;
+    }
+
+    /**
+     * Kills this player by calling {@link BlurPlayerDeathEvent}.
+     */
+    public void die() {
+        setAlive(false);
+        this.blurSession.callEvent(new BlurPlayerDeathEvent(this));
+    }
+
+    /**
+     * Kills a {@link BlurPlayer} using details provided in the {@link PlayerDamagePlayerEvent} parameter.
+     * @param event Blur PlayerDamagePlayerEvent 
+     */
+    public void kill(@Nonnull PlayerDamagePlayerEvent event) {
+        Preconditions.checkNotNull(event, "event cannot be null.");
+        BlurPlayer victim = event.getVictim();
+        victim.die();
+        this.blurSession.callEvent(new PlayerKilledEvent(victim, this));
+    }
+
+    /**
+     * Respawns this player in the game, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
+     */
+    public void respawn() {
+        BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this);
+        setAlive(true);
+        getSession().callEvent(event);
     }
 }
