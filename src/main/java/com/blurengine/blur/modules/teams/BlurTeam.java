@@ -114,11 +114,11 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
     }
 
     public boolean addPlayer(@Nonnull BlurPlayer blurPlayer) {
-        return manager.addPlayerToTeam(blurPlayer, this);
+        return manager.setPlayerTeam(blurPlayer, this);
     }
 
     public boolean removePlayer(@Nonnull BlurPlayer blurPlayer) {
-        return manager.removePlayerFromTeam(blurPlayer).isPresent();
+        return manager.setPlayerTeam(blurPlayer, null);
     }
 
     public Collection<BlurPlayer> getPlayers() {

@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.modules.teams;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
@@ -29,7 +30,6 @@ import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.supervisor.Amendable;
 import com.blurengine.blur.supervisor.SupervisorContext;
-import com.sun.org.apache.bcel.internal.generic.RETURN;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.utils.BeanUtils;
 
@@ -84,39 +84,32 @@ public class TeamManager extends Module implements SupervisorContext {
         return this.playerTeams.get(blurPlayer);
     }
 
-    protected boolean addPlayerToTeam(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurTeam blurTeam) {
+    public boolean setPlayerTeam(@Nonnull BlurPlayer blurPlayer, BlurTeam blurTeam) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
-        Preconditions.checkNotNull(blurTeam, "blurTeam cannot be null.");
         BlurTeam oldTeam = this.playerTeams.get(blurPlayer);
-        if (blurTeam.equals(oldTeam)) {
+        if (Objects.equal(blurTeam, oldTeam)) {
+            return false;
+        }
+        getLogger().finer("Setting %s team to %s.", blurPlayer.getName(), blurTeam.getId());
+        PlayerChangeTeamEvent event = getSession().callEvent(new PlayerChangeTeamEvent(blurPlayer, oldTeam, blurTeam));
+        if (event.isCancelled()) {
             return false;
         }
         if (oldTeam != null) {
-            // Call change team event only if they were in another team before, if everything is successful, continue with code.
-            if (getSession().callEvent(new PlayerChangeTeamEvent(blurPlayer, oldTeam, blurTeam)).isCancelled()) {
-                return false;
+            oldTeam.players.remove(blurPlayer);
+            if (oldTeam.bukkitTeam != null) {
+                oldTeam.bukkitTeam.removeEntry(blurPlayer.getName());
             }
-            // Clean up player from old team before adding to new one below.
-            removePlayerFromTeam(blurPlayer);
         }
-        getLogger().finer("Adding %s to %s team.", blurPlayer.getName(), blurTeam.getId());
-        blurTeam.players.add(blurPlayer);
-        blurTeam.bukkitTeam.addEntry(blurPlayer.getName());
-        this.playerTeams.put(blurPlayer, blurTeam);
+        blurTeam = event.getNewTeam().orElse(null);
+        if (blurTeam != null) {
+            this.playerTeams.put(blurPlayer, blurTeam);
+            blurTeam.players.add(blurPlayer);
+            blurTeam.bukkitTeam.addEntry(blurPlayer.getName());
+        } else {
+            this.playerTeams.remove(blurPlayer);
+        }
         return true;
-    }
-
-    public Optional<BlurTeam> removePlayerFromTeam(@Nonnull BlurPlayer blurPlayer) {
-        Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
-        Optional<BlurTeam> remove = Optional.ofNullable(this.playerTeams.remove(blurPlayer));
-        remove.ifPresent(blurTeam -> {
-            getLogger().finer("Removing %s from %s team.", blurPlayer.getName(), blurTeam.getId());
-            blurTeam.players.remove(blurPlayer);
-            if (blurTeam.bukkitTeam != null) {
-                blurTeam.bukkitTeam.removeEntry(blurPlayer.getName());
-            }
-        });
-        return remove;
     }
 
     public SpectatorTeam getSpectatorTeam() {

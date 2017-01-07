@@ -25,6 +25,8 @@ import com.blurengine.blur.session.BlurPlayer;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import java.util.Optional;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -35,18 +37,18 @@ public class PlayerChangeTeamEvent extends BlurPlayerEvent implements Cancellabl
     private final BlurTeam oldTeam;
     private BlurTeam newTeam;
 
-    public PlayerChangeTeamEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurTeam oldTeam, @Nonnull BlurTeam newTeam) {
+    public PlayerChangeTeamEvent(@Nonnull BlurPlayer blurPlayer, BlurTeam oldTeam, BlurTeam newTeam) {
         super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession());
-        this.oldTeam = Preconditions.checkNotNull(oldTeam, "oldTeam cannot be null.");
-        this.newTeam = Preconditions.checkNotNull(newTeam, "newTeam cannot be null.");
+        this.oldTeam = oldTeam;
+        this.newTeam = newTeam;
     }
 
-    public BlurTeam getOldTeam() {
-        return oldTeam;
+    public Optional<BlurTeam> getOldTeam() {
+        return Optional.ofNullable(oldTeam);
     }
 
-    public BlurTeam getNewTeam() {
-        return newTeam;
+    public Optional<BlurTeam> getNewTeam() {
+        return Optional.ofNullable(newTeam);
     }
 
     public void setNewTeam(BlurTeam newTeam) {
