@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.Extent;
+import com.blurengine.blur.modules.filters.Filter;
+import com.blurengine.blur.modules.filters.Filters;
 import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
 
 import org.bukkit.Location;
@@ -35,14 +37,16 @@ public class Spawn {
 
     private final Extent extent;
     private final SpawnDirection spawnDirection;
+    private final Filter filter;
 
     public Spawn(@Nonnull Extent extent) {
-        this(extent, NullSpawnDirection.INSTANCE);
+        this(extent, NullSpawnDirection.INSTANCE, Filters.ALWAYS_ALLOW);
     }
 
-    public Spawn(@Nonnull Extent extent, @Nonnull SpawnDirection spawnDirection) {
+    public Spawn(@Nonnull Extent extent, @Nonnull SpawnDirection spawnDirection, @Nonnull Filter filter) {
         this.extent = Preconditions.checkNotNull(extent, "extent cannot be null.");
         this.spawnDirection = Preconditions.checkNotNull(spawnDirection, "spawnDirection cannot be null.");
+        this.filter = Preconditions.checkNotNull(filter, "filter cannot be null.");
     }
     
     public Extent getExtent() {
@@ -51,5 +55,9 @@ public class Spawn {
 
     public SpawnDirection getSpawnDirection() {
         return spawnDirection;
+    }
+
+    public Filter getFilter() {
+        return filter;
     }
 }

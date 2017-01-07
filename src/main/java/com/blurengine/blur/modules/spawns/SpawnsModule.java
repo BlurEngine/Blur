@@ -29,6 +29,8 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.framework.WorldModule;
+import com.blurengine.blur.modules.extents.BlockExtent;
+import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.serializers.SpawnList;
 import com.blurengine.blur.session.BlurPlayer;
@@ -71,9 +73,7 @@ public class SpawnsModule extends WorldModule {
     @EventHandler
     public void onSessionStart(SessionStartEvent event) {
         if (isSession(event)) {
-            if (data.spawnOnStart != null) {
-                newTask(() -> getPlayers().forEach(p -> spawnPlayer(p, data.spawnOnStart))).delay(0).build();
-            }
+            newTask(() -> getPlayers().forEach(p -> spawnPlayer(p, data.spawnOnStart))).delay(0).build();
         }
     }
 
@@ -124,17 +124,20 @@ public class SpawnsModule extends WorldModule {
     }
 
     public Spawn getNextSpawn() {
-        return CollectionUtils.getRandomElement(data.spawns);
+        return !data.spawns.isEmpty() ? CollectionUtils.getRandomElement(data.spawns) : data.defaultSpawn;
     }
 
     public Location getNextSpawnLocationFor(Entity entity) {
-        Spawn spawn = getNextSpawn();
+        Spawn spawn = data.spawns.stream().filter(s -> s.getFilter().test(entity).isAllowed()).findFirst()
+            .orElse(data.defaultSpawn);
         Location location = spawn.getExtent().getRandomLocation().toLocation(getSession().getWorld());
         spawn.getSpawnDirection().applyTo(location, entity);
         return location;
     }
 
     public static final class SpawnsData implements ModuleData {
+
+        public static final String DEFAULT_SPAWN = "default-spawn";
 
         @Name("default")
         private Spawn defaultSpawn;
@@ -148,38 +151,52 @@ public class SpawnsModule extends WorldModule {
                 Map<String, Object> asMap = serialized.getAsMap();
 
                 // The following code is a layer of convenience for the user input
-                // if input is null or true set to 'default', if 'false' set to null, meaning don't spawn players on start.
-                Function<Boolean, String> bFunction = b -> b ? "default" : null;
-                String aDefault = Match.of(asMap.get("spawn-on-start"))
-                    .whenType(Boolean.class).then(bFunction::apply)
-                    .whenIs(null).then(bFunction.apply(true))
-                    .otherwise(o -> {
-                        String str = o.toString().trim();
-                        return str.isEmpty() ? "default" : StringUtils.parseBoolean(str).map(bFunction).orElse(str);
-                    })
-                    .getOrElse((String) null); // Allow null
-                if (aDefault == null) { // Explicit null, don't deserialize spawn-on-start.
-                    asMap.remove("spawn-on-start");
-                } else {
-                    asMap.put("spawn-on-start", aDefault);
-                }
-
-                if (!asMap.containsKey("default")) {
-                    asMap.put("default", "default");
+                // if input is null or true set to DEFAULT_SPAWN, if 'false' set to null, meaning don't spawn players on start.
+                Function<Boolean, String> bFunction = b -> b ? DEFAULT_SPAWN : null;
+                if (asMap.containsKey("spawn-on-start")) {
+                    String spawnOnStartValue = Match.of(asMap.get("spawn-on-start"))
+                        .whenType(Boolean.class).then(bFunction)
+                        .whenIs(null).then(bFunction.apply(true))
+                        .otherwise(o -> {
+                            String str = o.toString().trim();
+                            return str.isEmpty() ? DEFAULT_SPAWN : StringUtils.parseBoolean(str).map(bFunction).orElse(str);
+                        })
+                        .getOrElse((String) null); // Allow null
+                    if (spawnOnStartValue == null) { // Explicit null, don't deserialize spawn-on-start.
+                        asMap.remove("spawn-on-start");
+                    } else {
+                        asMap.put("spawn-on-start", spawnOnStartValue);
+                    }
                 }
 
                 serialized.load(this);
-            } else {
-                defaultSpawn = moduleManager.getModuleLoader().getSpawnSerializer().deserialize("default", null, null);
+
+                // If spawn-on-start is not defined but default is, then use that.
+                // Note: defaultSpawn is set after serialized.load()
+                if (!asMap.containsKey("spawn-on-start") && asMap.containsKey("default")) {
+                    this.spawnOnStart = this.defaultSpawn;
+                }
             }
 
-            checkNotNull(this.defaultSpawn, "default cannot be null.");
+            
+            /*
+             * If no default spawn is specified, we must set one internally by default based on BlockExtent.ZERO. This ensures there is always a
+             * fallback to spawn players to. Despite how chaotic it may seem, it is up to the user to fix the issue of spawns. 
+             */
+            if (this.defaultSpawn == null) {
+                try { // Use extent by id DEFAULT_SPAWN
+                    this.defaultSpawn = moduleManager.getModuleLoader().getSpawnSerializer()
+                        .deserialize(DEFAULT_SPAWN, Spawn.class, serialized.getSerializerSet());
+                } catch (ExtentNotFoundException e) { // force set fallback spawn
+                    this.defaultSpawn = new Spawn(BlockExtent.ZERO);
+                }
+                if (this.spawnOnStart == null) {
+                    this.spawnOnStart = this.defaultSpawn;
+                }
+            }
+
             if (this.spawns == null) {
                 this.spawns = new SpawnList(1);
-            }
-
-            if (this.spawns.isEmpty()) {
-                this.spawns.add(this.defaultSpawn);
             }
             return new SpawnsModule(moduleManager, this);
         }

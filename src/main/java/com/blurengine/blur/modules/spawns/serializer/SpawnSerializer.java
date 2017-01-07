@@ -22,6 +22,8 @@ import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.ExtentNotFoundException;
+import com.blurengine.blur.modules.filters.Filter;
+import com.blurengine.blur.modules.filters.Filters;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.SpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
@@ -80,6 +82,10 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
                 pitch == null ? 0 : Float.parseFloat(pitch.toString()));
         } else if (map.containsKey("point-to")) {
             destination.direction = new PointToSpawnDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
+        }
+        
+        if (map.containsKey("filter")) {
+            destination.filter = this.moduleLoader.getFilterSerializer().deserialize(map.get("filter"), Filter.class);
         }
         moduleLoader.deserializeTo(map, destination);
         return destination.toSpawn();
@@ -142,6 +148,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
 
         private Extent extent;
         private transient SpawnDirection direction = NullSpawnDirection.INSTANCE;
+        private transient Filter filter = Filters.ALWAYS_ALLOW;
 
         private SpawnData() {}
 
@@ -150,7 +157,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
         }
 
         public Spawn toSpawn() {
-            return new Spawn(extent, direction);
+            return new Spawn(extent, direction, filter);
         }
     }
 }
