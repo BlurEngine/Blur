@@ -18,19 +18,36 @@ package com.blurengine.blur.events.players;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.session.BlurPlayer;
 
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents an event that is fired when a {@link BlurPlayer} is to respawn in the session. 
  */
 public class BlurPlayerRespawnEvent extends BlurPlayerEvent {
 
+    private Spawn spawn;
+
     public BlurPlayerRespawnEvent(@Nonnull BlurPlayer player) {
+        this(player, null);
+    }
+
+    public BlurPlayerRespawnEvent(@Nonnull BlurPlayer player, @Nullable Spawn spawn) {
         super(Preconditions.checkNotNull(player, "player cannot be null."), player.getSession());
+        this.spawn = spawn;
+    }
+
+    public Spawn getSpawn() {
+        return spawn;
+    }
+
+    public void setSpawn(Spawn spawn) {
+        this.spawn = spawn;
     }
 
     private static final HandlerList handlerList = new HandlerList();

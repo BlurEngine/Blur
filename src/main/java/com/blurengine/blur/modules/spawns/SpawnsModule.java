@@ -73,7 +73,7 @@ public class SpawnsModule extends WorldModule {
     @EventHandler
     public void onSessionStart(SessionStartEvent event) {
         if (isSession(event)) {
-            newTask(() -> getPlayers().forEach(p -> spawnPlayer(p, data.spawnOnStart))).delay(0).build();
+            newTask(() -> getPlayers().forEach(p -> p.respawn(data.spawnOnStart))).delay(0).build();
         }
     }
 
@@ -93,7 +93,11 @@ public class SpawnsModule extends WorldModule {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlurPlayerRespawn(BlurPlayerRespawnEvent event) {
         if (isSession(event)) {
-            spawnPlayer(event.getBlurPlayer());
+            if (event.getSpawn() != null) {
+                spawnPlayer(event.getBlurPlayer(), event.getSpawn());
+            } else {
+                spawnPlayer(event.getBlurPlayer(), getNextSpawn());
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerKilledEvent;
 import com.blurengine.blur.modules.filters.Filter;
+import com.blurengine.blur.modules.spawns.Spawn;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
@@ -140,7 +141,15 @@ public class BlurPlayer extends CommonPlayer implements Filter {
      * Respawns this player in the game, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
      */
     public void respawn() {
-        BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this);
+        respawn(null);
+    }
+
+    /**
+     * Respawns this player at a given spawn, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
+     * @param spawn where to respawn at
+     */
+    public void respawn(Spawn spawn) {
+        BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this, spawn);
         setAlive(true);
         getSession().callEvent(event);
     }
