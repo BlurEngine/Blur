@@ -34,11 +34,12 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import pluginbase.config.annotation.Name
 import java.time.Duration
+import java.util.WeakHashMap
 
 @ModuleInfo(name = "StaggeredGroupRespawns", dataClass = StaggeredGroupRespawnsData::class)
 class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: StaggeredGroupRespawnsData) : WorldModule(moduleManager) {
 
-    val theDead = HashMap<BlurPlayer, Long>()
+    val theDead = WeakHashMap<BlurPlayer, Long>()
 
     @EventHandler(priority = EventPriority.LOW)
     fun onBlurPlayerDeath(event: BlurPlayerDeathEvent) {
