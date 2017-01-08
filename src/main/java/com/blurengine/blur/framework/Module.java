@@ -38,6 +38,7 @@ public abstract class Module extends AbstractComponent {
 
     private final ModuleInfo moduleInfo;
     private final Set<Component> subcomponents = new HashSet<>();
+    final Set<Class> registeredPlayerDataClasses = new HashSet<>();
 
     public Module(ModuleManager moduleManager) {
         super(moduleManager);
@@ -131,5 +132,17 @@ public abstract class Module extends AbstractComponent {
 
     public StageManager getStagesManager() {
         return getModuleManager().getStageManager();
+    }
+    
+    public Set<Class> getRegisteredPlayerDataClasses() {
+        return this.registeredPlayerDataClasses;
+    }
+
+    public void registerPlayerDataClass(Class clazz) {
+        this.registeredPlayerDataClasses.add(clazz);
+    }
+
+    public boolean unregisterPlayerDataClass(Class clazz) {
+        return this.registeredPlayerDataClasses.remove(clazz);
     }
 }

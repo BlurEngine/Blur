@@ -41,6 +41,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -215,6 +216,28 @@ public abstract class BlurSession {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
+            // Initialize player data class and add it to the player.
+            for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
+                Module module = moduleManager.getModules().get(clazz).iterator().next();
+                for (Class aClass : module.getRegisteredPlayerDataClasses()) {
+                    Object data;
+                    try {
+                        data = aClass.getDeclaredConstructor(BlurPlayer.class).newInstance(blurPlayer);
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            data = aClass.getDeclaredConstructor().newInstance();
+                        } catch (NoSuchMethodException e1) {
+                            throw new RuntimeException(e);
+                        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e1) {
+                            throw new RuntimeException(e1);
+                        }
+                    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                    module.addTickable(data);
+                    blurPlayer.addCustomData(data);
+                }
+            }
             callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
         }
     }

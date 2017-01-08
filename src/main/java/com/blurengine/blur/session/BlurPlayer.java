@@ -33,8 +33,11 @@ import com.supaham.commons.bukkit.text.MessagePart;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -49,6 +52,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
     BlurSession blurSession;
     private boolean alive;
     private InventoryLayout inventoryLayout = new InventoryLayout(getPlayer().getInventory());
+    private Map<Class, Object> customData = new HashMap<>();
 
     public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
         super(player);
@@ -84,6 +88,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         player.setBedSpawnLocation(null);
 
         this.inventoryLayout = new InventoryLayout(player.getInventory());
+        this.customData.clear();
     }
 
     public void messagePrefix(String string, Object... args) {
@@ -114,6 +119,22 @@ public class BlurPlayer extends CommonPlayer implements Filter {
     @Nonnull
     public InventoryLayout getInventoryLayout() {
         return inventoryLayout;
+    }
+
+    @Nonnull
+    public Map<Class, Object> getCustomData() {
+        return customData;
+    }
+    
+    @Nullable
+    public <T> T getCustomData(Class<T> clazz) {
+        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
+        return (T) this.customData.get(clazz);
+    }
+    
+    public void addCustomData(@Nonnull Object data) {
+        Preconditions.checkNotNull(data, "data cannot be null.");
+        this.customData.put(data.getClass(), data);
     }
 
     @Override
