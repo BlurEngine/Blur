@@ -22,6 +22,7 @@ import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerKilledEvent;
+import com.blurengine.blur.inventory.InventoryLayout;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.spawns.Spawn;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
@@ -46,6 +47,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
     private final BukkitPlayerManager manager;
     BlurSession blurSession;
     private boolean alive;
+    private InventoryLayout inventoryLayout = new InventoryLayout(getPlayer().getInventory());
 
     public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
         super(player);
@@ -79,6 +81,8 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         player.resetPlayerTime();
         player.resetPlayerWeather();
         player.setBedSpawnLocation(null);
+
+        this.inventoryLayout = new InventoryLayout(player.getInventory());
     }
 
     public void messagePrefix(String string, Object... args) {
@@ -104,6 +108,11 @@ public class BlurPlayer extends CommonPlayer implements Filter {
 
     protected void setAlive(boolean alive) {
         this.alive = alive;
+    }
+
+    @Nonnull
+    public InventoryLayout getInventoryLayout() {
+        return inventoryLayout;
     }
 
     @Override
