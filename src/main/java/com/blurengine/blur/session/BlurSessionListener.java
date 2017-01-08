@@ -53,7 +53,7 @@ public class BlurSessionListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         BlurPlayer blurPlayer = getPlayer(event.getEntity()).orElse(null);
         if (isSession(blurPlayer)) {
-            this.session.callEvent(new BlurPlayerDeathEvent(blurPlayer));
+            blurPlayer.die();
         }
     }
 
