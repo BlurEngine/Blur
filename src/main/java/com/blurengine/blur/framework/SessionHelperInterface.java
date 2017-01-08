@@ -29,6 +29,7 @@ import com.blurengine.blur.session.BlurSession;
 import com.supaham.commons.bukkit.text.FancyMessage;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerEvent;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,6 +57,11 @@ public interface SessionHelperInterface {
     /* ================================
      * >> UTILITY METHODS
      * ================================ */
+
+    default boolean isSession(@Nonnull PlayerEvent playerEvent) {
+        Preconditions.checkNotNull(playerEvent, "playerEvent cannot be null.");
+        return isSession(getPlayer(playerEvent.getPlayer()).getSession());
+    }
 
     default boolean isSession(@Nonnull BlurSessionEvent sessionEvent) {
         Preconditions.checkNotNull(sessionEvent, "sessionEvent cannot be null.");
