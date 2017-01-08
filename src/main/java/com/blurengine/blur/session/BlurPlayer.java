@@ -31,6 +31,7 @@ import com.supaham.commons.bukkit.players.Players;
 import com.supaham.commons.bukkit.text.FancyMessage;
 import com.supaham.commons.bukkit.text.MessagePart;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -169,6 +170,14 @@ public class BlurPlayer extends CommonPlayer implements Filter {
 
     public String getDisplayName() {
         return getPlayer().getDisplayName();
+    }
+
+    public Location getLocation() {
+        return getPlayer().getLocation();
+    }
+
+    public Location getEyeLocation() {
+        return getPlayer().getEyeLocation();
     }
     
     /* ================================
