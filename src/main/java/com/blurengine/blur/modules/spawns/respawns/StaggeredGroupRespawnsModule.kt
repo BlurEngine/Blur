@@ -31,6 +31,7 @@ import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
 import com.google.common.collect.HashMultimap
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import pluginbase.config.annotation.Name
 import java.time.Duration
 
@@ -39,7 +40,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
     val theDead = HashMap<BlurPlayer, Long>()
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     fun onBlurPlayerDeath(event: BlurPlayerDeathEvent) {
         if (isSession(event)) {
             theDead[event.blurPlayer] = System.currentTimeMillis()
