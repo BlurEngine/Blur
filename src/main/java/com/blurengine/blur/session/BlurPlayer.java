@@ -133,7 +133,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
      */
     public void die() {
         setAlive(false);
-        this.blurSession.callEvent(new BlurPlayerDeathEvent(this));
+        this.blurSession.callEvent(new BlurPlayerDeathEvent(this, getLocation()));
     }
 
     /**
@@ -144,7 +144,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         Preconditions.checkNotNull(event, "event cannot be null.");
         BlurPlayer victim = event.getVictim();
         victim.die();
-        this.blurSession.callEvent(new PlayerKilledEvent(victim, this));
+        this.blurSession.callEvent(new PlayerKilledEvent(victim, getLocation(), this));
     }
 
     /**

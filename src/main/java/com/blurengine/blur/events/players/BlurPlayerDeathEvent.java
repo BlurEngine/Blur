@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.session.BlurPlayer;
 
+import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
@@ -29,8 +30,15 @@ import javax.annotation.Nonnull;
  */
 public class BlurPlayerDeathEvent extends BlurPlayerEvent {
 
-    public BlurPlayerDeathEvent(@Nonnull BlurPlayer victim) {
+    private final Location location;
+
+    public BlurPlayerDeathEvent(@Nonnull BlurPlayer victim, @Nonnull Location location) {
         super(Preconditions.checkNotNull(victim, "victim cannot be null."), victim.getSession());
+        this.location = Preconditions.checkNotNull(location, "location cannot be null.");
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     private static final HandlerList handlerList = new HandlerList();
