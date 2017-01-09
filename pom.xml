@@ -53,6 +53,10 @@
             <url>http://repo.onarandombox.com/content/repositories/thirdparty-dev/</url>
         </repository>
         <repository>
+            <id>elmakers-repo</id>
+            <url>http://maven.elmakers.com/repository/</url>
+        </repository>
+        <repository>
             <id>kotlin-eap</id>
             <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1/</url>
         </repository>
@@ -98,6 +102,12 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.slikey</groupId>
+            <artifactId>EffectLib</artifactId>
+            <version>5.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -164,6 +174,7 @@
                                     <include>ninja.leaping.configurate:configurate-hocon</include>
                                     <include>com.javaslang:javaslang</include>
                                     <include>org.jetbrains.kotlin:*</include>
+                                    <include>de.slikey:EffectLib</include>
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
