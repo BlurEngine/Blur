@@ -20,7 +20,10 @@ import com.blurengine.blur.session.BlurPlayer
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import com.supaham.commons.minecraft.world.space.Position
 import org.bukkit.Location
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.World
+import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
 /* ================================
@@ -42,3 +45,7 @@ fun Position.toLocation(world: World) = Location(world, x, y, z, yaw, pitch)
  * ================================ */
 
 fun BlurPlayer.getTeam() = session.moduleManager.teamManager.getPlayerTeam(this)
+
+fun Player.playSound(sound: Sound, location: Location = this.location, category: SoundCategory = SoundCategory.MASTER, volume: Float = 1F, pitch: Float = 1F) {
+    playSound(location, sound, category, volume, pitch)
+}
