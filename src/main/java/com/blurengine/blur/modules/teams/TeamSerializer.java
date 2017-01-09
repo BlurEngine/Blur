@@ -85,6 +85,9 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
 
         private String id;
         private String name = null;
+        @Name("chat-color")
+        @SerializeWith(ColorStringSerializer.class)
+        private String chatColor = ChatColor.WHITE.toString();
         @Name("chat-prefix")
         @SerializeWith(ColorStringSerializer.class)
         private String chatPrefix = ChatColor.WHITE.toString();
@@ -96,7 +99,7 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         private NametagVisibility nametagVisibility = NametagVisibility.EVERYONE;
 
         public BlurTeam toTeam(@Nonnull TeamManager teamManager) {
-            return BlurTeam.builder().id(id).name(name).chatPrefix(chatPrefix).color(color).max(max).maxOverfill(maxOverfill)
+            return BlurTeam.builder().id(id).name(name).chatColor(chatColor).chatPrefix(chatPrefix).color(color).max(max).maxOverfill(maxOverfill)
                 .nametagVisibility(nametagVisibility).build(teamManager);
         }
     }

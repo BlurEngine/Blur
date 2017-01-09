@@ -21,6 +21,8 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
 import com.blurengine.blur.session.BlurPlayer;
+import com.supaham.commons.bukkit.FuzzyColorMatchers;
+import com.supaham.commons.bukkit.utils.ChatColorUtils;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
@@ -46,6 +48,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
     private final String id;
     private String name;
+    private final String chatColor;
     private final String chatPrefix;
     private final Color color;
     private final int max;
@@ -68,6 +71,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
         this.id = builder.id;
         this.name = builder.name;
+        this.chatColor = builder.chatColor;
         this.chatPrefix = builder.chatPrefix;
         this.color = builder.color;
         this.max = builder.max;
@@ -96,6 +100,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         return "BlurTeam{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
+            ", chatColor='" + chatColor.replaceAll(ChatColor.COLOR_CHAR + "", "&") + '\'' +
             ", chatPrefix='" + chatPrefix + '\'' +
             ", color=" + color +
             ", max=" + max +
@@ -156,6 +161,10 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         EventUtils.callEvent(new TeamRenameEvent(this, oldName, name));
     }
 
+    public String getChatColor() {
+        return chatColor;
+    }
+
     public String getChatPrefix() {
         return chatPrefix;
     }
@@ -188,6 +197,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
         private String id;
         private String name;
+        private String chatColor;
         private String chatPrefix = ChatColor.WHITE.toString();
         private Color color = Color.WHITE;
         private int max = 10;
@@ -203,6 +213,11 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder chatColor(String chatColor) {
+            this.chatColor = chatColor;
             return this;
         }
 
@@ -234,6 +249,12 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         public BlurTeam build(@Nonnull TeamManager teamManager) {
             Preconditions.checkNotNull(teamManager, "teamManager cannot be null.");
             StringUtils.checkNotNullOrEmpty(id, "id");
+            Preconditions.checkNotNull(color, "color cannot be null.");
+            if (chatColor == null || chatColor.isEmpty()) {
+                chatColor = FuzzyColorMatchers.matchChatColor(color).toString();
+            } else {
+                chatColor = ChatColorUtils.deserialize(chatColor); // translate user friendly code
+            }
             if (name == null) {
                 name = id;
             }
