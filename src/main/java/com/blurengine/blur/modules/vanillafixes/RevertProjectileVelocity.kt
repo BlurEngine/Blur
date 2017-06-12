@@ -28,8 +28,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent
  * Fixes Minecraft 1.9 y projectile addition to projectile throwing.
  * @author Elijah "Xorgon" Andrews
  */
-@ModuleInfo(name = "FixProjectileVelocity")
-class FixProjectileVelocity(moduleManager: ModuleManager) : Module(moduleManager) {
+@ModuleInfo(name = "RevertProjectileVelocity")
+class RevertProjectileVelocity(moduleManager: ModuleManager) : Module(moduleManager) {
 
     @EventHandler
     fun onProjectileLaunch(event: ProjectileLaunchEvent) {
