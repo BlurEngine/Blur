@@ -203,6 +203,8 @@ public abstract class BlurSession {
         this.childrenSessions.forEach(BlurSession::stop);
         this.moduleManager.disable();
         this.moduleManager.unload();
+        this.ticker.stop();
+        this.ticker = null;
         getBlur().getPlugin().unregisterEvents(this.listener);
         this.onStopTasks.forEach(Runnable::run);
         getLogger().fine("%s stopped in %dms", getName(), System.currentTimeMillis() - startedAt);
