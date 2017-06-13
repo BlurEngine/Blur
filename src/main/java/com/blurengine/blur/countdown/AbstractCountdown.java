@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.framework.AbstractComponent;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ticking.Tick;
+import com.supaham.commons.bukkit.TickerTask;
 
 /**
  * Represents a countdown object.
@@ -36,11 +37,11 @@ public abstract class AbstractCountdown extends AbstractComponent implements Cou
         this.module = module;
         Preconditions.checkArgument(ticks > 0, "ticks cannot be less than 1.");
         this.initialTicks = ticks;
-        this.ticks = this.initialTicks;
     }
     
     public void start() {
         module.addSubcomponent(this);
+        this.ticks = this.initialTicks;
     }
 
     public void stop() {
@@ -48,11 +49,11 @@ public abstract class AbstractCountdown extends AbstractComponent implements Cou
     }
 
     @Tick
-    public void tick() {
+    public void tick(TickerTask task) {
         onTick();
         if (--ticks <= 0) {
             onEnd();
-            removeTickable(this);
+            stop();
         }
     }
 
