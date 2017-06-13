@@ -16,7 +16,9 @@
 
 package com.blurengine.blur.utils
 
+import com.blurengine.blur.framework.Module
 import com.blurengine.blur.session.BlurPlayer
+import com.blurengine.blur.session.BlurSession
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import com.supaham.commons.minecraft.world.space.Position
 import org.bukkit.Location
@@ -49,3 +51,7 @@ fun BlurPlayer.getTeam() = session.moduleManager.teamManager.getPlayerTeam(this)
 fun Player.playSound(sound: Sound, location: Location = this.location, category: SoundCategory = SoundCategory.MASTER, volume: Float = 1F, pitch: Float = 1F) {
     playSound(location, sound, category, volume, pitch)
 }
+
+inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
+
+inline fun <reified T : Any> BlurPlayer.getCustomData(): T? = this.getCustomData(T::class.java)
