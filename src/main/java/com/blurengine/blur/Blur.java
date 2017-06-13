@@ -37,6 +37,7 @@ import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
 import com.blurengine.blur.modules.includes.IncludesModule;
 import com.blurengine.blur.modules.lobby.LobbyModule;
 import com.blurengine.blur.modules.maploading.MapLoaderModule;
+import com.blurengine.blur.modules.misc.JumpPadsModule;
 import com.blurengine.blur.modules.misc.SimpleParticlesModule;
 import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule;
@@ -116,6 +117,7 @@ public class Blur {
         ModuleLoader.register(WorldProtectModule.class);
         ModuleLoader.register(StaggeredGroupRespawnsModule.class);
         ModuleLoader.register(RevertProjectileVelocity.class);
+        ModuleLoader.register(JumpPadsModule.class);
     }
 
     public CommonPlugin getPlugin() {
