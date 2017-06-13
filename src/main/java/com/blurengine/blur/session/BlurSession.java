@@ -42,6 +42,7 @@ import org.bukkit.event.Event;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,6 +97,9 @@ public abstract class BlurSession {
     private final CommonScoreboard scoreboard;
     private boolean started;
     private boolean paused;
+    private Instant startedAt;
+    private int playedTicks;
+    private SessionTicker ticker;
 
     private final Map<UUID, BlurPlayer> players = new HashMap<>();
 
@@ -148,6 +152,7 @@ public abstract class BlurSession {
         getLogger().fine("Loading %s", getName());
         Preconditions.checkArgument(getTicksPerSecond() > 0, "ticksPerSecond must be greater than 0.");
         long startedAt = System.currentTimeMillis();
+        this.ticker = new SessionTicker();
         getBlur().getPlugin().registerEvents(this.listener);
         this.moduleManager.load();
         getLogger().fine("%s loaded in %dms", getName(), System.currentTimeMillis() - startedAt);
@@ -178,8 +183,10 @@ public abstract class BlurSession {
             enable();
         }
         getLogger().fine("Starting %s", getName());
-        long startedAt = System.currentTimeMillis();
+        this.startedAt = Instant.now();
+        long startedAt = this.startedAt.toEpochMilli();
         callEvent(new SessionStartEvent(this));
+        this.ticker.start();
         this.started = true;
         getLogger().fine("%s started in %dms", getName(), System.currentTimeMillis() - startedAt);
         return true;
@@ -357,6 +364,18 @@ public abstract class BlurSession {
         this.paused = paused;
     }
 
+    public Instant getStartedAt() {
+        return startedAt;
+    }
+
+    public int getPlayedTicks() {
+        return playedTicks;
+    }
+
+    public SessionTicker getTicker() {
+        return ticker;
+    }
+
     public Map<UUID, BlurPlayer> getPlayers() {
         return Collections.unmodifiableMap(players);
     }
@@ -443,6 +462,20 @@ public abstract class BlurSession {
             @Override
             public boolean test(BlurPlayer blurPlayer) {
                 return blurPlayer.isAlive();
+            }
+        }
+    }
+    
+    private class SessionTicker extends TickerTask {
+
+        public SessionTicker() {
+            super(BlurSession.this.getBlur().getPlugin(), 0, 0);
+        }
+
+        @Override
+        public void run() {
+            if (!this.isPaused() && this.isStarted()) {
+                BlurSession.this.playedTicks++;
             }
         }
     }
