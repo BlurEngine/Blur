@@ -203,6 +203,9 @@ public abstract class BlurSession {
         callEvent(new SessionStopEvent(this));
         this.moduleManager.disable();
         this.moduleManager.unload();
+        for (BlurPlayer blurPlayer : new HashSet<>(this.players.values())) {
+            removePlayer(blurPlayer);
+        }
         this.ticker.stop();
         this.ticker = null;
         getBlur().getPlugin().unregisterEvents(this.listener);
