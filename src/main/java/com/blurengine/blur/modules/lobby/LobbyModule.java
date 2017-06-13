@@ -109,6 +109,9 @@ public class LobbyModule extends WorldModule {
         if (getSession().getChildrenSessions().contains(event.getSession())) {
             SpawnsModule spawns = getSession().getModule(SpawnsModule.class).get(0);
             event.getSession().getPlayers().values().forEach(spawns::spawnPlayer);
+
+            // Start countdown immediately.
+            event.getSession().addOnStopTask(this::checkAndStart);
         }
     }
 
