@@ -89,7 +89,7 @@ public class MapLoaderModule extends Module {
     @Override
     public void unload() {
         super.unload();
-        this.sessions.forEach(this::unloadMap);
+        new ArrayList<>(this.sessions).forEach(this::unloadMap);
     }
 
     @EventHandler
@@ -115,10 +115,10 @@ public class MapLoaderModule extends Module {
         }
     }
 
-    private void unloadMap(WorldBlurSession session) {
+    private boolean unloadMap(WorldBlurSession session) {
         // Does the given session belong to us?
-        if (!this.sessions.contains(session)) {
-            return; // Probably a case where the session was unloaded already
+        if (!this.sessions.remove(session)) {
+            return false; // Probably a case where the session was unloaded already
         }
         getLogger().fine("Unloading %s from MapLoader.", session.getName());
         World world = session.getWorld();
@@ -136,8 +136,11 @@ public class MapLoaderModule extends Module {
                 FileUtils.deleteDirectory(worldFolder);
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to delete " + worldFolder.getPath(), e);
+                // Don't return false here as the map has been unloaded successfully for the most relevant part. This error needs to be handled
+                // in a different way.
             }
         }
+        return true;
     }
 
     @EventHandler
