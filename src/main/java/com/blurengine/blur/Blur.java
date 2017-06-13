@@ -42,6 +42,7 @@ import com.blurengine.blur.modules.spawns.SpawnsModule;
 import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
+import com.blurengine.blur.modules.vanillafixes.RevertProjectileVelocity;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.SessionManager;
 import com.supaham.commons.bukkit.CommonPlugin;
@@ -114,6 +115,7 @@ public class Blur {
         ModuleLoader.register(ControlPointsModule.class);
         ModuleLoader.register(WorldProtectModule.class);
         ModuleLoader.register(StaggeredGroupRespawnsModule.class);
+        ModuleLoader.register(RevertProjectileVelocity.class);
     }
 
     public CommonPlugin getPlugin() {
