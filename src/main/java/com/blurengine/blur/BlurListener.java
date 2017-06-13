@@ -28,6 +28,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 /*
@@ -39,6 +40,16 @@ class BlurListener implements Listener {
 
     public BlurListener(BlurPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    /*
+     * Override default bukkit behaviour which cancels interact event when clicking air.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction().name().endsWith("AIR")) {
+            event.setCancelled(false);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
