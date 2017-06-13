@@ -87,10 +87,10 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         private String name = null;
         @Name("chat-color")
         @SerializeWith(ColorStringSerializer.class)
-        private String chatColor = ChatColor.WHITE.toString();
+        private String chatColor;
         @Name("chat-prefix")
         @SerializeWith(ColorStringSerializer.class)
-        private String chatPrefix = ChatColor.WHITE.toString();
+        private String chatPrefix;
         private Color color = Color.WHITE;
         private int max = 100;
         @Name("max-overfill")
