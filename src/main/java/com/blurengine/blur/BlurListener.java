@@ -20,9 +20,8 @@ import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerMoveBlockEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.utils.EventUtils;
-import com.supaham.commons.bukkit.utils.LocationUtils;
 
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,7 +43,9 @@ class BlurListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void callPlayerMoveBlockEvent(PlayerMoveEvent event) {
-        if (!LocationUtils.isSameBlock(event.getFrom(), event.getTo())) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (!from.toVector().equals(to.toVector())) {
             BlurPlayer blurPlayer = plugin.getBlur().getPlayer(event.getPlayer());
             if (blurPlayer.getSession() != null) {
                 EventUtils.callEvent(new PlayerMoveBlockEvent(event, blurPlayer));
@@ -58,7 +59,7 @@ class BlurListener implements Listener {
         if (event.getEntity() instanceof Player && damager instanceof Player) {
             BlurPlayer blurDamager = plugin.getBlur().getPlayer((Player) damager);
             BlurPlayer blurVictim = plugin.getBlur().getPlayer((Player) event.getEntity());
-            
+
             PlayerDamagePlayerEvent damageEvent = new PlayerDamagePlayerEvent(blurDamager, blurVictim, event);
             blurDamager.getSession().callEvent(damageEvent);
             if (damageEvent.isCancelled()) {
