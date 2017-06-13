@@ -42,6 +42,7 @@ import com.supaham.commons.utils.MapBuilder;
 import org.bukkit.event.EventHandler;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,6 +116,15 @@ public class GoalModule extends Module implements SupervisorContext {
 
     public GoalModuleData getData() {
         return data;
+    }
+
+    public Duration getPlayedDuration() {
+        int playedMs = getSession().getPlayedTicks() * getSession().getTicksAsMs();
+        return Duration.ofMillis(playedMs);
+    }
+
+    public Duration getRemainingDuration() {
+        return data.timeLimit.minus(getPlayedDuration());
     }
 
     @Override
