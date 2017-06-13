@@ -29,6 +29,8 @@ import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurSession;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +128,9 @@ public class ModuleManager {
     }
 
     public void unload() {
-        this.modules.values().stream().filter(module -> module.getState() == ComponentState.LOADED).forEach(this::unloadModule);
+        List<Module> reversedModules = new ArrayList<>(this.modules.values());
+        Collections.reverse(reversedModules);
+        reversedModules.stream().filter(module -> module.getState() == ComponentState.LOADED).forEach(this::unloadModule);
     }
 
     public void enable() {
@@ -134,7 +138,9 @@ public class ModuleManager {
     }
 
     public void disable() {
-        this.modules.values().stream().filter(module -> module.getState() == ComponentState.ENABLED).forEach(this::disableModule);
+        List<Module> reversedModules = new ArrayList<>(this.modules.values());
+        Collections.reverse(reversedModules);
+        reversedModules.stream().filter(module -> module.getState() == ComponentState.ENABLED).forEach(this::disableModule);
     }
 
     public boolean loadModule(Module module) {
