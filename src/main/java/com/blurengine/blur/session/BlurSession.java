@@ -196,11 +196,11 @@ public abstract class BlurSession {
         if (!started) {
             return;
         }
-        getLogger().fine("Stopping %s", getName());
         long startedAt = System.currentTimeMillis();
         this.started = false;
-        callEvent(new SessionStopEvent(this));
         this.childrenSessions.forEach(BlurSession::stop);
+        getLogger().fine("Stopping %s", getName());
+        callEvent(new SessionStopEvent(this));
         this.moduleManager.disable();
         this.moduleManager.unload();
         this.ticker.stop();
