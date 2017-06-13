@@ -215,7 +215,7 @@ public abstract class BlurSession {
 
     public BlurPlayer getPlayer(@Nonnull Player player) {
         Preconditions.checkNotNull(player, "player cannot be null.");
-        return getPlayer(player.getUniqueId()).orElse(null); // 99.9% this will never be null as a Player is always online and has a BlurPlayer instance.
+        return getPlayer(player.getUniqueId()).orElse(getBlur().getPlayer(player));
     }
 
     public Optional<BlurPlayer> getPlayer(UUID uuid) {
