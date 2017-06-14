@@ -179,9 +179,9 @@ public class BlurPlayer extends CommonPlayer implements Filter {
      * Respawns this player at a given spawn, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
      * @param spawn where to respawn at
      */
-    public void respawn(Spawn spawn) {
-        BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this, spawn);
         setAlive(true);
+    public void respawn(Location location) {
+        BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this, location);
         getSession().callEvent(event);
     }
 

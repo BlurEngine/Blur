@@ -18,9 +18,9 @@ package com.blurengine.blur.events.players;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.session.BlurPlayer;
 
+import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
@@ -31,23 +31,24 @@ import javax.annotation.Nullable;
  */
 public class BlurPlayerRespawnEvent extends BlurPlayerEvent {
 
-    private Spawn spawn;
+    private Location spawnLocation;
 
     public BlurPlayerRespawnEvent(@Nonnull BlurPlayer player) {
         this(player, null);
     }
 
-    public BlurPlayerRespawnEvent(@Nonnull BlurPlayer player, @Nullable Spawn spawn) {
+    public BlurPlayerRespawnEvent(@Nonnull BlurPlayer player, @Nullable Location spawnLocation) {
         super(Preconditions.checkNotNull(player, "player cannot be null."), player.getSession());
-        this.spawn = spawn;
+        this.spawnLocation = spawnLocation;
     }
 
-    public Spawn getSpawn() {
-        return spawn;
+    @Nonnull
+    public Location getSpawnLocation() {
+        return this.spawnLocation;
     }
 
-    public void setSpawn(Spawn spawn) {
-        this.spawn = spawn;
+    public void setSpawnLocation(@Nonnull Location spawnLocation) {
+        this.spawnLocation = spawnLocation;
     }
 
     private static final HandlerList handlerList = new HandlerList();
