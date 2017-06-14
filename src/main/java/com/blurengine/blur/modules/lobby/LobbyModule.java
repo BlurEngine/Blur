@@ -21,6 +21,7 @@ import com.blurengine.blur.countdown.GlobalGameCountdown;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
+import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleData;
 import com.blurengine.blur.framework.ModuleInfo;
@@ -117,10 +118,16 @@ public class LobbyModule extends WorldModule {
 
     protected void checkAndStart() {
         if (getSession().getPlayers().size() >= data.requiredPlayers) {
-            if (this.countdown != null) {
-                this.countdown.start();
-            } else {
-                startNextSession();
+
+            // LobbyModule only supports 1 session at a time.
+            if (this.childrenSessions.isEmpty()) {
+                if (this.countdown != null) {
+                    if (this.countdown.getState() != ComponentState.ENABLED) {
+                        this.countdown.start();
+                    }
+                } else {
+                    startNextSession();
+                }
             }
         }
     }
