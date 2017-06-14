@@ -32,6 +32,10 @@ public class BlurPlayerDeathEvent extends BlurPlayerEvent {
 
     private final Location location;
 
+    public BlurPlayerDeathEvent(@Nonnull BlurPlayer victim) {
+        this(victim, victim.getLocation());
+    }
+
     public BlurPlayerDeathEvent(@Nonnull BlurPlayer victim, @Nonnull Location location) {
         super(Preconditions.checkNotNull(victim, "victim cannot be null."), victim.getSession());
         this.location = Preconditions.checkNotNull(location, "location cannot be null.");

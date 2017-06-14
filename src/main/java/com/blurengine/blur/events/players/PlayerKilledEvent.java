@@ -32,6 +32,11 @@ public class PlayerKilledEvent extends BlurPlayerDeathEvent {
 
     private final BlurPlayer killer;
 
+    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull BlurPlayer killer) {
+        super(victim);
+        this.killer = Preconditions.checkNotNull(killer, "killer cannot be null.");
+    }
+
     public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull Location location, @Nonnull BlurPlayer killer) {
         super(victim, location);
         this.killer = Preconditions.checkNotNull(killer, "killer cannot be null.");
