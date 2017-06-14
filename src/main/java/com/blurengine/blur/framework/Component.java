@@ -188,12 +188,21 @@ public interface Component extends Listener, SessionHelperInterface {
     }
 
     @Nonnull
+    default TaskBuilder newUnregisteredTask(@Nullable Runnable runnable) {
+        return newTask().unregistered().run(runnable);
+    }
+
+    @Nonnull
     default TaskBuilder newTask() {
         return new TaskBuilder(getSession().getBlur().getPlugin()) {
             @Override
             public TickerTask build() {
                 TickerTask task = super.build();
-                addTask(task);
+                if (isUnregistered()) {
+                    task.start();
+                } else {
+                    addTask(task);
+                }
                 return task;
             }
         };

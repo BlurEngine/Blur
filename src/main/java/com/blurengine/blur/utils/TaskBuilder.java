@@ -37,6 +37,7 @@ public class TaskBuilder {
     private Long interval;
     private RunnableWithTask runnable; // Use custom interface instead of Runnable to provide generated TickerTask when needed.
     private boolean async;
+    private boolean unregistered;
 
     public TaskBuilder() {
     }
@@ -115,6 +116,15 @@ public class TaskBuilder {
         this.async = async;
         return this;
     }
+
+    public TaskBuilder unregistered() {
+        return unregistered(true);
+    }
+
+    public TaskBuilder unregistered(boolean unregistered) {
+        this.unregistered = unregistered;
+        return this;
+    }
     
     /* ================================
      * >> GETTERS
@@ -138,6 +148,10 @@ public class TaskBuilder {
 
     public boolean isAsync() {
         return async;
+    }
+
+    public boolean isUnregistered() {
+        return unregistered;
     }
 
     public interface RunnableWithTask {

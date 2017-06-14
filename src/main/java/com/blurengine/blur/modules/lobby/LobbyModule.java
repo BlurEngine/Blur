@@ -142,7 +142,7 @@ public class LobbyModule extends WorldModule {
             getSession().getPlayersStream().forEach(childSession::addPlayer);
 
             if (!data.delay.isZero()) {
-                newTask(childSession::start).delay(data.delay).build();
+                newUnregisteredTask(childSession::start).delay(data.delay).build();
             } else {
                 childSession.start();
             }
