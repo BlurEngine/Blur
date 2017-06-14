@@ -76,6 +76,7 @@ public class TeamManager extends Module implements SupervisorContext {
     public void registerTeam(@Nonnull BlurTeam blurTeam) {
         Preconditions.checkNotNull(blurTeam, "blurTeam cannot be null.");
         Preconditions.checkArgument(!this.teams.containsKey(blurTeam.getId()), "team with id '%s' already exists.", blurTeam.getId());
+        getLogger().finer("Registering team %s", blurTeam.getId());
         getModuleManager().getFilterManager().addFilter(FILTER_PREFIX + blurTeam.getId(), blurTeam);
         this.teams.put(blurTeam.getId(), blurTeam);
     }
