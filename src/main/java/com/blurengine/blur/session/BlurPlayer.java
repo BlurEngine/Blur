@@ -165,7 +165,7 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         Preconditions.checkNotNull(event, "event cannot be null.");
         BlurPlayer victim = event.getVictim();
         victim.die();
-        this.blurSession.callEvent(new PlayerKilledEvent(victim, getLocation(), this));
+        this.blurSession.callEvent(new PlayerKilledEvent(victim, victim.getLocation(), this));
     }
 
     /**
