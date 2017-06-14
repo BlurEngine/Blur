@@ -193,6 +193,14 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
         return nametagVisibility;
     }
 
+    /**
+     * Returns the {@link #getChatColor()} + {@link #getName()}.
+     * @return display name
+     */
+    public String getChatDisplayName() {
+        return this.chatColor + this.name;
+    }
+
     public static final class Builder {
 
         private String id;
