@@ -112,7 +112,10 @@ public class LobbyModule extends WorldModule {
             event.getSession().getPlayers().values().forEach(spawns::spawnPlayer);
 
             // Start countdown immediately.
-            event.getSession().addOnStopTask(this::checkAndStart);
+            event.getSession().addOnStopTask(() -> {
+                LobbyModule.this.childrenSessions.remove(event.getSession());
+                LobbyModule.this.checkAndStart();
+            });
         }
     }
 

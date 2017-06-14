@@ -144,6 +144,12 @@ public abstract class BlurSession {
         getSessionManager().addSession(session);
         return session;
     }
+    
+    public boolean removeChildSession(@Nonnull BlurSession session) {
+        Preconditions.checkNotNull(session, "session cannot be null.");
+        this.childrenSessions.remove(session);
+        return getSessionManager().removeSession(session);
+    }
 
     public boolean load() {
         if (!setState(ComponentState.LOADED)) {
@@ -210,6 +216,9 @@ public abstract class BlurSession {
         this.ticker = null;
         getBlur().getPlugin().unregisterEvents(this.listener);
         this.onStopTasks.forEach(Runnable::run);
+        if (this.parentSession != null) {
+            this.parentSession.removeChildSession(this);
+        }
         getLogger().fine("%s stopped in %dms", getName(), System.currentTimeMillis() - startedAt);
     }
 
