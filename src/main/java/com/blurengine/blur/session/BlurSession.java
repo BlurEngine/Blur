@@ -156,11 +156,13 @@ public abstract class BlurSession {
             return false;
         }
         getLogger().fine("Loading %s", getName());
+        callEvent(new SessionPreLoadEvent(this));
         Preconditions.checkArgument(getTicksPerSecond() > 0, "ticksPerSecond must be greater than 0.");
         long startedAt = System.currentTimeMillis();
         this.ticker = new SessionTicker();
         getBlur().getPlugin().registerEvents(this.listener);
         this.moduleManager.load();
+        callEvent(new SessionLoadEvent(this));
         getLogger().fine("%s loaded in %dms", getName(), System.currentTimeMillis() - startedAt);
         return true;
     }
