@@ -20,8 +20,10 @@ import com.blurengine.blur.framework.Module
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import com.supaham.commons.bukkit.utils.ImmutableVector
+import com.supaham.commons.bukkit.utils.RelativeVector
 import com.supaham.commons.minecraft.world.space.Position
 import org.bukkit.Location
+import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.World
@@ -55,3 +57,17 @@ fun Player.playSound(sound: Sound, location: Location = this.location, category:
 inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
 
 inline fun <reified T : Any> BlurPlayer.getCustomData(): T? = this.getCustomData(T::class.java)
+
+fun RelativeVector.withMultiply(vector: Vector): Vector {
+    val _vector = vector.clone()
+    _vector.x = if (this.isXRelative) _vector.x * x else x
+    _vector.y = if (this.isYRelative) _vector.y * y else y
+    _vector.z = if (this.isZRelative) _vector.z * z else z
+    return _vector
+}
+
+fun World.spawnParticleKt(particle: Particle, location: Location, count: Int = 1, offX: Number = 0, offY: Number = 0, offZ: Number = 0,
+                              extra: Number = 1, data: Any? = null)
+        = spawnParticle(particle, location, count, offX.toDouble(), offY.toDouble(), offZ.toDouble(), extra.toDouble(), data)
+
+fun Location.add(x: Number = 0, y: Number = 0, z: Number = 0): Location = add(x.toDouble(), y.toDouble(), z.toDouble())
