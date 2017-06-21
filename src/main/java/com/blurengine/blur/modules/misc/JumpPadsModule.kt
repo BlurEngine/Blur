@@ -24,6 +24,7 @@ import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.framework.SerializedModule
 import com.blurengine.blur.modules.extents.Extent
 import com.blurengine.blur.modules.misc.JumpPadsModule.JumpPadsModuleData
+import com.blurengine.blur.utils.withMultiply
 import com.supaham.commons.bukkit.utils.RelativeVector
 import org.bukkit.event.EventHandler
 import pluginbase.config.annotation.Name
@@ -37,12 +38,7 @@ class JumpPadsModule(moduleManager: ModuleManager, val data: JumpPadsModuleData)
             if (jumpPad.extent.contains(event.blurPlayer)) {
                 val dir = event.blurPlayer.player.location.direction
                 val jumpPadData = jumpPad.velocity ?: data.velocity!!
-                jumpPadData.apply {
-                    dir.x = if (this.isXRelative) dir.x * x else x
-                    dir.y = if (this.isYRelative) dir.y * y else y
-                    dir.z = if (this.isZRelative) dir.z * z else z
-                }
-                event.blurPlayer.player.velocity = dir
+                event.blurPlayer.player.velocity = jumpPadData.withMultiply(dir)
             }
         }
     }
