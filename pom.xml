@@ -62,6 +62,10 @@
             <id>kotlin-eap</id>
             <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1/</url>
         </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -110,6 +114,12 @@
             <groupId>de.slikey</groupId>
             <artifactId>EffectLib</artifactId>
             <version>5.3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>text</artifactId>
+            <version>1.12-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -177,6 +187,7 @@
                                     <include>com.javaslang:javaslang</include>
                                     <include>org.jetbrains.kotlin:*</include>
                                     <include>de.slikey:EffectLib</include>
+                                    <include>net.kyori:text</include>
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
