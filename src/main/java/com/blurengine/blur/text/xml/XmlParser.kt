@@ -190,11 +190,12 @@ open class Element {
     }
 
     fun <B : Component.Builder<B, C>, C : Component> loop(builder: Component.Builder<B, C>) {
+        var elementAppended = false // Maintains order of string content when attempting to optimise.
         for (o in mixedContent) {
             if (o is String) {
                 if (builder is TextComponent.Builder) {
-                    var component = builder.build()
-                    if (component.content().isNullOrEmpty()) {
+                    val component = builder.build()
+                    if (!elementAppended && component.content().isNullOrEmpty()) {
                         builder.content(o.toString())
                     } else {
                         builder.append(TextComponent.of(o.toString()))
@@ -203,6 +204,7 @@ open class Element {
                     builder.append(TextComponent.of(o.toString()))
                 }
             } else if (o is Element) {
+                elementAppended = true
                 val elBuilder = (o as? ComponentCreator<B, C>)?.createBuilder() ?: builder
                 o.apply(elBuilder)
                 o.loop(elBuilder)
