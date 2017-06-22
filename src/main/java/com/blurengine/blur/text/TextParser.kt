@@ -16,7 +16,6 @@
 
 package com.blurengine.blur.text
 
-import com.blurengine.blur.text.bbcode.BbCodeParser
 import com.blurengine.blur.text.xml.XmlParser
 import net.kyori.text.Component
 
@@ -32,5 +31,4 @@ interface TextParser {
 
 object TextParsers {
     @JvmField val XML_PARSER = XmlParser()
-    @JvmField val BBCODE_PARSER = BbCodeParser()
 }
