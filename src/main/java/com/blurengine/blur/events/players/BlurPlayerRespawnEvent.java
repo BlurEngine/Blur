@@ -42,7 +42,7 @@ public class BlurPlayerRespawnEvent extends BlurPlayerEvent {
         this.spawnLocation = spawnLocation;
     }
 
-    @Nonnull
+    @Nullable
     public Location getSpawnLocation() {
         return this.spawnLocation;
     }
