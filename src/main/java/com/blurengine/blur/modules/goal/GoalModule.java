@@ -42,7 +42,6 @@ import com.supaham.commons.utils.MapBuilder;
 import org.bukkit.event.EventHandler;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,7 +55,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import javaslang.control.Match;
 import pluginbase.config.annotation.Name;
 import pluginbase.config.annotation.SerializeWith;
 import pluginbase.config.serializers.SerializerSet;
@@ -374,10 +372,18 @@ public class GoalModule extends Module implements SupervisorContext {
             }
 
             // initial-score
-            scoreGoalData.initialScore = Match.of(map.get("initial-score"))
-                .whenType(Number.class).then(number -> number)
-                .whenType(String.class).then(Double::parseDouble)
-                .otherwise(0.).get().doubleValue();
+            {
+                Object o = map.get("initial-score");
+                double initialScore;
+                if (o instanceof Number) {
+                    initialScore = ((Number) o).doubleValue();
+                } else if (o instanceof String) {
+                    initialScore = Double.parseDouble(o.toString());
+                } else {
+                    initialScore = 0;
+                }
+                scoreGoalData.initialScore = initialScore;
+            }
 
             // Cases must be defined as that rationalises the whole configuration section.
             Preconditions.checkArgument(map.containsKey("cases"), "Cases must be defined in GoalModule.");

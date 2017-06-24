@@ -53,7 +53,6 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
-import javaslang.control.Match;
 import pluginbase.config.annotation.Name;
 
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
@@ -197,14 +196,16 @@ public class SpawnsModule extends WorldModule {
                 // if input is null or true set to DEFAULT_SPAWN, if 'false' set to null, meaning don't spawn players on start.
                 Function<Boolean, String> bFunction = b -> b ? DEFAULT_SPAWN : null;
                 if (asMap.containsKey("spawn-on-start")) {
-                    String spawnOnStartValue = Match.of(asMap.get("spawn-on-start"))
-                        .whenType(Boolean.class).then(bFunction)
-                        .whenIs(null).then(bFunction.apply(true))
-                        .otherwise(o -> {
-                            String str = o.toString().trim();
-                            return str.isEmpty() ? DEFAULT_SPAWN : StringUtils.parseBoolean(str).map(bFunction).orElse(str);
-                        })
-                        .getOrElse((String) null); // Allow null
+                    Object obj = asMap.get("spawn-on-start");
+                    String spawnOnStartValue;
+                    if (obj == null) {
+                        spawnOnStartValue = bFunction.apply(true); // emulate default setting
+                    } else if (obj instanceof Boolean) {
+                        spawnOnStartValue = bFunction.apply(((Boolean) obj));
+                    } else {
+                        String str = obj.toString().trim();
+                        spawnOnStartValue = str.isEmpty() ? DEFAULT_SPAWN : StringUtils.parseBoolean(str).map(bFunction).orElse(str);
+                    }
                     if (spawnOnStartValue == null) { // Explicit null, don't deserialize spawn-on-start.
                         asMap.remove("spawn-on-start");
                     } else {
