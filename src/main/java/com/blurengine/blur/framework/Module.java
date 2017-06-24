@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -45,13 +46,60 @@ public abstract class Module extends AbstractComponent {
         this.moduleInfo = ModuleLoader.getModuleInfoByModule(getClass());
     }
 
+    /**
+     * Returns sub {@link Component} stream without any {@link Module}. This is important to the stability of module loading overall.
+     *
+     * When a Module registers a sub module, the sub module is registered to the ModuleManager. The ModuleManager then loads that sub module as a
+     * normal module. When the main Module invokes any of the state-changing methods it fails because those sub modules are already loaded and return
+     * false (indicating a failure to load) due to it being loaded already.
+     */
+    private Stream<Component> getSubcomponentsStream() {
+        return this.subcomponents.stream().filter(component -> !(component instanceof Module));
+    }
+
+    @Override
+    public boolean tryLoad() {
+        if (!super.tryLoad()) {
+            return false;
+        }
+        boolean resultOfAllLoads = getSubcomponentsStream().map(Component::tryLoad).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllLoads;
+    }
+
+    @Override
+    public boolean tryUnload() {
+        if (!super.tryUnload()) {
+            return false;
+        }
+        boolean resultOfAllUnloads = getSubcomponentsStream().map(Component::tryUnload).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllUnloads;
+    }
+
+    @Override
+    public boolean tryEnable() {
+        if (!super.tryEnable()) {
+            return false;
+        }
+        boolean resultOfAllEnables = getSubcomponentsStream().map(Component::tryEnable).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllEnables;
+    }
+
+    @Override
+    public boolean tryDisable() {
+        if (!super.tryDisable()) {
+            return false;
+        }
+        boolean resultOfAllDisables = getSubcomponentsStream().map(Component::tryDisable).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllDisables;
+    }
+
     public ModuleInfo getModuleInfo() {
         return moduleInfo;
     }
 
     public boolean addSubcomponent(@Nonnull Component component) {
         Preconditions.checkNotNull(component, "component cannot be null.");
-        if(component instanceof Module) {
+        if (component instanceof Module) {
             return addSubmodule((Module) component);
         } else {
             if (this.subcomponents.add(component)) {
@@ -78,7 +126,7 @@ public abstract class Module extends AbstractComponent {
 
     public boolean removeSubcomponent(@Nonnull Component component) {
         Preconditions.checkNotNull(component, "component cannot be null.");
-        if(component instanceof Module) {
+        if (component instanceof Module) {
             return removeSubmodule((Module) component);
         } else {
             if (this.subcomponents.remove(component)) {
@@ -133,7 +181,7 @@ public abstract class Module extends AbstractComponent {
     public StageManager getStagesManager() {
         return getModuleManager().getStageManager();
     }
-    
+
     public Set<Class> getRegisteredPlayerDataClasses() {
         return this.registeredPlayerDataClasses;
     }
