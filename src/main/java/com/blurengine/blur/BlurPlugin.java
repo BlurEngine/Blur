@@ -28,8 +28,6 @@ import com.supaham.commons.bukkit.commands.common.CommonCommands;
 import com.supaham.commons.bukkit.listeners.PlayerListeners;
 import com.supaham.commons.state.State;
 
-import de.slikey.effectlib.EffectManager;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -43,7 +41,6 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
 
     private Blur blur;
     private RootBlurSession rootSession;
-    private EffectManager effectManager = new EffectManager(this);
 
     public static BlurPlugin get() { return instance; }
 
@@ -105,10 +102,6 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         if (this.rootSession != null) {
             this.rootSession.stop();
         }
-    }
-
-    public EffectManager getEffectManager() {
-        return effectManager;
     }
 
     public BlurSettings getSettings() {
