@@ -22,9 +22,11 @@ import com.blurengine.blur.events.players.BlurPlayerDeathEvent;
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerKilledEvent;
+import com.blurengine.blur.framework.metadata.MetadataHolder;
+import com.blurengine.blur.framework.playerdata.PlayerData;
 import com.blurengine.blur.inventory.InventoryLayout;
 import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.spawns.Spawn;
+import com.blurengine.blur.modules.message.Message;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
@@ -33,26 +35,22 @@ import com.supaham.commons.bukkit.text.MessagePart;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
  * Represents a player that belongs to a {@link BlurSession}.
  */
-public class BlurPlayer extends CommonPlayer implements Filter {
+public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
 
     private final BukkitPlayerManager manager;
     BlurSession blurSession;
-    private boolean alive;
-    private InventoryLayout inventoryLayout = new InventoryLayout(getPlayer().getInventory());
-    private Map<Class, Object> customData = new HashMap<>();
 
     public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
         super(player);
@@ -87,8 +85,8 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         player.resetPlayerWeather();
         player.setBedSpawnLocation(null);
 
-        this.inventoryLayout = new InventoryLayout(player.getInventory());
-        this.customData.clear();
+        BlurPlayerCoreData coreData = getCoreData();
+        coreData.inventoryLayout = new InventoryLayout(player.getInventory());
     }
 
     public void messagePrefix(String string, Object... args) {
@@ -104,37 +102,17 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         message(fancyMessage);
     }
 
+    public boolean messageTl(String messageNode, Object... args) {
+        return getSession().getModuleManager().getMessagesManager().sendMessage(this, messageNode, args);
+    }
+
     public BlurSession getSession() {
         return blurSession;
     }
 
-    public boolean isAlive() {
-        return alive;
-    }
-
-    protected void setAlive(boolean alive) {
-        this.alive = alive;
-    }
-
     @Nonnull
-    public InventoryLayout getInventoryLayout() {
-        return inventoryLayout;
-    }
-
-    @Nonnull
-    public Map<Class, Object> getCustomData() {
-        return customData;
-    }
-    
-    @Nullable
-    public <T> T getCustomData(Class<T> clazz) {
-        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
-        return (T) this.customData.get(clazz);
-    }
-    
-    public void addCustomData(@Nonnull Object data) {
-        Preconditions.checkNotNull(data, "data cannot be null.");
-        this.customData.put(data.getClass(), data);
+    public BlurPlayerCoreData getCoreData() {
+        return getMetadata(BlurPlayerCoreData.class);
     }
 
     @Override
@@ -153,7 +131,9 @@ public class BlurPlayer extends CommonPlayer implements Filter {
      * Kills this player by calling {@link BlurPlayerDeathEvent}.
      */
     public void die() {
-        setAlive(false);
+        BlurPlayerCoreData coreData = getCoreData();
+        coreData.setDeaths(coreData.getDeaths() + 1);
+        coreData.setAlive(false);
         this.blurSession.callEvent(new BlurPlayerDeathEvent(this, getLocation()));
     }
 
@@ -165,23 +145,25 @@ public class BlurPlayer extends CommonPlayer implements Filter {
         Preconditions.checkNotNull(event, "event cannot be null.");
         BlurPlayer victim = event.getVictim();
         victim.die();
+        BlurPlayerCoreData coreData = getCoreData();
+        coreData.setKills(coreData.getKills() + 1);
         this.blurSession.callEvent(new PlayerKilledEvent(victim, victim.getLocation(), this));
     }
 
     /**
-     * Respawns this player in the game, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
+     * Respawns this player in the game, calling {@link BlurPlayerRespawnEvent} and setting {@link BlurPlayerCoreData#isAlive()} to true.
      */
     public void respawn() {
         respawn(null);
     }
 
     /**
-     * Respawns this player at a given spawn, calling {@link BlurPlayerRespawnEvent} and setting {@link #isAlive()} to true.
-     * @param spawn where to respawn at
+     * Respawns this player at a given spawn, calling {@link BlurPlayerRespawnEvent} and setting {@link BlurPlayerCoreData#isAlive()} to true.
+     * @param location where to respawn at
      */
-        setAlive(true);
     public void respawn(Location location) {
         BlurPlayerRespawnEvent event = new BlurPlayerRespawnEvent(this, location);
+        getCoreData().setAlive(true);
         getSession().callEvent(event);
     }
 
@@ -200,9 +182,75 @@ public class BlurPlayer extends CommonPlayer implements Filter {
     public Location getEyeLocation() {
         return getPlayer().getEyeLocation();
     }
-    
+
+    @Override
+    public boolean hasMetadata(Object object) {
+        return getSession().getPlayerMetadata().contains(this, object);
+    }
+
+    @Override
+    public <T> boolean hasMetadata(Class<T> metadataClass) {
+        return getSession().getPlayerMetadata().contains(this, metadataClass);
+    }
+
+    @Override
+    public <T> T getMetadata(Class<T> metadataClass) {
+        return getSession().getPlayerMetadata().get(this, metadataClass);
+    }
+
+    @Override
+    public Object putMetadata(Object object) {
+        return getSession().getPlayerMetadata().put(this, object);
+    }
+
     /* ================================
      * >> /DELEGATE METHODS
      * ================================ */
 
+    public static final class BlurPlayerCoreData implements PlayerData {
+
+        private final BlurPlayer blurPlayer;
+        private boolean alive;
+        private InventoryLayout inventoryLayout;
+        private int kills;
+        private int deaths;
+
+        public BlurPlayerCoreData(@Nonnull BlurPlayer blurPlayer) {
+            Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
+            this.blurPlayer = blurPlayer;
+            this.inventoryLayout = new InventoryLayout(blurPlayer.getPlayer().getInventory());
+        }
+
+        public boolean isAlive() {
+            return alive;
+        }
+
+        public void setAlive(boolean alive) {
+            this.alive = alive;
+        }
+
+        public InventoryLayout getInventoryLayout() {
+            return inventoryLayout;
+        }
+
+        public void setInventoryLayout(InventoryLayout inventoryLayout) {
+            this.inventoryLayout = inventoryLayout;
+        }
+
+        public int getKills() {
+            return kills;
+        }
+
+        public void setKills(int kills) {
+            this.kills = kills;
+        }
+
+        public int getDeaths() {
+            return deaths;
+        }
+
+        public void setDeaths(int deaths) {
+            this.deaths = deaths;
+        }
+    }
 }

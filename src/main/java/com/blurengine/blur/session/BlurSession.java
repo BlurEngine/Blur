@@ -23,11 +23,18 @@ import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.session.SessionEnableEvent;
+import com.blurengine.blur.events.session.SessionLoadEvent;
+import com.blurengine.blur.events.session.SessionPreLoadEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
 import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
+import com.blurengine.blur.framework.metadata.MetadataStorage;
+import com.blurengine.blur.framework.playerdata.PlayerData;
+import com.blurengine.blur.framework.playerdata.PlayerDataSupplier;
+import com.blurengine.blur.session.BlurPlayer.BlurPlayerCoreData;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
@@ -102,6 +109,8 @@ public abstract class BlurSession {
     private SessionTicker ticker;
 
     private final Map<UUID, BlurPlayer> players = new HashMap<>();
+    //    private final Table<BlurPlayer, Class, Object> customData = HashBasedTable.create();
+    private final MetadataStorage<BlurPlayer> playerMetadata = new BasicMetadataStorage<>();
 
     private FancyMessage messagePrefix = new FancyMessage("");
 
@@ -144,7 +153,7 @@ public abstract class BlurSession {
         getSessionManager().addSession(session);
         return session;
     }
-    
+
     public boolean removeChildSession(@Nonnull BlurSession session) {
         Preconditions.checkNotNull(session, "session cannot be null.");
         this.childrenSessions.remove(session);
@@ -239,29 +248,49 @@ public abstract class BlurSession {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
-            // Initialize player data class and add it to the player.
-            for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
-                Module module = moduleManager.getModules().get(clazz).iterator().next();
-                for (Class aClass : module.getRegisteredPlayerDataClasses()) {
-                    Object data;
+            initializeCustomDataClasses(blurPlayer);
+            callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
+        }
+    }
+
+    private void initializeCustomDataClasses(BlurPlayer blurPlayer) {
+        for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
+            Module module = moduleManager.getModules().get(clazz).iterator().next();
+            List<Object> dataInstances = new ArrayList<>();
+
+            // Sneakily add Core player data class.
+            dataInstances.add(new BlurPlayerCoreData(blurPlayer));
+
+            // Automatic zero-arg/one-arg constructor
+            for (Class aClass : module.getRegisteredPlayerDataClasses()) {
+                Object data;
+                try {
+                    data = aClass.getDeclaredConstructor(BlurPlayer.class).newInstance(blurPlayer);
+                } catch (NoSuchMethodException e) {
                     try {
-                        data = aClass.getDeclaredConstructor(BlurPlayer.class).newInstance(blurPlayer);
-                    } catch (NoSuchMethodException e) {
-                        try {
-                            data = aClass.getDeclaredConstructor().newInstance();
-                        } catch (NoSuchMethodException e1) {
-                            throw new RuntimeException(e);
-                        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e1) {
-                            throw new RuntimeException(e1);
-                        }
-                    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                        data = aClass.getDeclaredConstructor().newInstance();
+                    } catch (NoSuchMethodException e1) {
                         throw new RuntimeException(e);
+                    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e1) {
+                        throw new RuntimeException(e1);
                     }
-                    module.addTickable(data);
-                    blurPlayer.addCustomData(data);
+                } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+                dataInstances.add(data);
+            }
+            // Supplier data instances
+            for (PlayerDataSupplier<Object> supplier : module.getRegisteredPlayerDataClassSuppliers().values()) {
+                dataInstances.add(supplier.get(blurPlayer));
+            }
+            // Initialise data instances
+            for (Object data : dataInstances) {
+                module.addTickable(data);
+                playerMetadata.put(blurPlayer, data);
+                if (data instanceof PlayerData) {
+                    ((PlayerData) data).enable();
                 }
             }
-            callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
         }
     }
 
@@ -269,6 +298,19 @@ public abstract class BlurSession {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
+
+            // Unregister player custom data classes.
+            for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {
+                if (data instanceof PlayerData) {
+                    ((PlayerData) data).disable();
+                }
+                for (Class<? extends Module> moduleClass : moduleManager.getModules().keySet()) {
+                    Module module = moduleManager.getModules().get(moduleClass).iterator().next();
+                    module.removeTickable(data);
+                }
+                playerMetadata.remove(blurPlayer, data);
+            }
+
             // If a player is removed from this session, all children should not have the same player.
             this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
             this.players.remove(blurPlayer.getUuid());
@@ -473,15 +515,19 @@ public abstract class BlurSession {
         return false;
     }
 
+    public MetadataStorage<BlurPlayer> getPlayerMetadata() {
+        return playerMetadata;
+    }
+
     public enum Predicates implements Predicate<BlurPlayer> {
         ALIVE {
             @Override
             public boolean test(BlurPlayer blurPlayer) {
-                return blurPlayer.isAlive();
+                return blurPlayer.getCoreData().isAlive();
             }
         }
     }
-    
+
     private class SessionTicker extends TickerTask {
 
         public SessionTicker() {

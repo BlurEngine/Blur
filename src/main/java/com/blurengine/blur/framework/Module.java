@@ -18,11 +18,16 @@ package com.blurengine.blur.framework;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.framework.playerdata.PlayerDataSupplier;
 import com.blurengine.blur.modules.stages.StageManager;
+import com.blurengine.blur.session.BlurPlayer;
+import com.blurengine.blur.session.BlurSession;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -39,7 +44,8 @@ public abstract class Module extends AbstractComponent {
 
     private final ModuleInfo moduleInfo;
     private final Set<Component> subcomponents = new HashSet<>();
-    final Set<Class> registeredPlayerDataClasses = new HashSet<>();
+    private final Map<Class<?>, PlayerDataSupplier<Object>> registeredPlayerDataClassSuppliers = new HashMap<>();
+    private final Set<Class> registeredPlayerDataClasses = new HashSet<>();
 
     public Module(ModuleManager moduleManager) {
         super(moduleManager);
@@ -183,14 +189,61 @@ public abstract class Module extends AbstractComponent {
     }
 
     public Set<Class> getRegisteredPlayerDataClasses() {
-        return this.registeredPlayerDataClasses;
+        return Collections.unmodifiableSet(this.registeredPlayerDataClasses);
     }
 
-    public void registerPlayerDataClass(Class clazz) {
+    public Map<Class, PlayerDataSupplier<Object>> getRegisteredPlayerDataClassSuppliers() {
+        return Collections.unmodifiableMap(this.registeredPlayerDataClassSuppliers);
+    }
+
+    /**
+     * Registers a class as a Player Data class. Player Data classes are classes that are instantiated automatically when a player is being adding to
+     * a {@link BlurSession}. In order for this feature to function properly, the given {@link Class} <b>MUST</b> have one of the following:
+     * <ul>
+     *     <li>A publicly accessible zero-arg constructor</li>
+     *     <li>A publicly accessible one-arg constructor of type {@link BlurPlayer}</li>
+     * </ul>
+     * Failure to do so will cause valid errors. <p />
+     *
+     * For more control over class instantiation see {@link #registerPlayerDataClass(Class, PlayerDataSupplier)}
+     *
+     * @param clazz Player Data class
+     * @see #registerPlayerDataClass(Class, PlayerDataSupplier)
+     */
+    public void registerPlayerDataClass(@Nonnull Class clazz) {
+        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
+
+        Preconditions.checkArgument(!this.registeredPlayerDataClassSuppliers.containsKey(clazz),
+            "%s already registered (with supplier)", clazz);
+        Preconditions.checkArgument(!this.registeredPlayerDataClasses.contains(clazz),
+            "%s already registered (without supplier)", clazz);
         this.registeredPlayerDataClasses.add(clazz);
     }
 
-    public boolean unregisterPlayerDataClass(Class clazz) {
-        return this.registeredPlayerDataClasses.remove(clazz);
+    /**
+     * Registers a Player Data class instance supplier alongside its class (given). 
+     * @param clazz Player Data class that is supplied from the {@code supplier}
+     * @param supplier supplier of Player Data class instance
+     * @param <T> type of class being supplied
+     */
+    public <T> void registerPlayerDataClass(@Nonnull Class<T> clazz, @Nonnull PlayerDataSupplier<T> supplier) {
+        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
+        Preconditions.checkNotNull(supplier, "supplier cannot be null.");
+
+        Preconditions.checkArgument(!this.registeredPlayerDataClassSuppliers.containsKey(clazz),
+            "%s already registered (with supplier)", clazz);
+        Preconditions.checkArgument(!this.registeredPlayerDataClasses.contains(clazz),
+            "%s already registered (without supplier)", clazz);
+        this.registeredPlayerDataClassSuppliers.put(clazz, (PlayerDataSupplier<Object>) supplier);
+    }
+
+    public boolean unregisterPlayerDataClass(@Nonnull Class clazz) {
+        Preconditions.checkNotNull(clazz, "clazz cannot be null.");
+        if (this.registeredPlayerDataClasses.remove(clazz)) {
+            return true;
+        } else if (this.registeredPlayerDataClassSuppliers.remove(clazz) != null) {
+            return true;
+        }
+        return false;
     }
 }

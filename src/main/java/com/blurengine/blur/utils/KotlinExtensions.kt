@@ -56,7 +56,7 @@ fun Player.playSound(sound: Sound, location: Location = this.location, category:
 
 inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
 
-inline fun <reified T : Any> BlurPlayer.getCustomData(): T? = this.getCustomData(T::class.java)
+inline fun <reified T : Any> BlurPlayer.getMetadata(): T? = this.getMetadata(T::class.java)
 
 fun RelativeVector.withMultiply(vector: Vector): Vector {
     val _vector = vector.clone()
