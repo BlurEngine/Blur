@@ -85,6 +85,7 @@
             <groupId>com.supaham.commons</groupId>
             <artifactId>commons-bukkit</artifactId>
             <version>${commons-bukkit.version}</version>
+            <optional>true</optional> <!-- Already shaded below under internals package -->
         </dependency>
         <dependency>
             <groupId>com.supaham.supervisor</groupId>
