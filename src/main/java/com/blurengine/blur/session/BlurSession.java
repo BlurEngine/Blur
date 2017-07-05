@@ -38,9 +38,12 @@ import com.blurengine.blur.session.BlurPlayer.BlurPlayerCoreData;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
-import com.supaham.commons.bukkit.text.FancyMessage;
+import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
+
+import net.kyori.text.Component;
+import net.kyori.text.TextComponent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -112,7 +115,7 @@ public abstract class BlurSession {
     //    private final Table<BlurPlayer, Class, Object> customData = HashBasedTable.create();
     private final MetadataStorage<BlurPlayer> playerMetadata = new BasicMetadataStorage<>();
 
-    private FancyMessage messagePrefix = new FancyMessage("");
+    private Component messagePrefix = TextComponent.of("");
 
     private final List<Runnable> onStopTasks = new ArrayList<>();
     private ComponentState state = ComponentState.UNLOADED;
@@ -329,10 +332,12 @@ public abstract class BlurSession {
         getBlur().getPlugin().getLog().info(message, args);
     }
 
-    public void broadcastMessage(@Nonnull FancyMessage fancyMessage) {
-        Preconditions.checkNotNull(fancyMessage, "fancyMessage cannot be null.");
-        fancyMessage.send(players.values().stream().map(BlurPlayer::getPlayer).collect(Collectors.toList()));
-        getBlur().getPlugin().getLog().info(fancyMessage.toReadableString());
+    public void broadcastMessage(@Nonnull Component component) {
+        Preconditions.checkNotNull(component, "component cannot be null.");
+        for (BlurPlayer blurPlayer : players.values()) {
+            blurPlayer.message(component);
+        }
+        ChatUtils.sendStringComponent(Bukkit.getConsoleSender(), component);
     }
 
     /**
@@ -438,11 +443,11 @@ public abstract class BlurSession {
         return Collections.unmodifiableMap(players);
     }
 
-    public FancyMessage getMessagePrefix() {
+    public Component getMessagePrefix() {
         return messagePrefix;
     }
 
-    public void setMessagePrefix(FancyMessage messagePrefix) {
+    public void setMessagePrefix(Component messagePrefix) {
         this.messagePrefix = messagePrefix;
     }
 

@@ -26,22 +26,19 @@ import com.blurengine.blur.framework.metadata.MetadataHolder;
 import com.blurengine.blur.framework.playerdata.PlayerData;
 import com.blurengine.blur.inventory.InventoryLayout;
 import com.blurengine.blur.modules.filters.Filter;
-import com.blurengine.blur.modules.message.Message;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
-import com.supaham.commons.bukkit.text.FancyMessage;
-import com.supaham.commons.bukkit.text.MessagePart;
+
+import net.kyori.text.Component;
+import net.kyori.text.TextComponent;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 
 /**
@@ -90,16 +87,11 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     }
 
     public void messagePrefix(String string, Object... args) {
-        messagePrefix(new FancyMessage(String.format(string, args)));
+        messagePrefix(TextComponent.of(String.format(string, args)));
     }
 
-    public void messagePrefix(FancyMessage fancyMessage) {
-        List<MessagePart> parts = blurSession.getMessagePrefix().getMessageParts();
-        // Add prefix like so to make immutable. Extreme flaw in design of FancyMessage
-        for (int i = 0; i < parts.size(); i++) {
-            fancyMessage.add(i, parts.get(i));
-        }
-        message(fancyMessage);
+    public void messagePrefix(Component component) {
+        message(blurSession.getMessagePrefix().append(component));
     }
 
     public boolean messageTl(String messageNode, Object... args) {

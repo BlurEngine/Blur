@@ -83,7 +83,7 @@ public class Blur {
         this.sessionManager = new SessionManager(this);
         this.playerManager = new BlurPlayerManager(plugin);
         this.logger = plugin.getLog();
-        this.plugin.getCommandsManager().builder().registerMethods(new BlurCommands(this));
+        this.plugin.getCommandsManager().registerCommand(new BlurCommands(this));
     }
 
     static {

@@ -22,7 +22,9 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ticking.Tick;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
-import com.supaham.commons.bukkit.text.FancyMessage;
+
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 
 import org.bukkit.Location;
 
@@ -39,7 +41,7 @@ public class RandomCompassTargetModule extends Module {
     private void updateBait() {
         getRandomPlayer(Predicates.ALIVE).ifPresent(p -> {
             this.bait = p;
-            broadcastMessage(new FancyMessage().safeAppend("&e" + this.bait.getName() + " got baited!"));
+            broadcastMessage(TextComponent.of(this.bait.getName() + " got baited!").color(TextColor.YELLOW));
         });
     }
 

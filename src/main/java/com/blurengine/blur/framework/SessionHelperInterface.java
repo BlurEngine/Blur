@@ -26,7 +26,6 @@ import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
-import com.supaham.commons.bukkit.text.FancyMessage;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerEvent;
@@ -82,8 +81,8 @@ public interface SessionHelperInterface {
         getSession().broadcastMessage(message, args);
     }
 
-    default void broadcastMessage(@Nonnull FancyMessage fancyMessage) {
-        getSession().broadcastMessage(Preconditions.checkNotNull(fancyMessage, "fancyMessage cannot be null."));
+    default void broadcastMessage(@Nonnull net.kyori.text.Component component) {
+        getSession().broadcastMessage(Preconditions.checkNotNull(component, "component cannot be null."));
     }
 
     default Collection<BlurPlayer> getPlayers() {

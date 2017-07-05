@@ -18,7 +18,6 @@ package com.blurengine.blur.modules.spawns;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.BlurPlugin;
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
@@ -34,14 +33,12 @@ import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.serializers.SpawnList;
 import com.blurengine.blur.session.BlurPlayer;
-import com.sk89q.intake.Command;
 import com.supaham.commons.utils.CollectionUtils;
 import com.supaham.commons.utils.StringUtils;
 import com.supaham.commons.utils.WeakSet;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,7 +55,6 @@ import pluginbase.config.annotation.Name;
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
 public class SpawnsModule extends WorldModule {
 
-    private static Commands COMMANDS;
     private final SpawnsData data;
     /** Contains a list of players respawning forcefully by this module. See spawnPlayer method with spigot respawn call.*/
     private final WeakSet<Player> validRespawningPlayers = new WeakSet<>();
@@ -75,11 +71,6 @@ public class SpawnsModule extends WorldModule {
     public SpawnsModule(ModuleManager moduleManager, SpawnsData data) {
         super(moduleManager);
         this.data = data;
-        if (getLogger().getDebugLevel() >= 2 && COMMANDS == null) {
-            COMMANDS = new Commands();
-            getSession().getBlur().getPlugin().getCommandsManager().builder().registerMethods(COMMANDS);
-            getSession().getBlur().getPlugin().getCommandsManager().build();
-        }
     }
 
     @EventHandler
@@ -235,16 +226,5 @@ public class SpawnsModule extends WorldModule {
             }
             return new SpawnsModule(moduleManager, this);
         }
-    }
-
-    public static class Commands {
-
-        @Command(aliases = {"spawn"}, desc = "spawn")
-        public void spawn(CommandSender sender) {
-            BlurPlayer blurPlayer = BlurPlugin.get().getBlur().getPlayer(((Player) sender));
-            SpawnsModule spawnsModule = blurPlayer.getSession().getModule(SpawnsModule.class).get(0);
-            spawnsModule.spawnPlayer(blurPlayer);
-        }
-
     }
 }

@@ -18,13 +18,13 @@ package com.blurengine.blur;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.commands.BlurCommandProviders;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.supervisor.BlurReportContext;
 import com.supaham.commons.bukkit.ServerShutdown;
 import com.supaham.commons.bukkit.ServerShutdown.ServerShutdownEvent;
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
 import com.supaham.commons.bukkit.TickerTask;
-import com.supaham.commons.bukkit.commands.common.CommonCommands;
 import com.supaham.commons.bukkit.listeners.PlayerListeners;
 import com.supaham.commons.state.State;
 
@@ -66,10 +66,11 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
         ModuleManager moduleManager = this.rootSession.getModuleManager();
 
+        setupCommands();
+
         // Load from serialized modules, here's how the whoooole chain starts!
         moduleManager.getModuleLoader().load(getSettings().getModules());
-        CommonCommands.DEBUG.builder(this, "b").register();
-        
+
         // SUPERVISOR
         if (getServer().getPluginManager().getPlugin("Supervisor") != null) {
             BlurReportContext.load(this);
@@ -82,8 +83,6 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
 
         // Immediately load, enable and start the root session to get the wheels going.
         new TickerTask(this, 0, this.rootSession::start).start();
-
-        new TickerTask(this, 0, getCommandsManager()::build).start();
     }
 
     // Cleanup blur during shutdown.
@@ -97,11 +96,15 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         super.onDisable();
         cleanup();
     }
-    
+
     private void cleanup() {
         if (this.rootSession != null) {
             this.rootSession.stop();
         }
+    }
+
+    private void setupCommands() {
+        new BlurCommandProviders(this).registerAll(getCommandsManager().getCommandContexts());
     }
 
     public BlurSettings getSettings() {

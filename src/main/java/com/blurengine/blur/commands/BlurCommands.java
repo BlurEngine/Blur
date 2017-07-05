@@ -17,25 +17,36 @@
 package com.blurengine.blur.commands;
 
 import com.blurengine.blur.Blur;
-import com.sk89q.intake.Command;
-import com.sk89q.intake.parametric.annotation.Switch;
-import com.sk89q.intake.util.auth.AuthorizationException;
 import com.supaham.commons.bukkit.Colors;
-import com.supaham.commons.bukkit.text.FancyMessage;
+import com.supaham.commons.bukkit.commands.flags.Flag;
+import com.supaham.commons.bukkit.commands.flags.FlagParseResult;
+import com.supaham.commons.bukkit.commands.flags.FlagParser;
+import com.supaham.commons.bukkit.utils.ChatUtils;
+
+import net.kyori.text.Component;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
+import net.kyori.text.format.TextDecoration;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
-public class BlurCommands {
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Optional;
 
-    private static FancyMessage HEADER;
-    private static FancyMessage FOOTER;
+public class BlurCommands extends BaseCommand {
+
+    private static Component HEADER;
+    private static Component FOOTER;
     private final Blur blur;
+    private FlagParser blurFlagParser;
 
     static {
         StringBuilder sb = new StringBuilder();
@@ -44,32 +55,46 @@ public class BlurCommands {
             sb.append(color).append(ChatColor.STRIKETHROUGH).append('=');
         };
         IntStream.range(0, 15).forEach(consumer); // Add 15 padding
-        HEADER = new FancyMessage().safeAppend(sb.toString()).safeAppend(" &e&lBlur&r ").safeAppend(sb.toString());
+        HEADER = TextComponent.of(sb.toString() + " ")
+            .append(TextComponent.of("Blur").color(TextColor.YELLOW).decoration(TextDecoration.BOLD, true))
+            .append(TextComponent.of(" " + sb.toString()).resetStyle());
 
         IntStream.range(1, 21).forEach(consumer); // start from 1 to start with different colors, then add 20 =. 
-        FOOTER = new FancyMessage().safeAppend(sb.toString());
+        FOOTER = TextComponent.of(sb.toString());
     }
 
     public BlurCommands(Blur blur) {
         this.blur = blur;
     }
 
-    @Command(aliases = {"blur"}, desc = "Blur main command.",
-        help = "Blur main command.")
-    public void blur(CommandSender sender, @Switch('v') boolean version) throws AuthorizationException {
+    @CommandAlias("blur")
+    public void blur(CommandSender sender, @Optional String[] args) {
+        if (blurFlagParser == null) {
+            blurFlagParser = new FlagParser();
+            blurFlagParser.add(new Flag('v', "version", true, false));
+        }
+        FlagParseResult flags = blurFlagParser.parse(args);
         if (!Blur.isDev(sender)) {
             sender.sendMessage(Colors._darkGreen("This server is powered by ").yellow("Blur").darkGreen(".").toString());
             return;
         }
-        if (version) {
+        if (flags.contains('v')) {
             sender.sendMessage("Blur version: " + this.blur.getVersion());
             return;
         }
-        HEADER.send(sender);
+        if (sender instanceof ConsoleCommandSender) {
+            ChatUtils.sendStringComponent(sender, HEADER);
+        } else {
+            ChatUtils.sendComponent(sender, HEADER);
+        }
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Blur version", this.blur.getVersion());
         map.put("Current sessions", this.blur.getSessionManager().getBlurSessions().size());
         map.forEach((k, v) -> sender.sendMessage(ChatColor.YELLOW + k + ChatColor.WHITE + ": " + ChatColor.DARK_GREEN + v));
-        FOOTER.send(sender);
+        if (sender instanceof ConsoleCommandSender) {
+            ChatUtils.sendStringComponent(sender, FOOTER);
+        } else {
+            ChatUtils.sendComponent(sender, FOOTER);
+        }
     }
 }

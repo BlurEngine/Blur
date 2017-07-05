@@ -31,7 +31,7 @@
         <main.class>${main.package}.BlurPlugin</main.class>
 
         <spigot.version>1.12-R0.1-SNAPSHOT</spigot.version>
-        <commons-bukkit.version>0.5.4-SNAPSHOT</commons-bukkit.version>
+        <commons-bukkit.version>0.5.5-SNAPSHOT</commons-bukkit.version>
         <kotlin.version>1.1.3-eap-68</kotlin.version>
     </properties>
 
@@ -181,6 +181,10 @@
                                 <relocation>
                                     <pattern>pluginbase</pattern>
                                     <shadedPattern>com.blurengine.blur.internal.pluginbase</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>co.aikar.commands</pattern>
+                                    <shadedPattern>com.blurengine.blur.internal.acf</shadedPattern>
                                 </relocation>
                             </relocations>
                             <!--<minimizeJar>true</minimizeJar>-->
