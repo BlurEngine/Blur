@@ -25,6 +25,7 @@ import com.google.common.collect.Multimaps;
 import com.blurengine.blur.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
+import com.blurengine.blur.modules.message.MessagesManager;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurSession;
@@ -60,6 +61,7 @@ public class ModuleManager {
     private ExtentManager extentManager;
     private TeamManager teamManager;
     private StageManager stageManager;
+    private MessagesManager messagesManager;
 
     public static boolean isInternalModule(Module module) {
         // CACHE
@@ -111,6 +113,7 @@ public class ModuleManager {
         addModule(extentManager = new ExtentManager(this));
         addModule(teamManager = new TeamManager(this));
         addModule(stageManager = new StageManager(this));
+        addModule(messagesManager = new MessagesManager(this));
     }
 
     protected Module addModule(Module module) {
@@ -311,7 +314,10 @@ public class ModuleManager {
     public StageManager getStageManager() {
         return stageManager;
     }
-    
+
+    public MessagesManager getMessagesManager() {
+        return messagesManager;
+    }
     /* ================================
      * >> DELEGATE METHODS
      * ================================ */
