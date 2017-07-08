@@ -18,6 +18,7 @@ package com.blurengine.blur.effect
 
 import com.blurengine.blur.framework.Component
 import com.blurengine.blur.utils.spawnParticleKt
+import com.supaham.commons.bukkit.TickerTask
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Particle
@@ -25,19 +26,66 @@ import org.bukkit.Particle
 /**
  * Represents a class for creating Particle and other form of effects using [Component]s.
  */
-abstract class BlurEffect(val component: Component) {
+abstract class BlurEffect(val component: Component, delay: Int = 0, interval: Int = 1, val iterations: Int = 0) : Runnable {
+    var delay: Int = delay
+        set(value) {
+            field = value
+        }
+    var interval: Int = interval
+        set(value) {
+            field = value
+        }
+
+    var remIterations: Int = iterations
+
+    private var task: TickerTask? = null
+    val started: Boolean get() = task?.isStarted ?: false
+    /**
+     * Returns whether this effect is complete as a result of the `iterations` processed.
+     */
+    var complete: Boolean = false
+        private set
+
     /**
      * Starts this effect tickable. Calling this multiple times in the same state causes no change.
      */
     fun start() {
-        component.addTickable(this)
+        require(!started) { "BlurEffect already started." }
+
+        remIterations = iterations
+        complete = false
+        val task = TickerTask(component.session.blur.plugin, delay.toLong(), interval.toLong(), Runnable { tick() })
+        this.task = task
+        component.addTask(task)
     }
 
     /**
      * Stops this effect tickable. Calling this multiple times in the same state causes no change.
      */
     fun stop() {
-        component.removeTickable(this)
+        require(started) { "BlurEffect is not started." }
+        component.removeTask(this.task!!)
+        this.task = null
+    }
+
+    private fun tick() {
+        println("${!started}  $component")
+        if (!started || complete) return
+
+        var isComplete = false
+        if (remIterations > 0) {
+            if (--remIterations <= 0) {
+                isComplete = true
+            }
+        }
+
+        println("run")
+        run() // subclass Effect implementation
+
+        if (isComplete) {
+            complete = true
+            stop()
+        }
     }
 
     /**
