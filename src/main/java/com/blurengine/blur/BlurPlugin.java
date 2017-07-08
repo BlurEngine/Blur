@@ -62,11 +62,11 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         registerEvents(this);
         registerEvents(new BlurListener(this));
 
+        setupCommands();
+
         this.blur = new Blur(this);
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
         ModuleManager moduleManager = this.rootSession.getModuleManager();
-
-        setupCommands();
 
         // Load from serialized modules, here's how the whoooole chain starts!
         moduleManager.getModuleLoader().load(getSettings().getModules());
