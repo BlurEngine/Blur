@@ -334,9 +334,8 @@ public abstract class BlurSession {
 
     public void broadcastMessage(@Nonnull Component component) {
         Preconditions.checkNotNull(component, "component cannot be null.");
-        for (BlurPlayer blurPlayer : players.values()) {
-            blurPlayer.message(component);
-        }
+        List<Player> players = this.players.values().stream().map(BlurPlayer::getPlayer).collect(Collectors.toList());
+        ChatUtils.sendComponent(players, component);
         ChatUtils.sendStringComponent(Bukkit.getConsoleSender(), component);
     }
 
