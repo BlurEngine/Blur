@@ -69,7 +69,6 @@ abstract class BlurEffect(val component: Component, delay: Int = 0, interval: In
     }
 
     private fun tick() {
-        println("${!started}  $component")
         if (!started || complete) return
 
         var isComplete = false
@@ -79,7 +78,6 @@ abstract class BlurEffect(val component: Component, delay: Int = 0, interval: In
             }
         }
 
-        println("run")
         run() // subclass Effect implementation
 
         if (isComplete) {
