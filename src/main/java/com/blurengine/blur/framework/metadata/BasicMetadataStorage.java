@@ -96,7 +96,7 @@ public class BasicMetadataStorage<HOLDER extends MetadataHolder> implements Meta
         return (T) metadata.put(holder, (Class<Object>) type.getClass(), type);
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public List<Object> removeAll(@Nonnull HOLDER holder) {
         Preconditions.checkNotNull(holder, "holder cannot be null.");

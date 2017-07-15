@@ -52,7 +52,7 @@ public interface MetadataStorage<HOLDER extends MetadataHolder> {
     @Nullable
     <T> T put(@Nonnull HOLDER holder, @Nonnull T type);
 
-    @Nullable
+    @Nonnull
     List<Object> removeAll(@Nonnull HOLDER holder);
 
     @Nullable

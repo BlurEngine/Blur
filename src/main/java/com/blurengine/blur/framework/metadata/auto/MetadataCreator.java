@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.framework.metadata;
+package com.blurengine.blur.framework.metadata.auto;
 
-import java.util.List;
+import com.blurengine.blur.framework.metadata.MetadataHolder;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
- * Represents an entity that may hold metadata. The implementation should aim to use {@link MetadataStorage} for management of this data.
+ * Metadata class instance creator. The supplied class may be of any type, but not null.
  */
-public interface MetadataHolder {
-
-    boolean hasMetadata(@Nonnull Object object);
-
-    <T> boolean hasMetadata(@Nonnull Class<T> metadataClass);
-
-    <T> T getMetadata(@Nonnull Class<T> metadataClass);
-
-    @Nullable
-    Object putMetadata(Object object);
+public interface MetadataCreator<T, HOLDER extends MetadataHolder> {
 
     @Nonnull
-    List<Object> removeAll();
-
-    <T> boolean removeMetadata(T object);
-
-    @Nullable
-    <T> T removeMetadata(Class<T> metadataClass);
+    T create(HOLDER holder);
 }

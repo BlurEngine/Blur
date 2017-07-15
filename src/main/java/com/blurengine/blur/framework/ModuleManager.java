@@ -28,6 +28,7 @@ import com.blurengine.blur.modules.filters.FilterManager;
 import com.blurengine.blur.modules.message.MessagesManager;
 import com.blurengine.blur.modules.stages.StageManager;
 import com.blurengine.blur.modules.teams.TeamManager;
+import com.blurengine.blur.session.BlurCoreModule;
 import com.blurengine.blur.session.BlurSession;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class ModuleManager {
     private final ListMultimap<Class<? extends Module>, Module> modules = LinkedListMultimap.create();
 
     private TickFieldHolder tickFieldHolder;
+    private BlurCoreModule coreModule;
     private FilterManager filterManager;
     private ExtentManager extentManager;
     private TeamManager teamManager;
@@ -109,6 +111,7 @@ public class ModuleManager {
         // The following set of modules don't use addModule as actual modules depend on them.
         this.modules.put(TickFieldHolder.class, this.tickFieldHolder = new TickFieldHolder(this));
 
+        addModule(coreModule = new BlurCoreModule(this));
         addModule(filterManager = new FilterManager(this));
         addModule(extentManager = new ExtentManager(this));
         addModule(teamManager = new TeamManager(this));
@@ -297,6 +300,10 @@ public class ModuleManager {
 
     public TickFieldHolder getTickFieldHolder() {
         return tickFieldHolder;
+    }
+
+    public BlurCoreModule getCoreModule() {
+        return coreModule;
     }
 
     public FilterManager getFilterManager() {

@@ -20,11 +20,15 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
+import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.InternalModule;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
+import com.blurengine.blur.framework.metadata.MetadataStorage;
+import com.blurengine.blur.framework.metadata.teamdata.TeamData;
 import com.blurengine.blur.modules.teams.events.PlayerChangeTeamEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
@@ -59,6 +63,7 @@ public class TeamManager extends Module implements SupervisorContext {
 
     private Map<String, BlurTeam> teams = new HashMap<>();
     private Map<BlurPlayer, BlurTeam> playerTeams = new HashMap<>();
+    private final MetadataStorage<BlurTeam> teamMetadata = new BasicMetadataStorage<>();
 
     static {
         ModuleLoader.register(TeamsModule.class);
@@ -78,7 +83,39 @@ public class TeamManager extends Module implements SupervisorContext {
         Preconditions.checkArgument(!this.teams.containsKey(blurTeam.getId()), "team with id '%s' already exists.", blurTeam.getId());
         getLogger().finer("Registering team %s", blurTeam.getId());
         getModuleManager().getFilterManager().addFilter(FILTER_PREFIX + blurTeam.getId(), blurTeam);
+        initializeTeamDataClasses(blurTeam);
         this.teams.put(blurTeam.getId(), blurTeam);
+    }
+
+    private void initializeTeamDataClasses(BlurTeam blurTeam) {
+        for (Class<? extends Module> clazz : getModuleManager().getModules().keySet()) {
+            Module module = getModuleManager().getModules().get(clazz).iterator().next();
+            initializeComponentTeamDataClasses(module, blurTeam);
+            for (Component component : module.getSubcomponents()) {
+                initializeComponentTeamDataClasses(component, blurTeam);
+            }
+        }
+    }
+
+    private void initializeComponentTeamDataClasses(Component component, BlurTeam blurTeam) {
+        List<Object> dataInstances = component.getTeamMetadataCreator().initialize(blurTeam);
+
+        // Initialise data instances
+        for (Object data : dataInstances) {
+            addTeamData(component, blurTeam, data);
+        }
+    }
+
+    public void addTeamData(@Nonnull Component component, @Nonnull BlurTeam blurTeam, @Nonnull Object data) {
+        Preconditions.checkNotNull(component, "component");
+        Preconditions.checkNotNull(blurTeam, "blurTeam");
+        Preconditions.checkNotNull(data, "data");
+
+        teamMetadata.put(blurTeam, data);
+        component.addTickable(data);
+        if (data instanceof TeamData) {
+            ((TeamData) data).enable();
+        }
     }
 
     @Nonnull
@@ -135,6 +172,10 @@ public class TeamManager extends Module implements SupervisorContext {
         ArrayList<BlurTeam> result = new ArrayList<>(this.teams.values());
         result.add(this.spectatorTeam);
         return result;
+    }
+
+    public MetadataStorage<BlurTeam> getTeamMetadata() {
+        return teamMetadata;
     }
 
     @EventHandler

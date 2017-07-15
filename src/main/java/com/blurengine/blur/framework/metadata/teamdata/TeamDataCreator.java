@@ -14,32 +14,23 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.framework.metadata;
+package com.blurengine.blur.framework.metadata.teamdata;
 
-import java.util.List;
+import com.blurengine.blur.framework.metadata.auto.MetadataCreator;
+import com.blurengine.blur.modules.teams.BlurTeam;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
- * Represents an entity that may hold metadata. The implementation should aim to use {@link MetadataStorage} for management of this data.
+ * Team data class supplier. This does not require that the supplied class be of type {@link TeamData}.
  */
-public interface MetadataHolder {
+public interface TeamDataCreator<T> extends MetadataCreator<T, BlurTeam> {
 
-    boolean hasMetadata(@Nonnull Object object);
-
-    <T> boolean hasMetadata(@Nonnull Class<T> metadataClass);
-
-    <T> T getMetadata(@Nonnull Class<T> metadataClass);
-
-    @Nullable
-    Object putMetadata(Object object);
-
+    /**
+     * Returns a new instance of Team data for the given {@link BlurTeam}.
+     * @param blurTeam blur team to create data for
+     * @return new team data instance
+     */
     @Nonnull
-    List<Object> removeAll();
-
-    <T> boolean removeMetadata(T object);
-
-    @Nullable
-    <T> T removeMetadata(Class<T> metadataClass);
+    T create(BlurTeam blurTeam);
 }

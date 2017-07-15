@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.framework.playerdata;
+package com.blurengine.blur.framework.metadata.playerdata;
 
-import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.session.BlurSession;
 
 /**
- * Interface for more control over custom Player Data Classes. See {@link Module#registerPlayerDataClass(Class)}.
+ * Interface for more control over custom Player Data Classes. See {@link PlayerAutoMetadataCreator}.
  */
 public interface PlayerData {
 

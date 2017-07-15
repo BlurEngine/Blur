@@ -21,6 +21,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import com.blurengine.blur.countdown.Countdown;
+import com.blurengine.blur.framework.metadata.playerdata.PlayerAutoMetadataCreator;
+import com.blurengine.blur.framework.metadata.teamdata.TeamAutoMetadataCreator;
 import com.blurengine.blur.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.framework.ticking.TickMethodsCache;
 import com.supaham.commons.bukkit.TickerTask;
@@ -45,6 +47,8 @@ public abstract class AbstractComponent implements Component {
     final Set<TickerTask> tasks = new HashSet<>();
     final Multimap<Object, TickerTask> tickableTasks = HashMultimap.create();
     final Set<TickerTask> tasksThatHaveBeenRan = new HashSet<>();
+    private PlayerAutoMetadataCreator playerMetadataCreator;
+    private TeamAutoMetadataCreator teamMetadataCreator;
 
     private ComponentState state = ComponentState.UNLOADED;
 
@@ -235,5 +239,23 @@ public abstract class AbstractComponent implements Component {
             return true;
         }
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public PlayerAutoMetadataCreator getPlayerMetadataCreator() {
+        if (playerMetadataCreator == null) {
+            playerMetadataCreator = new PlayerAutoMetadataCreator();
+        }
+        return playerMetadataCreator;
+    }
+
+    @Nonnull
+    @Override
+    public TeamAutoMetadataCreator getTeamMetadataCreator() {
+        if (teamMetadataCreator == null) {
+            teamMetadataCreator = new TeamAutoMetadataCreator(getTeamManager());
+        }
+        return teamMetadataCreator;
     }
 }

@@ -32,9 +32,7 @@ import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
 import com.blurengine.blur.framework.metadata.MetadataStorage;
-import com.blurengine.blur.framework.playerdata.PlayerData;
-import com.blurengine.blur.framework.playerdata.PlayerDataSupplier;
-import com.blurengine.blur.session.BlurPlayer.BlurPlayerCoreData;
+import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
@@ -51,7 +49,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -251,49 +248,40 @@ public abstract class BlurSession {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
-            initializeCustomDataClasses(blurPlayer);
+            initializePlayerDataClasses(blurPlayer);
             callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
         }
     }
 
-    private void initializeCustomDataClasses(BlurPlayer blurPlayer) {
+    private void initializePlayerDataClasses(BlurPlayer blurPlayer) {
+        getLogger().fine("Initializing player data classes for %s", blurPlayer.getName());
         for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
             Module module = moduleManager.getModules().get(clazz).iterator().next();
-            List<Object> dataInstances = new ArrayList<>();
+            initializeComponentPlayerDataClasses(module, blurPlayer);
+            for (com.blurengine.blur.framework.Component component : module.getSubcomponents()) {
+                initializeComponentPlayerDataClasses(component, blurPlayer);
+            }
+        }
+    }
 
-            // Sneakily add Core player data class.
-            dataInstances.add(new BlurPlayerCoreData(blurPlayer));
+    private void initializeComponentPlayerDataClasses(com.blurengine.blur.framework.Component component, BlurPlayer blurPlayer) {
+        List<Object> dataInstances = component.getPlayerMetadataCreator().initialize(blurPlayer);
 
-            // Automatic zero-arg/one-arg constructor
-            for (Class aClass : module.getRegisteredPlayerDataClasses()) {
-                Object data;
-                try {
-                    data = aClass.getDeclaredConstructor(BlurPlayer.class).newInstance(blurPlayer);
-                } catch (NoSuchMethodException e) {
-                    try {
-                        data = aClass.getDeclaredConstructor().newInstance();
-                    } catch (NoSuchMethodException e1) {
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e1) {
-                        throw new RuntimeException(e1);
-                    }
-                } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-                dataInstances.add(data);
-            }
-            // Supplier data instances
-            for (PlayerDataSupplier<Object> supplier : module.getRegisteredPlayerDataClassSuppliers().values()) {
-                dataInstances.add(supplier.get(blurPlayer));
-            }
-            // Initialise data instances
-            for (Object data : dataInstances) {
-                module.addTickable(data);
-                playerMetadata.put(blurPlayer, data);
-                if (data instanceof PlayerData) {
-                    ((PlayerData) data).enable();
-                }
-            }
+        // Initialise data instances
+        for (Object data : dataInstances) {
+            addPlayerData(component, blurPlayer, data);
+        }
+    }
+
+    public void addPlayerData(@Nonnull com.blurengine.blur.framework.Component component, @Nonnull BlurPlayer blurPlayer, @Nonnull Object data) {
+        Preconditions.checkNotNull(component, "component");
+        Preconditions.checkNotNull(blurPlayer, "blurPlayer");
+        Preconditions.checkNotNull(data, "data");
+
+        playerMetadata.put(blurPlayer, data);
+        component.addTickable(data);
+        if (data instanceof PlayerData) {
+            ((PlayerData) data).enable();
         }
     }
 

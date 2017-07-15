@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.teams;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.framework.metadata.MetadataHolder;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
 import com.blurengine.blur.session.BlurPlayer;
@@ -35,6 +36,7 @@ import org.bukkit.scoreboard.Team.Option;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,7 +46,7 @@ import javax.annotation.Nullable;
 /**
  * Represents a team that is utilized by {@link BlurTeam}.
  */
-public class BlurTeam implements Comparable<BlurTeam>, Filter {
+public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
     private final String id;
     private String name;
@@ -199,6 +201,43 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter {
      */
     public String getChatDisplayName() {
         return this.chatColor + this.name;
+    }
+
+    @Override
+    public boolean hasMetadata(Object object) {
+        return getManager().getTeamMetadata().contains(this, object);
+    }
+
+    @Override
+    public <T> boolean hasMetadata(Class<T> metadataClass) {
+        return getManager().getTeamMetadata().contains(this, metadataClass);
+    }
+
+    @Override
+    public <T> T getMetadata(Class<T> metadataClass) {
+        return getManager().getTeamMetadata().get(this, metadataClass);
+    }
+
+    @Override
+    public Object putMetadata(Object object) {
+        return getManager().getTeamMetadata().put(this, object);
+    }
+
+    @Nonnull
+    @Override
+    public List<Object> removeAll() {
+        return getManager().getTeamMetadata().removeAll(this);
+    }
+
+    @Override
+    public <T> boolean removeMetadata(T object) {
+        return getManager().getTeamMetadata().remove(this, object);
+    }
+
+    @Nullable
+    @Override
+    public <T> T removeMetadata(Class<T> metadataClass) {
+        return getManager().getTeamMetadata().remove(this, metadataClass);
     }
 
     public static final class Builder {

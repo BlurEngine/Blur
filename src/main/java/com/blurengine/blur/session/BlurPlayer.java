@@ -23,9 +23,9 @@ import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
 import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerKilledEvent;
 import com.blurengine.blur.framework.metadata.MetadataHolder;
-import com.blurengine.blur.framework.playerdata.PlayerData;
 import com.blurengine.blur.inventory.InventoryLayout;
 import com.blurengine.blur.modules.filters.Filter;
+import com.blurengine.blur.session.BlurCoreModule.BlurPlayerCoreData;
 import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
@@ -36,9 +36,11 @@ import net.kyori.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
@@ -83,7 +85,7 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         player.setBedSpawnLocation(null);
 
         BlurPlayerCoreData coreData = getCoreData();
-        coreData.inventoryLayout = new InventoryLayout(player.getInventory());
+        coreData.setInventoryLayout(new InventoryLayout(player.getInventory()));
     }
 
     public void messagePrefix(String string, Object... args) {
@@ -195,54 +197,25 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         return getSession().getPlayerMetadata().put(this, object);
     }
 
+    @Nonnull
+    @Override
+    public List<Object> removeAll() {
+        return getSession().getPlayerMetadata().removeAll(this);
+    }
+
+    @Override
+    public <T> boolean removeMetadata(T object) {
+        return getSession().getPlayerMetadata().remove(this, object);
+    }
+
+    @Nullable
+    @Override
+    public <T> T removeMetadata(Class<T> metadataClass) {
+        return getSession().getPlayerMetadata().remove(this, metadataClass);
+    }
+
     /* ================================
      * >> /DELEGATE METHODS
      * ================================ */
 
-    public static final class BlurPlayerCoreData implements PlayerData {
-
-        private final BlurPlayer blurPlayer;
-        private boolean alive;
-        private InventoryLayout inventoryLayout;
-        private int kills;
-        private int deaths;
-
-        public BlurPlayerCoreData(@Nonnull BlurPlayer blurPlayer) {
-            Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
-            this.blurPlayer = blurPlayer;
-            this.inventoryLayout = new InventoryLayout(blurPlayer.getPlayer().getInventory());
-        }
-
-        public boolean isAlive() {
-            return alive;
-        }
-
-        public void setAlive(boolean alive) {
-            this.alive = alive;
-        }
-
-        public InventoryLayout getInventoryLayout() {
-            return inventoryLayout;
-        }
-
-        public void setInventoryLayout(InventoryLayout inventoryLayout) {
-            this.inventoryLayout = inventoryLayout;
-        }
-
-        public int getKills() {
-            return kills;
-        }
-
-        public void setKills(int kills) {
-            this.kills = kills;
-        }
-
-        public int getDeaths() {
-            return deaths;
-        }
-
-        public void setDeaths(int deaths) {
-            this.deaths = deaths;
-        }
-    }
 }

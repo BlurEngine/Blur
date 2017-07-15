@@ -22,6 +22,7 @@ import com.blurengine.blur.framework.ModuleInfo
 import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.utils.getMetadata
+import com.blurengine.blur.utils.registerClassKt
 
 @ModuleInfo(name = "Messages")
 @InternalModule
@@ -30,7 +31,7 @@ class MessagesManager(moduleManager: ModuleManager) : Module(moduleManager) {
     val messages: Map<String, Message> get() = _messages
 
     init {
-        registerPlayerDataClass(PlayerMessageData::class.java)
+        playerMetadataCreator.registerClassKt<PlayerMessageData>()
     }
 
     fun clearMessages() {

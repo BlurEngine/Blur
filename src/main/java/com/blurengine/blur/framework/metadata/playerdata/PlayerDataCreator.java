@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.framework.playerdata;
+package com.blurengine.blur.framework.metadata.playerdata;
 
+import com.blurengine.blur.framework.metadata.auto.MetadataCreator;
 import com.blurengine.blur.session.BlurPlayer;
+
+import javax.annotation.Nonnull;
 
 /**
  * Player Data class supplier. This does not require that the supplied class be of type {@link PlayerData}.
  */
-public interface PlayerDataSupplier<T> {
+public interface PlayerDataCreator<T> extends MetadataCreator<T, BlurPlayer> {
 
     /**
      * Returns a new instance of Player Data for the given {@link BlurPlayer}.
      * @param blurPlayer blur player to create data for
      * @return new Player Data instance
      */
-    T get(BlurPlayer blurPlayer);
+    @Nonnull
+    T create(BlurPlayer blurPlayer);
 }

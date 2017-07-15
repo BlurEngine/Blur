@@ -17,6 +17,8 @@
 package com.blurengine.blur.utils
 
 import com.blurengine.blur.framework.Module
+import com.blurengine.blur.framework.metadata.MetadataHolder
+import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import com.supaham.commons.bukkit.utils.ImmutableVector
@@ -45,6 +47,14 @@ fun Location.toSupaVector() = com.supaham.commons.minecraft.world.space.Vector(x
 fun Position.toLocation(world: World) = Location(world, x, y, z, yaw, pitch)
 
 /* ================================
+ * >> Framework
+ * ================================ */
+
+inline fun <reified T : Any> AbstractAutoMetadataCreator<*>.registerClassKt() = this.registerClass(T::class.java)
+
+inline fun <reified T : Any> MetadataHolder.getMetadata(): T? = this.getMetadata(T::class.java)
+
+/* ================================
  * >> Player
  * ================================ */
 
@@ -55,8 +65,6 @@ fun Player.playSound(sound: Sound, location: Location = this.location, category:
 }
 
 inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
-
-inline fun <reified T : Any> BlurPlayer.getMetadata(): T? = this.getMetadata(T::class.java)
 
 fun RelativeVector.withMultiply(vector: Vector): Vector {
     val _vector = vector.clone()

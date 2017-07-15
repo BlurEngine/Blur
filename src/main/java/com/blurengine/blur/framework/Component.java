@@ -17,6 +17,8 @@
 package com.blurengine.blur.framework;
 
 import com.blurengine.blur.countdown.Countdown;
+import com.blurengine.blur.framework.metadata.playerdata.PlayerAutoMetadataCreator;
+import com.blurengine.blur.framework.metadata.teamdata.TeamAutoMetadataCreator;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.utils.TaskBuilder;
 import com.supaham.commons.bukkit.TickerTask;
@@ -213,4 +215,10 @@ public interface Component extends Listener, SessionHelperInterface {
     default BlurSession getSession() {
         return getModuleManager().getSession();
     }
+
+    @Nonnull
+    PlayerAutoMetadataCreator getPlayerMetadataCreator();
+
+    @Nonnull
+    TeamAutoMetadataCreator getTeamMetadataCreator();
 }
