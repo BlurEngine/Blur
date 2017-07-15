@@ -138,10 +138,10 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     public void kill(@Nonnull PlayerDamagePlayerEvent event) {
         Preconditions.checkNotNull(event, "event cannot be null.");
         BlurPlayer victim = event.getVictim();
-        victim.die();
         BlurPlayerCoreData coreData = getCoreData();
         coreData.setKills(coreData.getKills() + 1);
         this.blurSession.callEvent(new PlayerKilledEvent(victim, victim.getLocation(), this));
+        victim.die();
     }
 
     /**
