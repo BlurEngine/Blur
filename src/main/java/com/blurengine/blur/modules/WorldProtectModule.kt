@@ -145,7 +145,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onCreatureSpawn(event: CreatureSpawnEvent) {
-        if (event.test(data.creatureSpawn)) event.entity.remove()
+        if (event.test(data.creatureSpawn)) {
+            if (event.spawnReason != CreatureSpawnEvent.SpawnReason.CUSTOM) {
+                event.entity.remove()
+            }
+        }
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
