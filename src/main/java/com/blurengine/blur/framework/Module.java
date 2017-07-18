@@ -42,8 +42,6 @@ public abstract class Module extends AbstractComponent {
 
     private final ModuleInfo moduleInfo;
     private final Set<Component> subcomponents = new HashSet<>();
-    private final Map<Class<?>, PlayerDataCreator<Object>> registeredPlayerDataClassSuppliers = new HashMap<>();
-    private final Set<Class> registeredPlayerDataClasses = new HashSet<>();
 
     public Module(ModuleManager moduleManager) {
         super(moduleManager);
