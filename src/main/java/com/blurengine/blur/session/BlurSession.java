@@ -27,6 +27,7 @@ import com.blurengine.blur.events.session.SessionLoadEvent;
 import com.blurengine.blur.events.session.SessionPreLoadEvent;
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
+import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
@@ -40,7 +41,6 @@ import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
-import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 
 import org.bukkit.Bukkit;
@@ -112,7 +112,7 @@ public abstract class BlurSession {
     //    private final Table<BlurPlayer, Class, Object> customData = HashBasedTable.create();
     private final MetadataStorage<BlurPlayer> playerMetadata = new BasicMetadataStorage<>();
 
-    private Component messagePrefix = TextComponent.of("");
+    private net.kyori.text.Component messagePrefix = TextComponent.of("");
 
     private final List<Runnable> onStopTasks = new ArrayList<>();
     private ComponentState state = ComponentState.UNLOADED;
@@ -258,13 +258,13 @@ public abstract class BlurSession {
         for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
             Module module = moduleManager.getModules().get(clazz).iterator().next();
             initializeComponentPlayerDataClasses(module, blurPlayer);
-            for (com.blurengine.blur.framework.Component component : module.getSubcomponents()) {
+            for (Component component : module.getSubcomponents()) {
                 initializeComponentPlayerDataClasses(component, blurPlayer);
             }
         }
     }
 
-    private void initializeComponentPlayerDataClasses(com.blurengine.blur.framework.Component component, BlurPlayer blurPlayer) {
+    private void initializeComponentPlayerDataClasses(Component component, BlurPlayer blurPlayer) {
         List<Object> dataInstances = component.getPlayerMetadataCreator().initialize(blurPlayer);
 
         // Initialise data instances
@@ -273,7 +273,7 @@ public abstract class BlurSession {
         }
     }
 
-    public void addPlayerData(@Nonnull com.blurengine.blur.framework.Component component, @Nonnull BlurPlayer blurPlayer, @Nonnull Object data) {
+    public void addPlayerData(@Nonnull Component component, @Nonnull BlurPlayer blurPlayer, @Nonnull Object data) {
         Preconditions.checkNotNull(component, "component");
         Preconditions.checkNotNull(blurPlayer, "blurPlayer");
         Preconditions.checkNotNull(data, "data");
@@ -320,7 +320,7 @@ public abstract class BlurSession {
         getBlur().getPlugin().getLog().info(message, args);
     }
 
-    public void broadcastMessage(@Nonnull Component component) {
+    public void broadcastMessage(@Nonnull net.kyori.text.Component component) {
         Preconditions.checkNotNull(component, "component cannot be null.");
         List<Player> players = this.players.values().stream().map(BlurPlayer::getPlayer).collect(Collectors.toList());
         ChatUtils.sendComponent(players, component);
@@ -430,11 +430,11 @@ public abstract class BlurSession {
         return Collections.unmodifiableMap(players);
     }
 
-    public Component getMessagePrefix() {
+    public net.kyori.text.Component getMessagePrefix() {
         return messagePrefix;
     }
 
-    public void setMessagePrefix(Component messagePrefix) {
+    public void setMessagePrefix(net.kyori.text.Component messagePrefix) {
         this.messagePrefix = messagePrefix;
     }
 
