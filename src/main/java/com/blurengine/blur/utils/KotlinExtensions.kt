@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.utils
 
+import com.blurengine.blur.BlurPlugin
 import com.blurengine.blur.framework.Component
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.metadata.MetadataHolder
@@ -32,6 +33,13 @@ import org.bukkit.SoundCategory
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import java.time.Duration
+import java.time.Instant
+import java.time.temporal.TemporalAmount
+
+fun Instant.elapsed(temporalAmount: TemporalAmount) = Instant.now().minus(temporalAmount) >= this
+
+fun Duration.isPositive(): Boolean = this.seconds > 0 || this.nano > 0
 
 /* ================================
  * >> Space
@@ -73,6 +81,8 @@ inline fun <reified T : Component> BlurSession.getSharedComponent(crossinline cr
 /* ================================
  * >> Player
  * ================================ */
+
+fun Player.toBlurPlayer() = BlurPlugin.get().blur.getPlayer(this)
 
 fun BlurPlayer.getTeam() = session.moduleManager.teamManager.getPlayerTeam(this)
 
