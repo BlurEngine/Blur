@@ -22,6 +22,7 @@ import com.blurengine.blur.Blur;
 import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
+import com.blurengine.blur.events.players.PlayerPostLeaveSessionEvent;
 import com.blurengine.blur.events.session.SessionEnableEvent;
 import com.blurengine.blur.events.session.SessionLoadEvent;
 import com.blurengine.blur.events.session.SessionPreLoadEvent;
@@ -291,6 +292,7 @@ public abstract class BlurSession {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
+            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
 
             // Unregister player custom data classes.
             for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {
@@ -312,7 +314,7 @@ public abstract class BlurSession {
             } else {
                 blurPlayer.blurSession = getParentSession();
             }
-            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
+            callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
         }
     }
 

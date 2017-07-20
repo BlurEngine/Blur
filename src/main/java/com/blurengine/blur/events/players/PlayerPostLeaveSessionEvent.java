@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ali Moghnieh
+ * Copyright 2017 Ali Moghnieh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import org.bukkit.event.HandlerList;
 import javax.annotation.Nonnull;
 
 /**
- * Represents a {@link BlurPlayerEvent} fired before a {@link BlurPlayer} leaves a {@link BlurSession}.
+ * Represents a {@link BlurPlayerEvent} fired after a {@link BlurPlayer} leaves a {@link BlurSession}.
  */
-public class PlayerLeaveSessionEvent extends BlurPlayerEvent {
+public class PlayerPostLeaveSessionEvent extends BlurPlayerEvent {
 
-    public PlayerLeaveSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+    public PlayerPostLeaveSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
         super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
     }
 
