@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.utils
 
+import com.blurengine.blur.framework.Component
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.metadata.MetadataHolder
 import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator
@@ -53,6 +54,21 @@ fun Position.toLocation(world: World) = Location(world, x, y, z, yaw, pitch)
 inline fun <reified T : Any> AbstractAutoMetadataCreator<*>.registerClassKt() = this.registerClass(T::class.java)
 
 inline fun <reified T : Any> MetadataHolder.getMetadata(): T? = this.getMetadata(T::class.java)
+
+inline fun <reified T : Component> BlurSession.getSharedComponent(): T? = this.getSharedComponent(T::class.java)
+
+/**
+ * Returns or creates (and puts) shared [Component].
+ */
+inline fun <reified T : Component> BlurSession.getSharedComponent(crossinline create: () -> T): T {
+    var found = this.getSharedComponent(T::class.java)
+
+    if (found == null) {
+        found = create()
+        this.putSharedComponent(found)
+    }
+    return found
+}
 
 /* ================================
  * >> Player

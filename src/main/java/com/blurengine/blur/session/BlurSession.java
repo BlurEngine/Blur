@@ -117,6 +117,8 @@ public abstract class BlurSession {
     private final List<Runnable> onStopTasks = new ArrayList<>();
     private ComponentState state = ComponentState.UNLOADED;
 
+    private Map<Class<? extends Component>, Component> sharedComponents = new HashMap<>();
+
     {
         setTicksPerSecond(20);
         // Bukkit hasn't fully initialized yet (this is the RootBlurSession)
@@ -509,6 +511,27 @@ public abstract class BlurSession {
 
     public MetadataStorage<BlurPlayer> getPlayerMetadata() {
         return playerMetadata;
+    }
+
+    public Map<Class<? extends Component>, Component> getSharedComponents() {
+        return Collections.unmodifiableMap(sharedComponents);
+    }
+
+    @Nullable
+    public <T extends Component> T getSharedComponent(Class<T> clazz) {
+        return (T) sharedComponents.get(clazz);
+    }
+
+    @Nullable
+    public <T extends Component> T putSharedComponent(T component) {
+        getLogger().finer("Putting shared component " + component.getClass().getCanonicalName());
+        return (T) sharedComponents.put(component.getClass(), component);
+    }
+
+    @Nullable
+    public <T extends Component> T removeSharedComponent(Class<T> clazz) {
+        getLogger().finer("Removing shared component " + clazz.getCanonicalName());
+        return (T) sharedComponents.remove(clazz);
     }
 
     public enum Predicates implements Predicate<BlurPlayer> {
