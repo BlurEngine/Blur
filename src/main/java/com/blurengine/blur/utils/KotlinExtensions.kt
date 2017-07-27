@@ -19,6 +19,7 @@ package com.blurengine.blur.utils
 import com.blurengine.blur.BlurPlugin
 import com.blurengine.blur.framework.Component
 import com.blurengine.blur.framework.Module
+import com.blurengine.blur.framework.SharedComponent
 import com.blurengine.blur.framework.metadata.MetadataHolder
 import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator
 import com.blurengine.blur.session.BlurPlayer
@@ -63,12 +64,12 @@ inline fun <reified T : Any> AbstractAutoMetadataCreator<*>.registerClassKt() = 
 
 inline fun <reified T : Any> MetadataHolder.getMetadata(): T? = this.getMetadata(T::class.java)
 
-inline fun <reified T : Component> BlurSession.getSharedComponent(): T? = this.getSharedComponent(T::class.java)
+inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(): T? = this.getSharedComponent(T::class.java)
 
 /**
  * Returns or creates (and puts) shared [Component].
  */
-inline fun <reified T : Component> BlurSession.getSharedComponent(crossinline create: () -> T): T {
+inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(crossinline create: () -> T): T {
     var found = this.getSharedComponent(T::class.java)
 
     if (found == null) {
