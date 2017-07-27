@@ -41,108 +41,20 @@ import javax.annotation.Nonnull;
 public abstract class Module extends AbstractComponent {
 
     private final ModuleInfo moduleInfo;
-    private final Set<Component> subcomponents = new HashSet<>();
+    private final Set<Module> submodules = new HashSet<>();
 
     public Module(ModuleManager moduleManager) {
         super(moduleManager);
         this.moduleInfo = ModuleLoader.getModuleInfoByModule(getClass());
     }
 
-    /**
-     * Returns sub {@link Component} stream without any {@link Module}. This is important to the stability of module loading overall.
-     *
-     * When a Module registers a sub module, the sub module is registered to the ModuleManager. The ModuleManager then loads that sub module as a
-     * normal module. When the main Module invokes any of the state-changing methods it fails because those sub modules are already loaded and return
-     * false (indicating a failure to load) due to it being loaded already.
-     */
-    private Stream<Component> getSubcomponentsStream() {
-        return this.subcomponents.stream().filter(component -> !(component instanceof Module));
-    }
-
-    @Override
-    public boolean tryLoad() {
-        if (!super.tryLoad()) {
-            return false;
-        }
-        boolean resultOfAllLoads = getSubcomponentsStream().map(Component::tryLoad).filter(b -> !b).findFirst().orElse(true);
-        return resultOfAllLoads;
-    }
-
-    @Override
-    public boolean tryUnload() {
-        if (!super.tryUnload()) {
-            return false;
-        }
-        boolean resultOfAllUnloads = getSubcomponentsStream().map(Component::tryUnload).filter(b -> !b).findFirst().orElse(true);
-        return resultOfAllUnloads;
-    }
-
-    @Override
-    public boolean tryEnable() {
-        if (!super.tryEnable()) {
-            return false;
-        }
-        boolean resultOfAllEnables = getSubcomponentsStream().map(Component::tryEnable).filter(b -> !b).findFirst().orElse(true);
-        return resultOfAllEnables;
-    }
-
-    @Override
-    public boolean tryDisable() {
-        if (!super.tryDisable()) {
-            return false;
-        }
-        boolean resultOfAllDisables = getSubcomponentsStream().map(Component::tryDisable).filter(b -> !b).findFirst().orElse(true);
-        return resultOfAllDisables;
-    }
-
     public ModuleInfo getModuleInfo() {
         return moduleInfo;
     }
 
-    public boolean addSubcomponent(@Nonnull Component component) {
-        Preconditions.checkNotNull(component, "component cannot be null.");
-        if (component instanceof Module) {
-            return addSubmodule((Module) component);
-        } else {
-            if (this.subcomponents.add(component)) {
-                if (getState() == ComponentState.UNLOADED) {
-                    return true; // Added successfully without loading.
-                }
-
-                if (component.tryLoad()) {
-                    if (getState() == ComponentState.ENABLED) {
-                        if (component.tryEnable()) {
-                            return true; // Added, loaded, and enabled successfully.
-                        } else {
-                            return false; // Failed to enable
-                        }
-                    }
-                    return true; // Added and loaded successfully.
-                } else {
-                    return false; // Failed to load
-                }
-            }
-            return false;
-        }
-    }
-
-    public boolean removeSubcomponent(@Nonnull Component component) {
-        Preconditions.checkNotNull(component, "component cannot be null.");
-        if (component instanceof Module) {
-            return removeSubmodule((Module) component);
-        } else {
-            if (this.subcomponents.remove(component)) {
-                component.tryDisable();
-                component.tryUnload();
-                return true;
-            }
-            return false;
-        }
-    }
-
     public boolean addSubmodule(@Nonnull Module module) {
-        Preconditions.checkNotNull(module, "module cannot be null.");
-        if (this.subcomponents.add(module)) {
+        Preconditions.checkNotNull(module, "module");
+        if (this.submodules.add(module)) {
             // This is a must to ensure that any added behaviour from ModuleManager is respected.
             getModuleManager().addModule(module);
 
@@ -167,19 +79,14 @@ public abstract class Module extends AbstractComponent {
     }
 
     public boolean removeSubmodule(@Nonnull Module module) {
-        Preconditions.checkNotNull(module, "module cannot be null.");
-        if (this.subcomponents.remove(module)) {
+        Preconditions.checkNotNull(module, "module");
+        if (this.submodules.remove(module)) {
             getModuleManager().disableModule(module);
             getModuleManager().unloadModule(module);
             return true;
         }
         return false;
     }
-
-    public Collection<Component> getSubcomponents() {
-        return Collections.unmodifiableCollection(subcomponents);
-    }
-
     public StageManager getStagesManager() {
         return getModuleManager().getStageManager();
     }

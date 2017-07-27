@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -49,6 +50,7 @@ public abstract class AbstractComponent implements Component {
     final Set<TickerTask> tasksThatHaveBeenRan = new HashSet<>();
     private PlayerAutoMetadataCreator playerMetadataCreator;
     private TeamAutoMetadataCreator teamMetadataCreator;
+    private final Set<Component> subcomponents = new HashSet<>();
 
     private ComponentState state = ComponentState.UNLOADED;
 
@@ -68,6 +70,17 @@ public abstract class AbstractComponent implements Component {
 
     public void disable() {}
 
+    /**
+     * Returns sub {@link Component} stream without any {@link Module}. This is important to the stability of module loading overall.
+     *
+     * When a Module registers a sub module, the sub module is registered to the ModuleManager. The ModuleManager then loads that sub module as a
+     * normal module. When the main Module invokes any of the state-changing methods it fails because those sub modules are already loaded and return
+     * false (indicating a failure to load) due to it being loaded already.
+     */
+    private Stream<Component> getSubcomponentsStream() {
+        return this.subcomponents.stream().filter(component -> !(component instanceof Module));
+    }
+
     @Override
     public boolean tryLoad() {
         if (!setState(ComponentState.LOADED)) {
@@ -82,7 +95,8 @@ public abstract class AbstractComponent implements Component {
         this.tasksThatHaveBeenRan.addAll(this.tasks.stream().filter(t -> t.getInterval() < 0).collect(Collectors.toList()));
 
         load();
-        return true;
+        boolean resultOfAllLoads = getSubcomponentsStream().map(Component::tryLoad).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllLoads;
     }
 
     @Override
@@ -95,7 +109,8 @@ public abstract class AbstractComponent implements Component {
         this.tasksThatHaveBeenRan.clear();
 
         unload();
-        return true;
+        boolean resultOfAllUnloads = getSubcomponentsStream().map(Component::tryUnload).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllUnloads;
     }
 
     @Override
@@ -105,7 +120,8 @@ public abstract class AbstractComponent implements Component {
         }
 
         enable();
-        return true;
+        boolean resultOfAllEnables = getSubcomponentsStream().map(Component::tryEnable).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllEnables;
     }
 
     @Override
@@ -115,7 +131,8 @@ public abstract class AbstractComponent implements Component {
         }
 
         disable();
-        return true;
+        boolean resultOfAllDisables = getSubcomponentsStream().map(Component::tryDisable).filter(b -> !b).findFirst().orElse(true);
+        return resultOfAllDisables;
     }
 
     @Nonnull
@@ -257,5 +274,46 @@ public abstract class AbstractComponent implements Component {
             teamMetadataCreator = new TeamAutoMetadataCreator(getTeamManager());
         }
         return teamMetadataCreator;
+    }
+
+    @Nonnull
+    public Collection<Component> getSubcomponents() {
+        return Collections.unmodifiableCollection(subcomponents);
+    }
+
+    @Override
+    public boolean addSubcomponent(@Nonnull Component component) {
+        Preconditions.checkNotNull(component, "component");
+        Preconditions.checkArgument(this != component, "cannot add current component as subcomponent.");
+        if (this.subcomponents.add(component)) {
+            if (getState() == ComponentState.UNLOADED) {
+                return true; // Added successfully without loading.
+            }
+
+            if (component.tryLoad()) {
+                if (getState() == ComponentState.ENABLED) {
+                    if (component.tryEnable()) {
+                        return true; // Added, loaded, and enabled successfully.
+                    } else {
+                        return false; // Failed to enable
+                    }
+                }
+                return true; // Added and loaded successfully.
+            } else {
+                return false; // Failed to load
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeSubcomponent(@Nonnull Component component) {
+        Preconditions.checkNotNull(component, "component");
+        if (this.subcomponents.remove(component)) {
+            component.tryDisable();
+            component.tryUnload();
+            return true;
+        }
+        return false;
     }
 }

@@ -221,4 +221,11 @@ public interface Component extends Listener, SessionHelperInterface {
 
     @Nonnull
     TeamAutoMetadataCreator getTeamMetadataCreator();
+
+    @Nonnull
+    Collection<Component> getSubcomponents();
+
+    boolean addSubcomponent(@Nonnull Component component);
+
+    boolean removeSubcomponent(@Nonnull Component component);
 }
