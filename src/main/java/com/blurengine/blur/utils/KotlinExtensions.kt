@@ -85,6 +85,8 @@ inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(crossinl
     return found
 }
 
+fun Duration.toTicks(session: BlurSession) = session.millisecondsToTicks(toMillis())
+
 /* ================================
  * >> Player
  * ================================ */
