@@ -32,6 +32,7 @@ import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.ComponentState;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.framework.SharedComponent;
 import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
 import com.blurengine.blur.framework.metadata.MetadataStorage;
 import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
@@ -62,6 +63,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,7 +120,7 @@ public abstract class BlurSession {
     private final List<Runnable> onStopTasks = new ArrayList<>();
     private ComponentState state = ComponentState.UNLOADED;
 
-    private Map<Class<? extends Component>, Component> sharedComponents = new HashMap<>();
+    private Map<Class<? extends SharedComponent>, SharedComponent> sharedComponents = new HashMap<>();
 
     {
         setTicksPerSecond(20);
@@ -173,6 +175,9 @@ public abstract class BlurSession {
         long startedAt = System.currentTimeMillis();
         this.ticker = new SessionTicker();
         getBlur().getPlugin().registerEvents(this.listener);
+        this.sharedComponents.values().stream()
+            .filter(module -> module.getState() == ComponentState.UNLOADED)
+            .forEach(this::loadSharedComponent);
         this.moduleManager.load();
         callEvent(new SessionLoadEvent(this));
         getLogger().fine("%s loaded in %dms", getName(), System.currentTimeMillis() - startedAt);
@@ -185,6 +190,9 @@ public abstract class BlurSession {
         }
         getLogger().fine("Enabling %s", getName());
         long startedAt = System.currentTimeMillis();
+        this.sharedComponents.values().stream()
+            .filter(module -> module.getState() == ComponentState.LOADED)
+            .forEach(this::loadSharedComponent);
         this.moduleManager.enable();
         // Delay event by a tick to give the server time to catch up if it took too long loading the session.
         new TickerTask(getBlur().getPlugin(), 1, () -> callEvent(new SessionEnableEvent(this))).start();
@@ -221,8 +229,17 @@ public abstract class BlurSession {
         this.childrenSessions.forEach(BlurSession::stop);
         getLogger().fine("Stopping %s", getName());
         callEvent(new SessionStopEvent(this));
+
         this.moduleManager.disable();
+        this.sharedComponents.values().stream()
+            .filter(module -> module.getState() == ComponentState.ENABLED)
+            .forEach(this::disableSharedComponent);
+
         this.moduleManager.unload();
+        this.sharedComponents.values().stream()
+            .filter(module -> module.getState() == ComponentState.LOADED)
+            .forEach(this::unloadSharedComponent);
+
         for (BlurPlayer blurPlayer : new HashSet<>(this.players.values())) {
             removePlayer(blurPlayer);
         }
@@ -515,25 +532,111 @@ public abstract class BlurSession {
         return playerMetadata;
     }
 
-    public Map<Class<? extends Component>, Component> getSharedComponents() {
+    public Map<Class<? extends SharedComponent>, SharedComponent> getSharedComponents() {
         return Collections.unmodifiableMap(sharedComponents);
     }
 
     @Nullable
-    public <T extends Component> T getSharedComponent(Class<T> clazz) {
+    public <T extends SharedComponent> T getSharedComponent(Class<T> clazz) {
         return (T) sharedComponents.get(clazz);
     }
 
     @Nullable
-    public <T extends Component> T putSharedComponent(T component) {
+    public <T extends SharedComponent> T putSharedComponent(T component) {
         getLogger().finer("Putting shared component " + component.getClass().getCanonicalName());
-        return (T) sharedComponents.put(component.getClass(), component);
+        T old = (T) sharedComponents.put(component.getClass(), component);
+        if (old != null) {
+            disableSharedComponent(old);
+            unloadSharedComponent(old);
+        }
+        loadSharedComponent(component);
+        enableSharedComponent(component);
+        return old;
     }
 
     @Nullable
-    public <T extends Component> T removeSharedComponent(Class<T> clazz) {
+    public <T extends SharedComponent> T removeSharedComponent(Class<T> clazz) {
         getLogger().finer("Removing shared component " + clazz.getCanonicalName());
-        return (T) sharedComponents.remove(clazz);
+        T removed = (T) sharedComponents.remove(clazz);
+        if (removed != null) {
+            disableSharedComponent(removed);
+            unloadSharedComponent(removed);
+        }
+        return removed;
+    }
+
+    public boolean loadSharedComponent(SharedComponent sharedComponent) {
+        if (sharedComponent.getState().isLoaded()) {
+            return false;
+        }
+        String name = sharedComponent.getClass().getName();
+        try {
+            sharedComponent.tryLoad();
+            return true;
+        } catch (Exception e) {
+            if (getLogger().getDebugLevel() == 0) {
+                getLogger().severe("Error loading SharedComponent %s: %s", name, e.getMessage());
+            } else {
+                getLogger().log(Level.SEVERE, "Error loading SharedComponent " + name, e);
+            }
+        }
+        return false;
+    }
+
+    public boolean unloadSharedComponent(SharedComponent sharedComponent) {
+        if (!sharedComponent.getState().isLoaded()) {
+            return false;
+        }
+        String name = sharedComponent.getClass().getName();
+        try {
+            sharedComponent.tryUnload();
+            return true;
+        } catch (Exception e) {
+            if (getLogger().getDebugLevel() == 0) {
+                getLogger().severe("Error unloading SharedComponent %s: %s", name, e.getMessage());
+            } else {
+                getLogger().log(Level.SEVERE, "Error unloading SharedComponent " + name, e);
+            }
+        }
+        return false;
+    }
+
+    public boolean enableSharedComponent(SharedComponent sharedComponent) {
+        if (sharedComponent.getState() == ComponentState.ENABLED) {
+            return false;
+        }
+        String name = sharedComponent.getClass().getName();
+        try {
+            sharedComponent.tryEnable();
+            return true;
+        } catch (Exception e) {
+            if (getLogger().getDebugLevel() == 0) {
+                getLogger().severe("Error enabling SharedComponent %s: %s", name, e.getMessage());
+            } else {
+                getLogger().log(Level.SEVERE, "Error SharedComponent SharedComponent " + name, e);
+            }
+        }
+        return false;
+    }
+
+    public boolean disableSharedComponent(SharedComponent sharedComponent) {
+        // != ENABLED means either unloaded or loaded (which are both disabled state)
+        if (sharedComponent.getState() != ComponentState.ENABLED) {
+            return false;
+        }
+
+        String name = sharedComponent.getClass().getName();
+        try {
+            sharedComponent.tryDisable();
+            return true;
+        } catch (Exception e) {
+            if (getLogger().getDebugLevel() == 0) {
+                getLogger().severe("Error disabling SharedComponent %s: %s", name, e.getMessage());
+            } else {
+                getLogger().log(Level.SEVERE, "Error disabling SharedComponent " + name, e);
+            }
+        }
+        return false;
     }
 
     public enum Predicates implements Predicate<BlurPlayer> {
