@@ -21,8 +21,8 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.session.BlurPlayer;
 
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import javax.annotation.Nonnull;
 
@@ -32,12 +32,12 @@ import javax.annotation.Nonnull;
 public class PlayerDamagePlayerEvent extends BlurPlayerEvent implements Cancellable {
 
     private final BlurPlayer victim;
-    private final EntityDamageByEntityEvent bukkitEvent;
+    private final Event bukkitEvent;
 
-    public PlayerDamagePlayerEvent(@Nonnull BlurPlayer damager, @Nonnull BlurPlayer victim, @Nonnull EntityDamageByEntityEvent bukkitEvent) {
-        super(Preconditions.checkNotNull(damager, "damager cannot be null."), damager.getSession());
-        this.victim = Preconditions.checkNotNull(victim, "victim cannot be null.");
-        this.bukkitEvent = Preconditions.checkNotNull(bukkitEvent, "bukkitEntity cannot be null.");
+    public PlayerDamagePlayerEvent(@Nonnull BlurPlayer damager, @Nonnull BlurPlayer victim, @Nonnull Event bukkitEvent) {
+        super(Preconditions.checkNotNull(damager, "damager"), damager.getSession());
+        this.victim = Preconditions.checkNotNull(victim, "victim");
+        this.bukkitEvent = Preconditions.checkNotNull(bukkitEvent, "bukkitEvent");
     }
 
     /**
@@ -45,13 +45,14 @@ public class PlayerDamagePlayerEvent extends BlurPlayerEvent implements Cancella
      */
     public BlurPlayer getDamager() {
         return getBlurPlayer();
-    } 
+    }
 
     public BlurPlayer getVictim() {
         return victim;
     }
 
-    public EntityDamageByEntityEvent getBukkitEvent() {
+    @Nonnull
+    public Event getBukkitEvent() {
         return bukkitEvent;
     }
 
