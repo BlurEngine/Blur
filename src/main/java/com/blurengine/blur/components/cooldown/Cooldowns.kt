@@ -140,7 +140,7 @@ class ExpCooldownEntry(manager: CooldownsManager, cooldown: Cooldown<ExpCooldown
         get() = _active
         set(value) {
             // Deactivate all other ExpCooldownEntry
-            for (entry in manager.cooldowns.values().filterIsInstance<ExpCooldownEntry>().filter { it != this }) {
+            for (entry in manager.cooldowns.values().filterIsInstance<ExpCooldownEntry>().filter { it != this && it.blurPlayer == blurPlayer}) {
                 entry._active = false
             }
             _active = value
