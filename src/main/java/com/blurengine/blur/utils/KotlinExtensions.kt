@@ -22,6 +22,7 @@ import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.SharedComponent
 import com.blurengine.blur.framework.metadata.MetadataHolder
 import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator
+import com.blurengine.blur.framework.metadata.auto.MetadataCreator
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import com.supaham.commons.bukkit.utils.ImmutableVector
@@ -61,6 +62,11 @@ fun Position.toLocation(world: World) = Location(world, x, y, z, yaw, pitch)
  * ================================ */
 
 inline fun <reified T : Any> AbstractAutoMetadataCreator<*>.registerClassKt() = this.registerClass(T::class.java)
+
+inline fun <reified T : Any, M: MetadataHolder> AbstractAutoMetadataCreator<M>.registerClassKt(noinline creator: (M) -> T) {
+    val metadataCreator = MetadataCreator(creator)
+    return this.registerClass(T::class.java, metadataCreator)
+}
 
 inline fun <reified T : Any> MetadataHolder.getMetadata(): T? = this.getMetadata(T::class.java)
 
