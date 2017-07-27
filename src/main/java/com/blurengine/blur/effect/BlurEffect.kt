@@ -26,7 +26,7 @@ import org.bukkit.Particle
 /**
  * Represents a class for creating Particle and other form of effects using [Component]s.
  */
-abstract class BlurEffect(val component: Component, delay: Int = 0, interval: Int = 1, val iterations: Int = 0) : Runnable {
+abstract class BlurEffect(val component: Component, delay: Int = 0, interval: Int = 1, var iterations: Int = 0) : Runnable {
     var delay: Int = delay
         set(value) {
             field = value
