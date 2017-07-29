@@ -28,7 +28,7 @@ import net.kyori.text.event.HoverEvent
 object TextFormatter {
     val PATTERN = """(?<!\\)\{(\d+)}""".toPattern()
 
-    fun format(component: Component, args: Array<Any?>): Component {
+    fun format(component: Component, args: Array<out Any?>): Component {
         if (args.isEmpty()) return component
         val componentArgs: Map<Int, Component> = args
                 .mapIndexed { idx, it -> idx to it }
@@ -96,7 +96,7 @@ object TextFormatter {
         return builder.build()
     }
 
-    fun replaceParams(string: CharSequence, args: Array<Any?>): String {
+    private fun replaceParams(string: CharSequence, args: Array<out Any?>): String {
         val matcher = PATTERN.matcher(string)
         val sb = StringBuffer()
         while(matcher.find()) {
