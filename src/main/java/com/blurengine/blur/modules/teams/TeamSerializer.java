@@ -61,7 +61,6 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
 
         BlurTeam blurTeam = null;
         if (map.size() > 1 && id.isPresent()) {
-            id.orElseThrow(() -> new IllegalArgumentException("Team must have an id."));
             BlurTeamData data = new BlurTeamData();
             this.moduleLoader.deserializeTo(map, data);
             blurTeam = data.toTeam(getManager());
