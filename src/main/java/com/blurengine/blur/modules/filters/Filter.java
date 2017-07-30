@@ -44,14 +44,15 @@ public interface Filter {
     default Filter or(Filter other) {
         return (object) -> {
             FilterResponse first = test(object);
-            FilterResponse second = other.test(object);
-            if (first == FilterResponse.ABSTAIN) {
-                return second;
-            } else if (second == FilterResponse.ABSTAIN) {
+            if (first == FilterResponse.ALLOW) {
                 return first;
-            } else {
-                return first.isAllowed() || second.isAllowed() ? FilterResponse.ALLOW : FilterResponse.DENY;
             }
+            FilterResponse second = other.test(object);
+            if (second == FilterResponse.ABSTAIN) {
+                return first;
+            }
+            // OR disregards `first` output if it is not ALLOW, and moves directly to whatever `second` is
+            return second;
         };
     }
 
