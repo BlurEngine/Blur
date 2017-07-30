@@ -57,26 +57,6 @@ fun Location.toSupaVector() = com.supaham.commons.minecraft.world.space.Vector(x
 
 fun Position.toLocation(world: World) = Location(world, x, y, z, yaw, pitch)
 
-fun Location.add(x: Number = 0, y: Number = 0, z: Number = 0): Location = add(x.toDouble(), y.toDouble(), z.toDouble())
-
-fun Location.subtract(x: Number = 0, y: Number = 0, z: Number = 0): Location = subtract(x.toDouble(), y.toDouble(), z.toDouble())
-
-fun Location.center(centerY: Boolean = false) = this.apply { x = blockX + 0.5; if (centerY) y = blockY + 0.5; z = blockZ + 0.5 }
-
-fun Vector.center(centerY: Boolean = false) = this.apply { x = blockX + 0.5; if (centerY) y = blockY + 0.5; z = blockZ + 0.5 }
-
-fun Vector.add(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0) = this.apply {
-    this.x += x.toDouble()
-    this.y += y.toDouble()
-    this.z += z.toDouble()
-}
-
-fun Vector.subtract(x: Number = 0.0, y: Number = 0.0, z: Number = 0.0) = this.apply {
-    this.x -= x.toDouble()
-    this.y -= y.toDouble()
-    this.z -= z.toDouble()
-}
-
 /* ================================
  * >> Framework
  * ================================ */
@@ -114,10 +94,6 @@ fun Duration.toTicks(session: BlurSession) = session.millisecondsToTicks(toMilli
 fun Player.toBlurPlayer() = BlurPlugin.get().blur.getPlayer(this)
 
 fun BlurPlayer.getTeam() = session.moduleManager.teamManager.getPlayerTeam(this)
-
-fun Player.playSound(sound: Sound, location: Location = this.location, category: SoundCategory = SoundCategory.MASTER, volume: Float = 1F, pitch: Float = 1F) {
-    playSound(location, sound, category, volume, pitch)
-}
 
 inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
 
