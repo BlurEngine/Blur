@@ -66,7 +66,9 @@ object TextFormatter {
                 if (appendedComponent) {
                     content(sb.toString())
                     val tailSb = matcher.appendTail(StringBuffer())
-                    append(TextComponent.of(tailSb.toString()))
+                    if (tailSb.isNotEmpty()) {
+                        append(TextComponent.of(tailSb.toString()))
+                    }
                 } else {
                     matcher.appendTail(sb)
                     content(sb.toString())
