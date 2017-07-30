@@ -161,6 +161,8 @@ public interface Extent extends Filter, Iterable<BlockVector> {
             return FilterResponse.from(contains((ImmutableVector) object));
         } else if (object instanceof Location) {
             return FilterResponse.from(contains((Location) object));
+        } else if (object instanceof BlurPlayer) {
+            return FilterResponse.from(contains(((BlurPlayer) object).getPlayer()));
         }
         return FilterResponse.ABSTAIN;
     }
