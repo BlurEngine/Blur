@@ -29,7 +29,7 @@ import net.kyori.text.format.TextDecoration
 import org.junit.Assert
 import org.junit.Test
 
-class TextFormatterKotlin {
+class TextFormatterTest {
     @Test
     fun testBasicEmptyArgs() {
         val baseActual = TextComponent.of("foo")
