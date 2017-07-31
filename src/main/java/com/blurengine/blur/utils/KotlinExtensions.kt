@@ -25,6 +25,7 @@ import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator
 import com.blurengine.blur.framework.metadata.auto.MetadataCreator
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
+import com.blurengine.blur.text.TextFormatter
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import com.supaham.commons.bukkit.utils.RelativeVector
 import com.supaham.commons.minecraft.world.space.Position
@@ -42,6 +43,12 @@ import java.time.temporal.TemporalAmount
 fun Instant.elapsed(temporalAmount: TemporalAmount) = Instant.now().minus(temporalAmount) >= this
 
 fun Duration.isPositive(): Boolean = this.seconds > 0 || this.nano > 0
+
+/* ================================
+ * >> Text
+ * ================================ */
+
+fun net.kyori.text.Component.format(vararg args: Any?): net.kyori.text.Component = TextFormatter.format(this, args)
 
 /* ================================
  * >> Space
