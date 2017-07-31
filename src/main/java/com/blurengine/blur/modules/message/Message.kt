@@ -21,20 +21,11 @@ import net.kyori.text.Component
 
 interface Message {
     val messageNode: String
+    val component: Component
+
+    fun component(vararg args: Any?): Component
 
     fun send(blurPlayer: BlurPlayer, vararg args: Any?)
 }
 
-interface ComponentMessage : Message {
-    val component: Component
-}
-
-interface CooldownMessage : Message {
-    val cooldown: Int
-
-    fun getCooldown(blurPlayer: BlurPlayer): Int = cooldown
-}
-
 abstract class AbstractMessage(override val messageNode: String) : Message
-
-abstract class AbstractComponentMessage(messageNode: String, override val component: Component) : AbstractMessage(messageNode), ComponentMessage

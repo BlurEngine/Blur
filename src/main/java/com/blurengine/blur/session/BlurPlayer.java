@@ -97,7 +97,7 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     }
 
     public boolean messageTl(String messageNode, Object... args) {
-        return getSession().getModuleManager().getMessagesManager().sendMessage(this, messageNode, args);
+        return getSession().getModuleManager().getMessagesManager().sendMessage(this, messageNode, args, null);
     }
 
     public BlurSession getSession() {

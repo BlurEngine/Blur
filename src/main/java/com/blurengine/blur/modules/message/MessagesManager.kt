@@ -23,6 +23,8 @@ import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.utils.getMetadata
 import com.blurengine.blur.utils.registerClassKt
+import java.time.Duration
+import java.time.Instant
 
 @ModuleInfo(name = "Messages")
 @InternalModule
@@ -49,13 +51,13 @@ class MessagesManager(moduleManager: ModuleManager) : Module(moduleManager) {
 
     fun isOnCooldown(blurPlayer: BlurPlayer, messageNode: String): Boolean {
         val lastMessage = blurPlayer.getMetadata<PlayerMessageData>()!!.messagesCooldownMs[messageNode]
-        if (lastMessage != null && System.currentTimeMillis() < lastMessage) {
+        if (lastMessage != null && lastMessage.isAfter(Instant.now())) {
             return true
         }
         return false
     }
 
-    fun sendMessage(blurPlayer: BlurPlayer, messageNode: String, vararg args: Any): Boolean {
+    fun sendMessage(blurPlayer: BlurPlayer, messageNode: String, vararg args: Any, cooldown: Duration? = null): Boolean {
         if (isOnCooldown(blurPlayer, messageNode)) {
             return false
         }
@@ -63,16 +65,14 @@ class MessagesManager(moduleManager: ModuleManager) : Module(moduleManager) {
         val message = _messages[messageNode] ?: throw IllegalArgumentException("Unknown message node '$messageNode'")
         message.send(blurPlayer, *args)
 
-        if (message is CooldownMessage) {
-            val cooldown = message.getCooldown(blurPlayer)
-            if (cooldown > 0) {
-                data.messagesCooldownMs[message.messageNode] = System.currentTimeMillis() + cooldown
-            }
+        if (cooldown != null) {
+            require(!cooldown.isNegative) { "cooldown must not be negative." }
+            data.messagesCooldownMs[message.messageNode] = Instant.now().plus(cooldown)
         }
         return true
     }
 
     class PlayerMessageData {
-        val messagesCooldownMs = HashMap<String, Long>()
+        val messagesCooldownMs = HashMap<String, Instant>()
     }
 }
