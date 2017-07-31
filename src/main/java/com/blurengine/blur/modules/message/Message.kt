@@ -23,9 +23,7 @@ interface Message {
     val messageNode: String
     val component: Component
 
-    fun component(vararg args: Any?): Component
-
     fun send(blurPlayer: BlurPlayer, vararg args: Any?)
 }
 
-abstract class AbstractMessage(override val messageNode: String) : Message
+abstract class AbstractMessage(override val messageNode: String, override val component: Component) : Message
