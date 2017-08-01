@@ -22,8 +22,8 @@ import org.bukkit.scoreboard.Team.OptionStatus;
  * Represents a state of visibility a team's nametags can be.
  */
 public enum NametagVisibility {
-    EVERYONE(OptionStatus.ALWAYS), NOONE(OptionStatus.NEVER), ALLIES(OptionStatus.FOR_OWN_TEAM),
-    ENEMIES(OptionStatus.FOR_OTHER_TEAMS);
+    EVERYONE(OptionStatus.ALWAYS), NOONE(OptionStatus.NEVER), ALLIES(OptionStatus.FOR_OTHER_TEAMS),
+    ENEMIES(OptionStatus.FOR_OWN_TEAM);
     private final OptionStatus bukkit;
 
     NametagVisibility(OptionStatus bukkit) {
