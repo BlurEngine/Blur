@@ -20,6 +20,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
+import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.InternalModule;
 import com.blurengine.blur.framework.Module;
@@ -195,6 +196,11 @@ public class TeamManager extends Module implements SupervisorContext {
             getLogger().finer("Adding %s to team %s with size %s", event.getBlurPlayer().getDisplayName(), blurTeam.getId(), size);
             blurTeam.addPlayer(event.getBlurPlayer());
         }
+    }
+
+    @EventHandler
+    public void onPlayerLeaveSession(PlayerLeaveSessionEvent event) {
+        setPlayerTeam(event.getBlurPlayer(), null);
     }
 
     /* ================================
