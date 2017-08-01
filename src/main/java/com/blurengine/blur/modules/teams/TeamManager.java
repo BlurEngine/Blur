@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a {@link BlurTeam} manager. This manager contains all teams registered by a {@link ModuleManager} meaning these same teams can be 
@@ -123,13 +124,14 @@ public class TeamManager extends Module implements SupervisorContext {
         return this.playerTeams.get(blurPlayer);
     }
 
-    public boolean setPlayerTeam(@Nonnull BlurPlayer blurPlayer, BlurTeam blurTeam) {
+    public boolean setPlayerTeam(@Nonnull BlurPlayer blurPlayer, @Nullable BlurTeam blurTeam) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         BlurTeam oldTeam = this.playerTeams.get(blurPlayer);
         if (Objects.equal(blurTeam, oldTeam)) {
             return false;
         }
-        getLogger().finer("Setting %s team to %s.", blurPlayer.getName(), blurTeam.getId());
+        String teamId = blurTeam != null ? blurTeam.getId() : null;
+        getLogger().finer("Setting %s team to %s.", blurPlayer.getName(), teamId);
         PlayerChangeTeamEvent event = getSession().callEvent(new PlayerChangeTeamEvent(blurPlayer, oldTeam, blurTeam));
         if (event.isCancelled()) {
             return false;
