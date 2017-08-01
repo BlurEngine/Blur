@@ -136,15 +136,11 @@ public class TeamManager extends Module implements SupervisorContext {
         }
         if (oldTeam != null) {
             oldTeam.players.remove(blurPlayer);
-            if (oldTeam.bukkitTeam != null) {
-                oldTeam.bukkitTeam.removeEntry(blurPlayer.getName());
-            }
         }
         blurTeam = event.getNewTeam().orElse(null);
         if (blurTeam != null) {
             this.playerTeams.put(blurPlayer, blurTeam);
             blurTeam.players.add(blurPlayer);
-            blurTeam.bukkitTeam.addEntry(blurPlayer.getName());
         } else {
             this.playerTeams.remove(blurPlayer);
         }

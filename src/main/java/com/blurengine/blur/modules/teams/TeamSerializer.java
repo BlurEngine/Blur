@@ -96,10 +96,15 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         private int maxOverfill = 120;
         @Name("nametag-visibility")
         private NametagVisibility nametagVisibility = NametagVisibility.EVERYONE;
+        @Name("death-message-visibility")
+        private NametagVisibility deathMessageVisibility = NametagVisibility.EVERYONE;
+        @Name("collision-rule")
+        private CollisionRule collisionRule = CollisionRule.EVERYONE;
 
         public BlurTeam toTeam(@Nonnull TeamManager teamManager) {
             return BlurTeam.builder().id(id).name(name).chatColor(chatColor).chatPrefix(chatPrefix).color(color).max(max).maxOverfill(maxOverfill)
-                .nametagVisibility(nametagVisibility).build(teamManager);
+                .nametagVisibility(nametagVisibility).deathMessageVisibility(deathMessageVisibility).collisionRule(collisionRule)
+                .build(teamManager);
         }
     }
 }

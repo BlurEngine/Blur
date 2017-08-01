@@ -104,7 +104,6 @@ public abstract class BlurSession {
     private String name = getClass().getSimpleName(); // Default session name to short class name
     private int ticksPerSecond = 20;
 
-    private final CommonScoreboard scoreboard;
     private boolean started;
     private boolean paused;
     private Instant startedAt;
@@ -124,12 +123,6 @@ public abstract class BlurSession {
 
     {
         setTicksPerSecond(20);
-        // Bukkit hasn't fully initialized yet (this is the RootBlurSession)
-        if (Bukkit.getScoreboardManager() != null) {
-            this.scoreboard = new CommonScoreboard();
-        } else {
-            this.scoreboard = null;
-        }
     }
 
     protected BlurSession(@Nonnull BlurSession parentSession, @Nullable ModuleManager moduleManager) {
@@ -413,10 +406,6 @@ public abstract class BlurSession {
         name = name.trim();
         StringUtils.checkNotNullOrEmpty(name, "name");
         this.name = name + " session";
-    }
-
-    public CommonScoreboard getScoreboard() {
-        return scoreboard;
     }
 
     public ComponentState getState() {

@@ -24,7 +24,6 @@ import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.FuzzyColorMatchers;
 import com.supaham.commons.bukkit.utils.ChatColorUtils;
-import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
 import org.bukkit.ChatColor;
@@ -39,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,9 +56,10 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
     private final int max;
     private final int maxOverfill;
     private final NametagVisibility nametagVisibility;
+    private final NametagVisibility deathMessageVisibility;
+    private final CollisionRule collisionRule;
 
     private final transient TeamManager manager;
-    final transient Team bukkitTeam;
     final transient Set<BlurPlayer> players = new HashSet<>();
 
     public static Builder builder() {
@@ -79,11 +80,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         this.max = builder.max;
         this.maxOverfill = builder.maxOverfill;
         this.nametagVisibility = builder.nametagVisibility;
-
-        this.bukkitTeam = manager.getSession().getScoreboard().getBukkitScoreboard().registerNewTeam(getId());
-        this.bukkitTeam.setDisplayName(getName());
-        this.bukkitTeam.setPrefix(getChatPrefix());
-        this.bukkitTeam.setOption(Option.NAME_TAG_VISIBILITY, getNametagVisibility().getBukkit());
+        this.deathMessageVisibility = builder.deathMessageVisibility;
+        this.collisionRule = builder.collisionRule;
     }
 
     @Override
@@ -123,6 +121,32 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         return FilterResponse.ABSTAIN;
     }
 
+    public void updateTeamFields(@Nonnull Team team, boolean updatePlayers) {
+        if (!team.getDisplayName().equals(getName())) {
+            team.setDisplayName(getName());
+        }
+        if (!team.getPrefix().equals(getChatPrefix())) {
+            team.setPrefix(getChatPrefix());
+        }
+        if (!team.getOption(Option.NAME_TAG_VISIBILITY).equals(getNametagVisibility().getBukkit())) {
+            team.setOption(Option.NAME_TAG_VISIBILITY, getNametagVisibility().getBukkit());
+        }
+        if (!team.getOption(Option.DEATH_MESSAGE_VISIBILITY).equals(getDeathMessageVisibility().getBukkit())) {
+            team.setOption(Option.DEATH_MESSAGE_VISIBILITY, getDeathMessageVisibility().getBukkit());
+        }
+        if (!team.getOption(Option.COLLISION_RULE).equals(getCollisionRule().getBukkit())) {
+            team.setOption(Option.COLLISION_RULE, getCollisionRule().getBukkit());
+        }
+        if (updatePlayers) {
+            Set<String> oldEntries = players.stream().map(BlurPlayer::getName).collect(Collectors.toSet());
+            oldEntries.removeAll(team.getEntries());
+            oldEntries.forEach(team::removeEntry);
+            for (BlurPlayer blurPlayer : players) {
+                team.addEntry(blurPlayer.getName());
+            }
+        }
+    }
+
     public boolean addPlayer(@Nonnull BlurPlayer blurPlayer) {
         return manager.setPlayerTeam(blurPlayer, this);
     }
@@ -159,8 +183,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
             return;
         }
         this.name = name;
-        this.bukkitTeam.setDisplayName(getChatPrefix() + name);
-        EventUtils.callEvent(new TeamRenameEvent(this, oldName, name));
+        getManager().getSession().callEvent(new TeamRenameEvent(this, oldName, name));
     }
 
     public String getChatColor() {
@@ -193,6 +216,14 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
     public NametagVisibility getNametagVisibility() {
         return nametagVisibility;
+    }
+
+    public NametagVisibility getDeathMessageVisibility() {
+        return deathMessageVisibility;
+    }
+
+    public CollisionRule getCollisionRule() {
+        return collisionRule;
     }
 
     /**
@@ -250,6 +281,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         private int max = 10;
         private int maxOverfill = 12;
         private NametagVisibility nametagVisibility = NametagVisibility.EVERYONE;
+        private NametagVisibility deathMessageVisibility = NametagVisibility.EVERYONE;
+        private CollisionRule collisionRule = CollisionRule.EVERYONE;
 
         private Builder() {}
 
@@ -290,6 +323,16 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
         public Builder nametagVisibility(NametagVisibility nametagVisibility) {
             this.nametagVisibility = nametagVisibility;
+            return this;
+        }
+
+        public Builder deathMessageVisibility(NametagVisibility nametagVisibility) {
+            this.deathMessageVisibility = nametagVisibility;
+            return this;
+        }
+
+        public Builder collisionRule(CollisionRule collisionRule) {
+            this.collisionRule = collisionRule;
             return this;
         }
 
