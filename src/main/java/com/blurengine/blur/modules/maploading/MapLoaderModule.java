@@ -20,19 +20,16 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.session.SessionStartEvent;
 import com.blurengine.blur.events.session.SessionStopEvent;
-import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.framework.Module;
 import com.blurengine.blur.framework.ModuleData;
 import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
-import com.blurengine.blur.modules.maploading.BlurMapConfig.MapData;
+import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.maploading.MapLoaderModule.MapLoaderData;
-import com.blurengine.blur.properties.BlurConfig;
 import com.blurengine.blur.session.WorldBlurSession;
 import com.supaham.commons.Joiner;
-import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.CollectionUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -61,7 +58,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import pluginbase.config.annotation.Name;
-import pluginbase.config.datasource.yaml.YamlDataSource;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Filter} and nothing else. Intended for user convenience.
@@ -72,7 +68,6 @@ public class MapLoaderModule extends Module {
     // TODO abstract all this File usage to support global repository access.
 
     public static final String GENERATED_WORLD_DIRECTORY_PREFIX = "blur_";
-    public static final String MAP_FILE_NAME = "blur.yml";
 
     private final File rootDirectory;
     private final boolean random;
@@ -168,25 +163,11 @@ public class MapLoaderModule extends Module {
 
         World world = WorldCreator.name(worldDir.getName()).createWorld();
 
-        // Load map config
-        YamlDataSource yaml;
-        try {
-            File mapFile = new File(worldDir, MAP_FILE_NAME);
-            if (!mapFile.exists()) {
-                throw new MapLoadException(MAP_FILE_NAME + " is missing in " + map.getMapFile().toString());
-            }
-            yaml = SerializationUtils.yaml(mapFile).build();
-        } catch (IOException e) {
-            throw new MapLoadException("Failed to read " + MAP_FILE_NAME, e);
-        }
-        BlurConfig config = new BlurConfig();
-        SerializationUtils.loadOrCreateProperties(getLogger(), yaml, config);
-
         // Create and load map config
         WorldBlurSession newSession = getSession().addChildSession(new WorldBlurSession(getSession(), world));
         sessions.put(newSession, map);
         newSession.setName(map.getId());
-        newSession.getModuleManager().getModuleLoader().load(config.getModules());
+        newSession.getModuleManager().getModuleLoader().load(map.getConfig().getModules());
         return newSession;
     }
 
