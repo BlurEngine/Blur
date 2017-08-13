@@ -101,7 +101,6 @@ public class Blur {
          * >> OPTIONAL
          * ================================ */
         ModuleLoader.register(MapLoaderModule.class);
-        ModuleLoader.register(MapInfoModule.class);
         ModuleLoader.register(IncludesModule.class);
         ModuleLoader.register(DummyModule.class);
         ModuleLoader.register(BoundariesModule.class);

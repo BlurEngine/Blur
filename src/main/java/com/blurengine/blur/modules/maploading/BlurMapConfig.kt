@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ali Moghnieh
+ * Copyright 2017 Ali Moghnieh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,19 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.modules
+package com.blurengine.blur.modules.maploading
 
-import com.blurengine.blur.modules.MapInfoModule.MapInfoData
-import com.blurengine.blur.framework.Module
-import com.blurengine.blur.framework.ModuleData
-import com.blurengine.blur.framework.ModuleInfo
-import com.blurengine.blur.framework.ModuleManager
-import com.blurengine.blur.framework.ModuleParseException
-import com.blurengine.blur.framework.SerializedModule
+import com.blurengine.blur.properties.BlurConfig
 import com.github.zafarkhaja.semver.Version
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer
+import pluginbase.config.annotation.SerializeWith
 import java.util.UUID
 
-import pluginbase.config.annotation.Name
-import pluginbase.config.annotation.SerializeWith
+class BlurMapConfig : BlurConfig() {
+    var map: MapData? = null
+        private set
 
-@ModuleInfo(name = "MapInfo", dataClass = MapInfoData::class)
-class MapInfoModule(moduleManager: ModuleManager, val data: MapInfoData) : Module(moduleManager) {
-
-    override fun toString() = "MapInfoModule{$data}"
-
-    class MapInfoData : ModuleData {
+    class MapData {
 
         var version: Version? = null
             private set
@@ -47,16 +38,11 @@ class MapInfoModule(moduleManager: ModuleManager, val data: MapInfoData) : Modul
             private set
         var authors: List<Author>? = null
             private set
-
-        override fun parse(moduleManager: ModuleManager, serialized: SerializedModule): Module {
-            serialized.load(this)
-            return MapInfoModule(moduleManager, this)
-        }
     }
 
     class Author {
         var uuid: UUID? = null
-        private set
+            private set
         var role: String? = null
             private set
     }

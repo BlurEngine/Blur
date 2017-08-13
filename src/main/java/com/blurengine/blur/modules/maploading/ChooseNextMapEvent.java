@@ -24,23 +24,23 @@ import java.io.File;
 public class ChooseNextMapEvent extends Event {
 
     private final MapLoaderModule mapLoader;
-    private File next;
+    private BlurMap nextMap;
 
-    public ChooseNextMapEvent(MapLoaderModule mapLoader, File next) {
+    public ChooseNextMapEvent(MapLoaderModule mapLoader, BlurMap nextMap) {
         this.mapLoader = mapLoader;
-        this.next = next;
+        this.nextMap = nextMap;
     }
 
     public MapLoaderModule getMapLoader() {
         return mapLoader;
     }
 
-    public File getNext() {
-        return next;
+    public BlurMap getNextMap() {
+        return nextMap;
     }
 
-    public void setNext(File next) {
-        this.next = next;
+    public void setNextMap(BlurMap nextMap) {
+        this.nextMap = nextMap;
     }
 
     private static final HandlerList handlerList = new HandlerList();

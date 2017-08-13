@@ -27,6 +27,7 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
+import com.blurengine.blur.modules.maploading.BlurMapConfig.MapData;
 import com.blurengine.blur.modules.maploading.MapLoaderModule.MapLoaderData;
 import com.blurengine.blur.properties.BlurConfig;
 import com.blurengine.blur.session.WorldBlurSession;
@@ -46,6 +47,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.config.annotation.Name;
 import pluginbase.config.datasource.yaml.YamlDataSource;
@@ -75,7 +80,7 @@ public class MapLoaderModule extends Module {
     private final LocalArchiver archiver;
 
     private int lastIndex = 0;
-    private List<WorldBlurSession> sessions = new ArrayList<>();
+    private Map<WorldBlurSession, BlurMap> sessions = new LinkedHashMap<>();
 
     private MapLoaderModule(ModuleManager moduleManager, File rootDirectory, Set<File> mapPaths, boolean random, Archive archive) {
         super(moduleManager);
@@ -89,7 +94,7 @@ public class MapLoaderModule extends Module {
     @Override
     public void unload() {
         super.unload();
-        new ArrayList<>(this.sessions).forEach(this::unloadMap);
+        new ArrayList<>(this.sessions.keySet()).forEach(this::unloadMap);
     }
 
     @EventHandler
@@ -105,11 +110,10 @@ public class MapLoaderModule extends Module {
         }
 
         try {
-            File file = nextMap();
-            WorldBlurSession newSession = createSessionFromDirectory(file);
+            BlurMap map = nextMap();
+            WorldBlurSession newSession = createSessionFromDirectory(map);
             newSession.start();
-            sessions.add(newSession);
-            getLogger().fine("Next map " + file.getName());
+            getLogger().fine("Next map " + map.getId());
         } catch (MapLoadException e) {
             e.printStackTrace();
         }
@@ -117,7 +121,7 @@ public class MapLoaderModule extends Module {
 
     private boolean unloadMap(WorldBlurSession session) {
         // Does the given session belong to us?
-        if (!this.sessions.remove(session)) {
+        if (this.sessions.remove(session) == null) {
             return false; // Probably a case where the session was unloaded already
         }
         getLogger().fine("Unloading %s from MapLoader.", session.getName());
@@ -145,20 +149,21 @@ public class MapLoaderModule extends Module {
 
     @EventHandler
     public void onSessionStop(SessionStopEvent event) {
-        if (event.getSession() instanceof WorldBlurSession && this.sessions.contains(event.getSession())) {
+        if (event.getSession() instanceof WorldBlurSession && this.sessions.containsKey(event.getSession())) {
             event.getSession().addOnStopTask(() -> unloadMap((WorldBlurSession) event.getSession()));
         }
     }
 
     // To async or not to async?
-    public WorldBlurSession createSessionFromDirectory(File file) throws MapLoadException {
-        String worldName = GENERATED_WORLD_DIRECTORY_PREFIX + file.getName();
+    public WorldBlurSession createSessionFromDirectory(@Nonnull BlurMap map) throws MapLoadException {
+        Preconditions.checkNotNull(map, "map");
+        String worldName = GENERATED_WORLD_DIRECTORY_PREFIX + map.getId();
 
         File worldDir = new File(Bukkit.getWorldContainer(), worldName);
         try {
-            FileUtils.copyDirectory(file, worldDir);
+            FileUtils.copyDirectory(map.getMapDirectory(), worldDir);
         } catch (IOException e) {
-            throw new MapLoadException("Failed to duplicate " + file.getPath(), e);
+            throw new MapLoadException("Failed to duplicate " + map.getMapDirectory().getPath(), e);
         }
 
         World world = WorldCreator.name(worldDir.getName()).createWorld();
@@ -168,7 +173,7 @@ public class MapLoaderModule extends Module {
         try {
             File mapFile = new File(worldDir, MAP_FILE_NAME);
             if (!mapFile.exists()) {
-                throw new MapLoadException(MAP_FILE_NAME + " is missing in " + file.toString());
+                throw new MapLoadException(MAP_FILE_NAME + " is missing in " + map.getMapFile().toString());
             }
             yaml = SerializationUtils.yaml(mapFile).build();
         } catch (IOException e) {
@@ -179,13 +184,13 @@ public class MapLoaderModule extends Module {
 
         // Create and load map config
         WorldBlurSession newSession = getSession().addChildSession(new WorldBlurSession(getSession(), world));
-        sessions.add(newSession);
-        newSession.setName(file.getName());
+        sessions.put(newSession, map);
+        newSession.setName(map.getId());
         newSession.getModuleManager().getModuleLoader().load(config.getModules());
         return newSession;
     }
 
-    public File nextMap() {
+    public BlurMap nextMap() {
         List<File> paths = getMapPaths();
 
         File file;
@@ -195,8 +200,9 @@ public class MapLoaderModule extends Module {
             int index = lastIndex > this.mapPaths.size() - 1 ? lastIndex = 0 : lastIndex++;
             file = paths.get(index);
         }
-        ChooseNextMapEvent event = getSession().callEvent(new ChooseNextMapEvent(this, file));
-        return event.getNext();
+        BlurMap map = new BlurMap(this, file);
+        ChooseNextMapEvent event = getSession().callEvent(new ChooseNextMapEvent(this, map));
+        return event.getNextMap();
     }
 
     public File getRootDirectory() {
@@ -209,6 +215,20 @@ public class MapLoaderModule extends Module {
 
     public List<File> getMapPaths() {
         return Collections.unmodifiableList(mapPaths);
+    }
+
+    public List<BlurMap> getBlurMaps() {
+        return getMapPaths().stream().map(file -> new BlurMap(this, file)).collect(Collectors.toList());
+    }
+
+    public Map<WorldBlurSession, BlurMap> getSessions() {
+        return Collections.unmodifiableMap(this.sessions);
+    }
+
+    @Nullable
+    public BlurMap getBlurMap(@Nonnull WorldBlurSession session) {
+        Preconditions.checkNotNull(session, "session");
+        return this.sessions.get(session);
     }
 
     public static final class MapLoaderData implements ModuleData {
