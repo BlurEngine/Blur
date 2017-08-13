@@ -23,7 +23,6 @@ import com.blurengine.blur.modules.BoundariesModule;
 import com.blurengine.blur.modules.DummyModule;
 import com.blurengine.blur.modules.FixedHungerModule;
 import com.blurengine.blur.modules.InvulnerableModule;
-import com.blurengine.blur.modules.MapInfoModule;
 import com.blurengine.blur.modules.WorldProtectModule;
 import com.blurengine.blur.modules.checkpoints.CheckpointsModule;
 import com.blurengine.blur.modules.controlpoints.ControlPointsModule;
