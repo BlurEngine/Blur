@@ -54,7 +54,9 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     @EventHandler
     fun onMapLoaderPreLoad(event: MapLoaderPreLoadEvent) {
         // Cancel any initial MapLoaderModule loading events since we handle it in LobbyCountdown.
-        event.isCancelled = true
+        if (isSession(event.module.session)) {
+            event.isCancelled = true
+        }
     }
 
     @EventHandler
