@@ -92,6 +92,10 @@ inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(crossinl
     return found
 }
 
+fun BlurSession.tl(messageNode: String): net.kyori.text.Component {
+    return moduleManager.messagesManager[messageNode]!!.component
+}
+
 fun Duration.toTicks(session: BlurSession) = session.millisecondsToTicks(toMillis())
 
 /* ================================
