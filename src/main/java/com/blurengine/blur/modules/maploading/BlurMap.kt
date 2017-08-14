@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.modules.maploading
 
+import com.blurengine.blur.framework.ModuleLoader
 import com.supaham.commons.bukkit.utils.SerializationUtils
 import pluginbase.config.datasource.yaml.YamlDataSource
 import java.io.File
@@ -43,7 +44,7 @@ class BlurMap {
         }
 
         val config = BlurMapConfig()
-        SerializationUtils.loadOrCreateProperties(mapLoader.logger, yaml, config)
+        SerializationUtils.loadOrCreateProperties(mapLoader.logger, yaml, config, null, ModuleLoader.getStaticSerializerSetBuilder().build())
         require(config.map != null) { "map section must be defined in $id" }
         return@lazy config
     }

@@ -32,6 +32,8 @@ import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.modules.teams.TeamSerializer;
+import com.blurengine.blur.serializers.thirdparty.VersionSerializer;
+import com.github.zafarkhaja.semver.Version;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.ThrowableUtils;
 
@@ -118,10 +120,16 @@ public class ModuleLoader {
     public static Map<Class<? extends Module>, Class<? extends ModuleData>> getDataClasses() {
         return Collections.unmodifiableMap(dataClasses);
     }
+    
+    public static SerializerSet.Builder getStaticSerializerSetBuilder() {
+        Builder builder = SerializerSet.builder(SerializationUtils.SERIALIZER_SET);
+        _add(builder, Version.class, new VersionSerializer());
+        return builder;
+    }
 
     public ModuleLoader(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        Builder builder = SerializerSet.builder(SerializationUtils.SERIALIZER_SET);
+        Builder builder = getStaticSerializerSetBuilder();
         __add(builder, Module.class, moduleSerializer = new ModuleSerializer(this));
         __add(builder, Filter.class, filterSerializer = new FilterSerializer(this));
         _add(builder, BlurTeam.class, teamSerializer = new TeamSerializer(this));
