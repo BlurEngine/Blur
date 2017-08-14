@@ -56,8 +56,9 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
     private val mapPaths: List<File>
     private val archiver: LocalArchiver?
 
-    private var lastIndex = 0
     private val sessions = LinkedHashMap<WorldBlurSession, BlurMap>()
+
+    var nextMapStrategy: MapChoiceStrategy = DefaultMapChoiceStrategy()
 
     init {
         this.mapPaths = ArrayList(mapPaths)
@@ -153,17 +154,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
     }
 
     fun nextMap(): BlurMap {
-        val paths = getMapPaths()
-
-        val file: File
-        if (isRandom) {
-            file = CollectionUtils.getRandomElement(paths)
-        } else {
-            if (lastIndex > this.mapPaths.size - 1) lastIndex = 0 else lastIndex++
-            val index = lastIndex
-            file = paths[index]
-        }
-        val map = BlurMap(this, file)
+        val map = nextMapStrategy.getMap()
         val event = session.callEvent(ChooseNextMapEvent(this, map))
         return event.nextMap
     }
@@ -340,5 +331,25 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
 
     companion object {
         val GENERATED_WORLD_DIRECTORY_PREFIX = "blur_"
+    }
+
+    inner class DefaultMapChoiceStrategy : MapChoiceStrategy {
+        private var nextIndex = 0
+
+        override fun getAvailableMaps(): List<BlurMap> = blurMaps
+
+        override fun getMap(): BlurMap {
+            val paths = getMapPaths()
+
+            val file: File
+            if (isRandom) {
+                file = CollectionUtils.getRandomElement(paths)
+            } else {
+                val index = nextIndex
+                file = paths[index]
+                if (++nextIndex > this@MapLoaderModule.mapPaths.lastIndex) nextIndex = 0
+            }
+            return BlurMap(this@MapLoaderModule, file)
+        }
     }
 }
