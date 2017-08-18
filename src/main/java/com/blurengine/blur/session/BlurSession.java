@@ -302,7 +302,14 @@ public abstract class BlurSession {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
-            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this));
+            BlurSession nextSession = null;
+            if (!(getParentSession() instanceof RootBlurSession)) {
+                nextSession = getParentSession();
+            }
+            {
+                PlayerLeaveSessionEvent event = callEvent(new PlayerLeaveSessionEvent(blurPlayer, this, nextSession));
+                nextSession = event.getNextSession();
+            }
 
             // Unregister player custom data classes.
             for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {
@@ -319,11 +326,7 @@ public abstract class BlurSession {
             // If a player is removed from this session, all children should not have the same player.
             this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
             this.players.remove(blurPlayer.getUuid());
-            if (getParentSession() instanceof RootBlurSession) {
-                blurPlayer.blurSession = null;
-            } else {
-                blurPlayer.blurSession = getParentSession();
-            }
+            blurPlayer.blurSession = nextSession;
             callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
         }
     }

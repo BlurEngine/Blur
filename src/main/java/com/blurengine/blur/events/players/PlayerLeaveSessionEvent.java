@@ -24,14 +24,27 @@ import com.blurengine.blur.session.BlurSession;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a {@link BlurPlayerEvent} fired before a {@link BlurPlayer} leaves a {@link BlurSession}.
  */
 public class PlayerLeaveSessionEvent extends BlurPlayerEvent {
 
-    public PlayerLeaveSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+    private BlurSession nextSession;
+    
+    public PlayerLeaveSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session, @Nullable BlurSession nextSession) {
         super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
+        this.nextSession = nextSession;
+    }
+
+    @Nullable
+    public BlurSession getNextSession() {
+        return nextSession;
+    }
+
+    public void setNextSession(@Nonnull BlurSession nextSession) {
+        this.nextSession = Preconditions.checkNotNull(nextSession, "nextSession");
     }
 
     private static final HandlerList handlerList = new HandlerList();
