@@ -46,7 +46,7 @@ public interface MetadataStorage<HOLDER extends MetadataHolder> {
     @Nonnull
     List<Object> getList(@Nonnull HOLDER holder);
 
-    @Nonnull
+    @Nullable
     <T> T get(@Nonnull HOLDER holder, @Nonnull Class<T> typeClass);
 
     @Nullable

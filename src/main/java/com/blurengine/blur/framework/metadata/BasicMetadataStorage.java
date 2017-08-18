@@ -82,9 +82,9 @@ public class BasicMetadataStorage<HOLDER extends MetadataHolder> implements Meta
         return Collections.unmodifiableList(new ArrayList<>(mapFor.values()));
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public <T> T get(@Nonnull HOLDER holder, Class<T> typeClass) {
+    public <T> T get(@Nonnull HOLDER holder, @Nonnull Class<T> typeClass) {
         return (T) metadata.get(holder, typeClass);
     }
 
