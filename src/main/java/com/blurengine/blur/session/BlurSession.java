@@ -262,7 +262,7 @@ public abstract class BlurSession {
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
             initializePlayerDataClasses(blurPlayer);
-            callEvent(new PlayerJoinSessionEvent(blurPlayer, this));
+            callEvent(new PlayerJoinSessionEvent(blurPlayer, this, false));
         }
     }
 
@@ -328,6 +328,9 @@ public abstract class BlurSession {
             this.players.remove(blurPlayer.getUuid());
             blurPlayer.blurSession = nextSession;
             callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
+            if (nextSession != null) {
+                callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
+            }
         }
     }
 

@@ -26,12 +26,20 @@ import org.bukkit.event.HandlerList;
 import javax.annotation.Nonnull;
 
 /**
- * Represents a {@link BlurPlayerEvent} fired when a {@link BlurPlayer} joins a {@link BlurSession}.
+ * Represents a {@link BlurPlayerEvent} fired when a {@link BlurPlayer} joins a {@link BlurSession}. Please note that a join may be a rejoin, meaning
+ * the player was already in the session, but is joining the current session as a result of removal from their last session. 
  */
 public class PlayerJoinSessionEvent extends BlurPlayerEvent {
 
-    public PlayerJoinSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session) {
+    private final boolean rejoin;
+
+    public PlayerJoinSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session, boolean rejoin) {
         super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
+        this.rejoin = rejoin;
+    }
+
+    public boolean isRejoin() {
+        return rejoin;
     }
 
     private static final HandlerList handlerList = new HandlerList();
