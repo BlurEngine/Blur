@@ -51,6 +51,8 @@ class BlurMap {
 
     val id: String
 
+    val name: String get() = config.map!!.name ?: id
+
     companion object {
         val MAP_FILE_NAME = "blur.yml"
     }
