@@ -20,6 +20,7 @@ import com.blurengine.blur.countdown.AbstractCountdown
 import com.blurengine.blur.countdown.GlobalGameCountdown
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent
+import com.blurengine.blur.events.session.BlurSessionEvent
 import com.blurengine.blur.events.session.SessionStopEvent
 import com.blurengine.blur.framework.ComponentState
 import com.blurengine.blur.framework.Module
@@ -34,8 +35,10 @@ import com.blurengine.blur.modules.maploading.MapLoadException
 import com.blurengine.blur.modules.maploading.MapLoaderModule
 import com.blurengine.blur.modules.maploading.MapLoaderPreLoadEvent
 import com.blurengine.blur.modules.spawns.SpawnsModule
+import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import org.bukkit.event.EventHandler
+import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import pluginbase.config.annotation.Name
@@ -134,6 +137,8 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
 
         val mapLoaderModule = moduleManager.getModule(MapLoaderModule::class.java)[0] // FIXME this is a temporary hack
         try {
+            var players: MutableList<BlurPlayer> = ArrayList(session.players.values)
+            players = session.callEvent(LobbyPrepareSessionEvent(this, players)).players
             val childSession = mapLoaderModule.createSessionFromDirectory(mapLoaderModule.nextMap())
 
             // Make the wheels on the bus go round and round.
@@ -141,7 +146,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             childSession.enable()
 
             // Add current lobby players to the new session immediately
-            session.playersStream.forEach(childSession::addPlayer)
+            players.forEach(childSession::addPlayer)
 
             if (!data.delay.isZero) {
                 newUnregisteredTask { childSession.start() }.delay(data.delay).build()
@@ -182,3 +187,13 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         }
     }
 }
+
+class LobbyPrepareSessionEvent(val lobby: LobbyModule, val players: MutableList<BlurPlayer>) : BlurSessionEvent(lobby.session) {
+
+    override fun getHandlers() = handlerList
+
+    companion object {
+        @JvmStatic val handlerList = HandlerList()
+    }
+}
+
