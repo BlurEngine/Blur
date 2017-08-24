@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.text
 
+import net.kyori.text.BuildableComponent
 import net.kyori.text.Component
 import net.kyori.text.KeybindComponent
 import net.kyori.text.ScoreComponent
@@ -36,19 +37,19 @@ object TextFormatter {
                 .map { it.first to it.second as Component }.toMap()
 
         // TODO update when extract-buildable is on master
-        val builder: Component.Builder<*, *> = when (component) {
-            is KeybindComponent -> KeybindComponent.builder().apply {
-                keybind(replaceParams(component.keybind(), args))
+        val builder: BuildableComponent.Builder<*, *> = when (component) {
+            is KeybindComponent -> KeybindComponent.builder().also { _builder ->
+                _builder.keybind(replaceParams(component.keybind(), args))
             }
-            is ScoreComponent -> ScoreComponent.builder().apply {
-                name(replaceParams(component.name(), args))
-                objective(replaceParams(component.objective(), args))
-                component.value()?.apply { value(replaceParams(this, args)) }
+            is ScoreComponent -> ScoreComponent.builder().also { _builder ->
+                _builder.name(replaceParams(component.name(), args))
+                _builder.objective(replaceParams(component.objective(), args))
+                component.value()?.apply { _builder.value(replaceParams(this, args)) }
             }
-            is SelectorComponent -> SelectorComponent.builder().apply {
-                pattern(replaceParams(component.pattern(), args))
+            is SelectorComponent -> SelectorComponent.builder().also { _builder ->
+                _builder.pattern(replaceParams(component.pattern(), args))
             }
-            is TextComponent -> TextComponent.builder().apply {
+            is TextComponent -> TextComponent.builder().also { _builder ->
                 val matcher = PATTERN.matcher(component.content())
                 val sb = StringBuffer()
                 var appendedComponent = false
@@ -56,7 +57,7 @@ object TextFormatter {
                     val idx = matcher.group(1).toInt()
                     if (idx in componentArgs) {
                         appendedComponent = true
-                        append(format(componentArgs[idx]!!, args))
+                        _builder.append(format(componentArgs[idx]!!, args))
                         matcher.appendReplacement(sb, "")
                     } else {
                         val str = if (idx > args.lastIndex) "null" else args[idx].toString()
@@ -64,19 +65,19 @@ object TextFormatter {
                     }
                 }
                 if (appendedComponent) {
-                    content(sb.toString())
+                    _builder.content(sb.toString())
                     val tailSb = matcher.appendTail(StringBuffer())
                     if (tailSb.isNotEmpty()) {
-                        append(TextComponent.of(tailSb.toString()))
+                        _builder.append(TextComponent.of(tailSb.toString()))
                     }
                 } else {
                     matcher.appendTail(sb)
-                    content(sb.toString())
+                    _builder.content(sb.toString())
                 }
             }
-            is TranslatableComponent -> TranslatableComponent.builder().apply {
-                key(replaceParams(component.key(), args))
-                args(component.args().map { format(it, args) })
+            is TranslatableComponent -> TranslatableComponent.builder().let { _builder ->
+                _builder.key(replaceParams(component.key(), args))
+                _builder.args(component.args().map { format(it, args) })
             }
             else -> throw UnsupportedOperationException("Unknown type ${component.javaClass.canonicalName}")
         }

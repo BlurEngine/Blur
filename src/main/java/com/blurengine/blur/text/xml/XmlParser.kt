@@ -18,6 +18,7 @@ package com.blurengine.blur.text.xml
 
 import com.blurengine.blur.text.TextParser
 import com.supaham.commons.Enums
+import net.kyori.text.BuildableComponent
 import net.kyori.text.Component
 import net.kyori.text.TextComponent
 import net.kyori.text.event.ClickEvent
@@ -92,14 +93,14 @@ open class Element {
     private val FUNCTION_PATTERN = Pattern.compile("^([^(]+)\\([\"'](.*)[\"']\\)$")
 
     companion object {
-        fun <B : Component.Builder<B, C>, C : Component> parseAndApplyStyle(builder: Component.Builder<B, C>, style: String) {
+        fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> parseAndApplyStyle(builder: BuildableComponent.Builder<C, B>, style: String) {
             val styles = style.split("\\s*,\\s*") // blue, underline , bold
             for (_style in styles) {
                 handleStyle(builder, _style)
             }
         }
 
-        private fun <B : Component.Builder<B, C>, C : Component> handleStyle(builder: Component.Builder<B, C>, style: String) {
+        private fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> handleStyle(builder: BuildableComponent.Builder<C, B>, style: String) {
             val stateSplit = style.split("\\s*:\\s*")
             val styleName = stateSplit[0]
             val stateSpecified = stateSplit.size > 1
@@ -143,7 +144,7 @@ open class Element {
             require(found) { "Invalid style '$styleName'" }
         }
 
-        private fun <B : Component.Builder<B, C>, C : Component> handleColor(builder: Component.Builder<B, C>, value: String,
+        private fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> handleColor(builder: BuildableComponent.Builder<C, B>, value: String,
                                                                              state: TextDecoration.State, stateSpecified: Boolean): Boolean {
             if (value.equals("color", ignoreCase = true)) {
                 val state = if (!stateSpecified && state == TextDecoration.State.TRUE) TextDecoration.State.NOT_SET else state
@@ -161,7 +162,7 @@ open class Element {
         }
     }
 
-    open fun <B : Component.Builder<B, C>, C : Component> apply(builder: Component.Builder<B, C>) {
+    open fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> apply(builder: BuildableComponent.Builder<C, B>) {
         if (style != null) {
             parseAndApplyStyle(builder, style)
         }
@@ -189,7 +190,7 @@ open class Element {
         }
     }
 
-    fun <B : Component.Builder<B, C>, C : Component> loop(builder: Component.Builder<B, C>) {
+    fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> loop(builder: BuildableComponent.Builder<C, B>) {
         var elementAppended = false // Maintains order of string content when attempting to optimise.
         for (o in mixedContent) {
             if (o is String) {
@@ -205,7 +206,7 @@ open class Element {
                 }
             } else if (o is Element) {
                 elementAppended = true
-                val elBuilder = (o as? ComponentCreator<B, C>)?.createBuilder() ?: builder
+                val elBuilder = (o as? ComponentCreator<C, B>)?.createBuilder() ?: builder
                 o.apply(elBuilder)
                 o.loop(elBuilder)
                 builder.append(elBuilder.build())
@@ -216,6 +217,6 @@ open class Element {
     }
 }
 
-interface ComponentCreator<B : Component.Builder<B, C>, C : Component> {
-    fun createBuilder(): Component.Builder<B, C>
+interface ComponentCreator<C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> {
+    fun createBuilder(): BuildableComponent.Builder<C, B>
 }

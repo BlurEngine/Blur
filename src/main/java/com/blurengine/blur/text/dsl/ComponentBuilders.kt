@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.text.dsl
 
+import net.kyori.text.BuildableComponent
 import net.kyori.text.Component
 import net.kyori.text.KeybindComponent
 import net.kyori.text.ScoreComponent
@@ -28,7 +29,7 @@ import net.kyori.text.format.TextColor
 import net.kyori.text.format.TextDecoration
 import java.util.UUID
 
-open class ComponentBuilder<B : Component.Builder<B, C>, C : Component>(val builder: B) {
+open class ComponentBuilder<C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>>(val builder: B) {
 
     fun build(): C = builder.build()
 
@@ -36,7 +37,7 @@ open class ComponentBuilder<B : Component.Builder<B, C>, C : Component>(val buil
         this@ComponentBuilder.builder.append(builder.builder.build())
     }
 
-    fun append(builder: Component.Builder<*, *>) = apply {
+    fun append(builder: BuildableComponent.Builder<*, *>) = apply {
         this@ComponentBuilder.builder.append(builder.build())
     }
 
@@ -64,7 +65,7 @@ open class ComponentBuilder<B : Component.Builder<B, C>, C : Component>(val buil
 
     fun hover(action: HoverEvent.Action, value: Component) = apply { builder.hoverEvent(HoverEvent(action, value)) }
 
-    fun hover(action: HoverEvent.Action, value: Component.Builder<*, *>) = hover(action, value.build())
+    fun hover(action: HoverEvent.Action, value: BuildableComponent.Builder<*, *>) = hover(action, value.build())
 
     fun hover(action: HoverEvent.Action, value: ComponentBuilder<*, *>) = hover(action, value.builder)
 
@@ -134,7 +135,7 @@ open class ComponentBuilder<B : Component.Builder<B, C>, C : Component>(val buil
 }
 
 class TextComponentBuilder(content: String? = null, builder: TextComponentBuilder.() -> Unit = {})
-    : ComponentBuilder<TextComponent.Builder, TextComponent>(TextComponent.builder().content("")) {
+    : ComponentBuilder<TextComponent, TextComponent.Builder>(TextComponent.builder().content("")) {
     init {
         if (content != null) content(content)
         builder()
@@ -144,7 +145,7 @@ class TextComponentBuilder(content: String? = null, builder: TextComponentBuilde
 }
 
 class KeybindComponentBuilder(keybind: String? = null, builder: KeybindComponentBuilder.() -> Unit = {})
-    : ComponentBuilder<KeybindComponent.Builder, KeybindComponent>(KeybindComponent.builder()) {
+    : ComponentBuilder<KeybindComponent, KeybindComponent.Builder>(KeybindComponent.builder()) {
     init {
         if (keybind != null) key(keybind)
         builder()
@@ -154,7 +155,7 @@ class KeybindComponentBuilder(keybind: String? = null, builder: KeybindComponent
 }
 
 class ScoreComponentBuilder(name: String? = null, objective: String? = null, value: String? = null, builder: ScoreComponentBuilder.() -> Unit = {})
-    : ComponentBuilder<ScoreComponent.Builder, ScoreComponent>(ScoreComponent.builder()) {
+    : ComponentBuilder<ScoreComponent, ScoreComponent.Builder>(ScoreComponent.builder()) {
     init {
         if (name != null) name(name)
         if (objective != null) objective(objective)
@@ -168,7 +169,7 @@ class ScoreComponentBuilder(name: String? = null, objective: String? = null, val
 }
 
 class SelectorComponentBuilder(pattern: String? = null, builder: SelectorComponentBuilder.() -> Unit = {})
-    : ComponentBuilder<SelectorComponent.Builder, SelectorComponent>(SelectorComponent.builder()) {
+    : ComponentBuilder<SelectorComponent, SelectorComponent.Builder>(SelectorComponent.builder()) {
     init {
         if (pattern != null) pattern(pattern)
         builder()
@@ -178,7 +179,7 @@ class SelectorComponentBuilder(pattern: String? = null, builder: SelectorCompone
 }
 
 class TranslatableComponentBuilder(key: String? = null, args: Iterable<Component>? = null, builder: TranslatableComponentBuilder.() -> Unit = {})
-    : ComponentBuilder<TranslatableComponent.Builder, TranslatableComponent>(TranslatableComponent.builder()) {
+    : ComponentBuilder<TranslatableComponent, TranslatableComponent.Builder>(TranslatableComponent.builder()) {
     init {
         if (key != null) key(key)
         if (args != null) args(args)
