@@ -24,7 +24,10 @@ import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.TeamsModule.TeamsData;
-import com.blurengine.blur.serializers.TeamList;
+
+import java.util.List;
+
+import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Filter} and nothing else. Intended for user convenience.
@@ -38,7 +41,8 @@ public class TeamsModule extends Module {
 
     public static final class TeamsData implements ModuleData {
 
-        private TeamList teams;
+        @SerializeWith(TeamSerializer.class)
+        private List<BlurTeam> teams;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {

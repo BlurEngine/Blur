@@ -31,7 +31,7 @@ import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
-import com.blurengine.blur.serializers.SpawnList;
+import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.utils.CollectionUtils;
 import com.supaham.commons.utils.StringUtils;
@@ -45,12 +45,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
 import pluginbase.config.annotation.Name;
+import pluginbase.config.annotation.SerializeWith;
 
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
 public class SpawnsModule extends WorldModule {
@@ -174,7 +177,8 @@ public class SpawnsModule extends WorldModule {
 
         @Name("default")
         private Spawn defaultSpawn;
-        private SpawnList spawns;
+        @SerializeWith(SpawnSerializer.class)
+        private List<Spawn> spawns;
         @Name("spawn-on-start")
         private Spawn spawnOnStart;
 
@@ -222,7 +226,7 @@ public class SpawnsModule extends WorldModule {
             }
 
             if (this.spawns == null) {
-                this.spawns = new SpawnList(1);
+                this.spawns = new ArrayList<>(1);
             }
             return new SpawnsModule(moduleManager, this);
         }

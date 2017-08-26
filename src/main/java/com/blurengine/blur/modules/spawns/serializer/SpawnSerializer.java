@@ -29,7 +29,6 @@ import com.blurengine.blur.modules.spawns.SpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
 import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
-import com.blurengine.blur.serializers.SpawnList;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import java.util.List;

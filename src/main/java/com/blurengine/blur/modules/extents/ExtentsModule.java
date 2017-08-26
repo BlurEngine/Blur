@@ -24,9 +24,10 @@ import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.extents.ExtentsModule.ExtentsData;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer;
-import com.blurengine.blur.serializers.ExtentList;
 
 import java.util.List;
+
+import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Extent} and nothing else. Intended for user convenience.
@@ -40,7 +41,8 @@ public class ExtentsModule extends Module {
 
     public static final class ExtentsData implements ModuleData {
 
-        private ExtentList extents;
+        @SerializeWith(ExtentSerializer.class)
+        private List<Extent> extents;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {

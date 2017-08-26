@@ -28,7 +28,6 @@ import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Block;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cuboid;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cylinder;
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Union;
-import com.blurengine.blur.serializers.ExtentList;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.ArrayUtils;
 

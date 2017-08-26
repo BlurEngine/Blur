@@ -23,7 +23,11 @@ import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.filters.FiltersModule.FiltersData;
 import com.blurengine.blur.framework.ModuleData;
-import com.blurengine.blur.serializers.FilterList;
+import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
+
+import java.util.List;
+
+import pluginbase.config.annotation.SerializeWith;
 
 /**
  * Represents a {@link Module} that allows for the creation of {@link Filter} and nothing else. Intended for user convenience.
@@ -37,7 +41,8 @@ public class FiltersModule extends Module {
 
     public static final class FiltersData implements ModuleData {
 
-        private FilterList filters;
+        @SerializeWith(FilterSerializer.class)
+        private List<Filter> filters;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {

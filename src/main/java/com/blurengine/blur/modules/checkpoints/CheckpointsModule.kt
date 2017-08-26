@@ -23,12 +23,14 @@ import com.blurengine.blur.framework.ModuleInfo
 import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.framework.SerializedModule
 import com.blurengine.blur.modules.checkpoints.CheckpointsModule.CheckpointsData
+import com.blurengine.blur.modules.extents.Extent
+import com.blurengine.blur.modules.extents.serializer.ExtentSerializer
 import com.blurengine.blur.modules.goal.GoalWinnersEvent
 import com.blurengine.blur.modules.stages.StageChangeReason
-import com.blurengine.blur.serializers.ExtentList
 import com.blurengine.blur.session.BlurPlayer
 import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
+import pluginbase.config.annotation.SerializeWith
 import java.util.HashMap
 
 @ModuleInfo(name = "BCheckpoints", dataClass = CheckpointsData::class)
@@ -61,10 +63,11 @@ class CheckpointsModule(manager: ModuleManager, val data: CheckpointsData) : Mod
     }
 
     class CheckpointsData : ModuleData {
-        val points: ExtentList = ExtentList()
+        @SerializeWith(ExtentSerializer::class)
+        val points = ArrayList<Extent>()
 
         override fun parse(manager: ModuleManager, serialized: SerializedModule): Module? {
-            serialized.load(this);
+            serialized.load(this)
             check(points.isNotEmpty(), "At least one checkpoint must be defined.")
             return CheckpointsModule(manager, this)
         }
