@@ -76,7 +76,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val blurPlayer = session.blur.getPlayer(event.player)
         if (players.contains(blurPlayer)) {
-            session.removePlayer(blurPlayer)
+            session.removePlayer(blurPlayer, true)
         }
     }
 

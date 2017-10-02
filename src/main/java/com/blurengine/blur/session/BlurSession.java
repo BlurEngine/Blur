@@ -234,7 +234,7 @@ public abstract class BlurSession {
             .forEach(this::unloadSharedComponent);
 
         for (BlurPlayer blurPlayer : new HashSet<>(this.players.values())) {
-            removePlayer(blurPlayer);
+            removePlayer(blurPlayer, false);
         }
         this.ticker.stop();
         this.ticker = null;
@@ -298,12 +298,12 @@ public abstract class BlurSession {
         }
     }
 
-    public void removePlayer(@Nonnull BlurPlayer blurPlayer) {
+    public void removePlayer(@Nonnull BlurPlayer blurPlayer, boolean quit) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
             BlurSession nextSession = null;
-            if (!(getParentSession() instanceof RootBlurSession)) {
+            if (!quit && !(getParentSession() instanceof RootBlurSession)) {
                 nextSession = getParentSession();
             }
             {
@@ -324,7 +324,7 @@ public abstract class BlurSession {
             }
 
             // If a player is removed from this session, all children should not have the same player.
-            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
+            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer, quit));
             this.players.remove(blurPlayer.getUuid());
             blurPlayer.blurSession = nextSession;
             callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
