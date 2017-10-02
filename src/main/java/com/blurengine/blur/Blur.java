@@ -19,6 +19,8 @@ package com.blurengine.blur;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.commands.BlurCommands;
+import com.blurengine.blur.framework.ModuleLoader;
+import com.blurengine.blur.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.BoundariesModule;
 import com.blurengine.blur.modules.DummyModule;
 import com.blurengine.blur.modules.FixedHungerModule;
@@ -28,8 +30,6 @@ import com.blurengine.blur.modules.checkpoints.CheckpointsModule;
 import com.blurengine.blur.modules.controlpoints.ControlPointsModule;
 import com.blurengine.blur.modules.extents.ExtentManager;
 import com.blurengine.blur.modules.filters.FilterManager;
-import com.blurengine.blur.framework.ModuleLoader;
-import com.blurengine.blur.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.goal.GoalModule;
 import com.blurengine.blur.modules.goal.LastPlayerAliveWinnerModule;
 import com.blurengine.blur.modules.goal.LastTeamAliveWinnerModule;
@@ -51,6 +51,11 @@ import com.supaham.commons.bukkit.modules.ModuleContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+
 import javax.annotation.Nonnull;
 
 import pluginbase.logging.PluginLogger;
@@ -59,7 +64,7 @@ import pluginbase.logging.PluginLogger;
  * Blur main class.
  */
 public class Blur {
-    
+
     public static final String BLUR_ADMIN_PERMISSION = "blur.admin";
     public static final String BLUR_DEV_PERMISSION = "blur.dev";
 
@@ -68,10 +73,11 @@ public class Blur {
     private final SessionManager sessionManager;
     private final BlurPlayerManager playerManager;
     private final PluginLogger logger;
-    
+
     public static boolean isAdmin(Permissible permissible) {
         return permissible.hasPermission(BLUR_ADMIN_PERMISSION);
     }
+
     public static boolean isDev(Permissible permissible) {
         return permissible.hasPermission(BLUR_DEV_PERMISSION) || isAdmin(permissible);
     }
@@ -134,10 +140,19 @@ public class Blur {
         return playerManager;
     }
 
+
+    public Collection<BlurPlayer> getPlayers() {
+        return getPlayersMap().values();
+    }
+
+    public Map<UUID, BlurPlayer> getPlayersMap() {
+        return Collections.unmodifiableMap(playerManager.getPlayers());
+    }
+
     /**
      * Returns a {@link BlurPlayer} instance for a {@link Player}. If the {@code player} doesn't have an instance, one is immediately created and
      * returned.
-     * 
+     *
      * @param player bukkit player to get BlurPlayer from
      * @return BlurPlayer instance
      */
@@ -153,7 +168,7 @@ public class Blur {
     public PluginLogger getLogger() {
         return logger;
     }
-    
+
     public String getVersion() {
         return this.plugin.getDescription().getVersion();
     }
