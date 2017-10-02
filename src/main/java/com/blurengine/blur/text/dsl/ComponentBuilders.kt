@@ -41,6 +41,10 @@ open class ComponentBuilder<C : BuildableComponent<*, *>, B : BuildableComponent
         this@ComponentBuilder.builder.append(builder.build())
     }
 
+    fun append(component: Component) = apply {
+        this@ComponentBuilder.builder.append(component)
+    }
+
     fun color(color: TextColor) = apply { builder.color(color) }
 
     fun obfuscated(state: TextDecoration.State = TextDecoration.State.TRUE) = decoration(TextDecoration.OBFUSCATED, state)
