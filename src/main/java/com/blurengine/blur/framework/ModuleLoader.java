@@ -32,10 +32,13 @@ import com.blurengine.blur.modules.spawns.Spawn;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.modules.teams.TeamSerializer;
+import com.blurengine.blur.serializers.XmlComponentSerializer;
 import com.blurengine.blur.serializers.thirdparty.VersionSerializer;
 import com.github.zafarkhaja.semver.Version;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.ThrowableUtils;
+
+import net.kyori.text.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,6 +138,7 @@ public class ModuleLoader {
         _add(builder, BlurTeam.class, teamSerializer = new TeamSerializer(this));
         __add(builder, Extent.class, extentSerializer = new ExtentSerializer(this));
         __add(builder, Spawn.class, spawnSerializer = new SpawnSerializer(this));
+        __add(builder, Component.class, new XmlComponentSerializer());
         serializerSet = builder.build();
     }
 
