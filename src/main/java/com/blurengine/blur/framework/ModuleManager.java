@@ -119,9 +119,15 @@ public class ModuleManager {
         addModule(messagesManager = new MessagesManager(this));
     }
 
-    protected Module addModule(Module module) {
+    public Module addModule(Module module) {
         Preconditions.checkNotNull(module, "module cannot be null.");
         this.modules.put(module.getClass(), module);
+        if (session.getState().isLoaded()) {
+            loadModule(module);
+            if (session.getState() == ComponentState.ENABLED) {
+                enableModule(module);
+            }
+        }
         return module;
     }
 
@@ -256,7 +262,12 @@ public class ModuleManager {
      */
     public boolean destroyModule(@Nonnull Module module) {
         Preconditions.checkNotNull(module, "module cannot be null.");
-        return this.modules.remove(module.getClass(), module);
+        boolean removed = this.modules.remove(module.getClass(), module);
+        if (removed) {
+            disableModule(module);
+            unloadModule(module);
+        }
+        return removed;
     }
 
     /**
