@@ -46,14 +46,17 @@ public class StageChangedEvent extends StageEvent {
         }
     }
 
+    @Nonnull
     public Stage getNewStage() {
         return newStage;
     }
 
+    @Nullable
     public Stage getOldStage() {
         return oldStage;
     }
 
+    @Nonnull
     public StageChangeReason getReason() {
         return reason;
     }
