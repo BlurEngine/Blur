@@ -242,10 +242,7 @@ public class ModuleManager {
     // TODO Add boolean for skipping internal module check?
     private String checkName(Module module) {
         if (module.getModuleInfo() == null) {
-            if (isInternalModule(module)) {
-                return module.getClass().getSimpleName();
-            }
-            throw new IllegalStateException(module.getClass().getName() + " must be annotated with @ModuleInfo and registered to ModuleLoader.");
+            return module.getClass().getSimpleName();
         }
         return module.getModuleInfo().name();
     }
