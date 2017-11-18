@@ -34,6 +34,7 @@ import com.blurengine.blur.modules.filters.Filter
 import com.blurengine.blur.modules.filters.Filters
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
+import com.blurengine.blur.utils.allMaxBy
 import com.supaham.commons.relatives.RelativeDuration
 import com.supaham.commons.relatives.RelativeNumber
 import org.bukkit.ChatColor
@@ -320,27 +321,9 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
          * LEAD
          */
             CaptureRule.LEAD -> {
-                val teamSizes = ArrayList<Pair<BlurTeam, Int>>()
-                teamManager.teams.map { teamSizes.add(Pair(it, it.playerCount)) }
-                val largest = ArrayList<Pair<BlurTeam, Int>>()
-                teamSizes.forEach {
-                    if (largest.isEmpty()) {
-                        largest.add(it)
-                    } else {
-                        largest.forEach { it2 ->
-                            if (it.second >= it2.second) {
-                                if (it.second > it2.second) {
-                                    // clear current largest if there's a larger pair
-                                    largest.clear()
-                                }
-                                largest.add(it)
-                                return
-                            }
-                        }
-                    }
-                }
+                val largest = teamManager.teams.allMaxBy { it.playerCount }
                 if (largest.size == 1) {
-                    progress.capturingTeam = largest[0].first
+                    progress.capturingTeam = largest[0]
                 } else {
                     // 2 or more teams with the most yet same amount of players
                     progress.capturingTeam = null
