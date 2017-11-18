@@ -29,6 +29,7 @@ import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
 import com.blurengine.blur.modules.goal.GoalModule.GoalModuleData;
+import com.blurengine.blur.modules.stages.StageChangeData;
 import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.supervisor.Amendable;
@@ -89,7 +90,7 @@ public class GoalModule extends Module implements SupervisorContext {
 
     private void timeIsUp() {
         getLogger().fine("GameModule time limit of " + DurationUtils.toString(this.data.timeLimit, true) + " reached.");
-        getStagesManager().nextStage(StageChangeReason.TIME_LIMIT);
+        getStagesManager().nextStage(new StageChangeData(StageChangeReason.TIME_LIMIT));
     }
 
     public Map<Object, Double> getScores() {

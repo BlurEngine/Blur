@@ -23,6 +23,7 @@ import com.blurengine.blur.framework.AbstractComponent;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.modules.filters.Filter.FilterResponse;
 import com.blurengine.blur.modules.goal.GoalModule.ScoreGoalData;
+import com.blurengine.blur.modules.stages.StageChangeData;
 import com.blurengine.blur.modules.stages.StageChangeReason;
 
 import java.util.Collections;
@@ -51,10 +52,12 @@ public class ScoreComponent extends AbstractComponent {
 
         Optional<StageChangeReason> stageChangeReason = score.checkGoalMet();
         stageChangeReason.ifPresent(r -> {
+            StageChangeData changeData = new StageChangeData(r);
             if (r == StageChangeReason.OBJECTIVE_SUCCESS) {
-                getSession().callEvent(new GoalWinnersEvent(getSession(), Collections.singleton(score.getObject())));
+                GoalWinnersStageChangeData winnersData = changeData.getOrCreate(GoalWinnersStageChangeData.class);
+                winnersData.getWinners().add(score.getObject());
             }
-            getStageManager().nextStage(r);
+            getStageManager().nextStage(changeData);
         });
         return stageChangeReason.isPresent();
     }

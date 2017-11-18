@@ -33,11 +33,11 @@ public class StageChangedEvent extends StageEvent {
 
     private final Stage newStage;
     private final Stage oldStage;
-    private final StageChangeReason reason;
+    private final StageChangeData changeData;
 
-    public StageChangedEvent(@Nonnull StageChangeReason reason, @Nonnull Stage newStage, @Nullable Stage oldStage) {
+    public StageChangedEvent(@Nonnull StageChangeData changeData, @Nonnull Stage newStage, @Nullable Stage oldStage) {
         super(Preconditions.checkNotNull(newStage, "newStage cannot be null.").getManager());
-        this.reason = Preconditions.checkNotNull(reason, "reason cannot be null.");
+        this.changeData = Preconditions.checkNotNull(changeData, "reason cannot be null.");
         this.newStage = newStage;
         this.oldStage = oldStage;
         if (this.oldStage != null) {
@@ -57,8 +57,8 @@ public class StageChangedEvent extends StageEvent {
     }
 
     @Nonnull
-    public StageChangeReason getReason() {
-        return reason;
+    public StageChangeData getChangeData() {
+        return changeData;
     }
 
     private static final HandlerList handlerList = new HandlerList();

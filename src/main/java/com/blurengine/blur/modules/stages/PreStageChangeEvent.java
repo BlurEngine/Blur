@@ -27,15 +27,19 @@ import javax.annotation.Nullable;
 public class PreStageChangeEvent extends StageEvent implements Cancellable {
 
     private final Stage newStage;
-    private final StageChangeReason reason;
+    private final StageChangeData changeData;
 
-    public PreStageChangeEvent(@Nonnull StageManager manager, @Nonnull StageChangeReason reason, @Nullable Stage newStage) {
+    public PreStageChangeEvent(@Nonnull StageManager manager, @Nonnull StageChangeData changeData, @Nullable Stage newStage) {
         super(Preconditions.checkNotNull(manager, "manager cannot be null."));
-        this.reason = Preconditions.checkNotNull(reason, "reason cannot be null.");
+        this.changeData = Preconditions.checkNotNull(changeData, "reason cannot be null.");
         this.newStage = newStage;
         if (this.newStage != null) {
             Preconditions.checkArgument(manager.equals(newStage.getManager()), "newStage manager is not the same as the given manager.");
         }
+    }
+
+    public StageChangeData getChangeData() {
+        return changeData;
     }
 
     private boolean cancelled;

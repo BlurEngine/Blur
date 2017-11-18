@@ -30,17 +30,17 @@ import javax.annotation.Nonnull;
  */
 public class StagesCompleteEvent extends StageEvent {
 
-    private final StageChangeReason reason;
+    private final StageChangeData changeData;
     private final Stage lastStage;
 
-    public StagesCompleteEvent(@Nonnull StageChangeReason reason, @Nonnull Stage lastStage) {
+    public StagesCompleteEvent(@Nonnull StageChangeData changeData, @Nonnull Stage lastStage) {
         super(Preconditions.checkNotNull(lastStage, "lastStage cannot be null.").getManager());
-        this.reason = Preconditions.checkNotNull(reason, "reason cannot be null.");
+        this.changeData = Preconditions.checkNotNull(changeData, "changeData cannot be null.");
         this.lastStage = lastStage;
     }
 
-    public StageChangeReason getReason() {
-        return reason;
+    public StageChangeData getChangeData() {
+        return changeData;
     }
 
     public Stage getLastStage() {

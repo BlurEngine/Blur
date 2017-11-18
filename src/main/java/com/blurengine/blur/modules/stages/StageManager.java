@@ -51,37 +51,37 @@ public class StageManager extends Module {
     @Override
     public void load() {
         super.load();
-        nextStage(StageChangeReason.STAGES_START);
+        nextStage(new StageChangeData(StageChangeReason.STAGES_START));
     }
 
     private void reset() {
-        reset(StageChangeReason.UNKNOWN);
+        reset(new StageChangeData(StageChangeReason.UNKNOWN));
     }
 
-    private void reset(StageChangeReason reason) {
-        getLogger().finer("Resetting StageManager with %s reason.", reason);
+    private void reset(StageChangeData changeData) {
+        getLogger().finer("Resetting StageManager with %s reason.", changeData.getReason());
         this.stageIndex = -1;
-        setCurrentStage(null, reason);
+        setCurrentStage(null, changeData);
     }
 
-    public boolean nextStage(StageChangeReason changeReason) {
+    public boolean nextStage(StageChangeData changeData) {
         Preconditions.checkState(!this.stages.isEmpty(), "No stages to go through.");
         Stage lastStage = this.currentStage;
-        getLogger().finer("nextStage called with %s reason.", changeReason);
+        getLogger().finer("nextStage called with %s reason.", changeData.getReason());
 
         // That was the last Stage.
         if (this.stageIndex >= this.stages.size() - 1) {
             getLogger().finer("Last stage, calling StageCompleteEvent");
             // This is the end, call the StagesCompleteEvent. - Adele
-            getSession().callEvent(new StagesCompleteEvent(changeReason, lastStage));
-            reset(changeReason);
+            getSession().callEvent(new StagesCompleteEvent(changeData, lastStage));
+            reset(changeData);
             getSession().stop();
             return true;
         } else {
             Stage nextStage = this.stages.get(++this.stageIndex);// get next stage and update stageIndex.
             // Call StageEnterEvent if we actually have a new currentStage
-            if (setCurrentStage(nextStage, changeReason)) {
-                getSession().callEvent(new StageChangedEvent(changeReason, this.currentStage, lastStage));
+            if (setCurrentStage(nextStage, changeData)) {
+                getSession().callEvent(new StageChangedEvent(changeData, this.currentStage, lastStage));
             } else { // Otherwise the stage change was cancelled, terminate!
                 return false;
             }
@@ -89,7 +89,7 @@ public class StageManager extends Module {
         return true;
     }
 
-    public boolean setCurrentStage(Stage newStage, StageChangeReason reason) {
+    public boolean setCurrentStage(Stage newStage, StageChangeData changeData) {
         Stage oldStage = this.currentStage;
         // newStage is equivalent to oldStage, this includes null pointers.
         if (Objects.equals(newStage, oldStage)) {
@@ -97,7 +97,7 @@ public class StageManager extends Module {
         }
 
         // If PreStageChangeEvent is cancelled after we call it, terminate the method, returning false.
-        if (!getSession().callEvent(new PreStageChangeEvent(this, reason, newStage)).isCancelled()) {
+        if (!getSession().callEvent(new PreStageChangeEvent(this, changeData, newStage)).isCancelled()) {
             // Disable previous stage
             if (oldStage != null) {
                 oldStage.getModules().forEach(this::removeSubmodule);
