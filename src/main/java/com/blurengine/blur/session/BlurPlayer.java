@@ -36,6 +36,7 @@ import net.kyori.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,7 +98,11 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     }
 
     public boolean messageTl(String messageNode, Object... args) {
-        return getSession().getModuleManager().getMessagesManager().sendMessage(this, messageNode, args, null);
+        return messageTl(messageNode, null, args);
+    }
+
+    public boolean messageTl(String messageNode, Duration cooldown, Object... args) {
+        return getSession().getModuleManager().getMessagesManager().sendMessage(this, messageNode, args, cooldown);
     }
 
     public BlurSession getSession() {
