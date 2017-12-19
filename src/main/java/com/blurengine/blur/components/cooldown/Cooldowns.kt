@@ -37,6 +37,13 @@ class CooldownsManager(moduleManager: ModuleManager) : AbstractComponent(moduleM
 
     operator fun set(blurPlayer: BlurPlayer, cooldown: Cooldown<CooldownEntry>) = apply(blurPlayer, cooldown)
 
+    fun remove(blurPlayer: BlurPlayer, cooldown: Cooldown<CooldownEntry>): Boolean {
+        val foundEntry = _cooldowns[blurPlayer].filter { it.cooldown == cooldown }.firstOrNull()
+        return foundEntry?.let { _cooldowns.remove(blurPlayer, it) } ?: false
+    }
+
+    fun removeAll(blurPlayer: BlurPlayer): MutableSet<CooldownEntry> = _cooldowns.removeAll(blurPlayer)
+
     fun <T : CooldownEntry> apply(blurPlayer: BlurPlayer, cooldown: Cooldown<T>): T {
         val ticks = cooldown.getCooldownFor(blurPlayer)
         val entry = cooldown.createEntry(this, blurPlayer, ticks)
