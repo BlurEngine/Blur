@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.utils
 
+import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
@@ -92,4 +93,8 @@ operator fun Vector.minus(subtrahend: Number): Vector = let {
 
 fun Player.playSound(sound: Sound, location: Location = this.location, category: SoundCategory = SoundCategory.MASTER, volume: Float = 1F, pitch: Float = 1F) {
     playSound(location, sound, category, volume, pitch)
+}
+
+fun String.translateColors(altColorChar: Char = '&'): String {
+    return ChatColor.translateAlternateColorCodes(altColorChar, this)
 }
