@@ -60,6 +60,7 @@ public class TaskBuilder {
         if (this.interval != null) {
             task.setInterval(this.interval / 50);
         }
+        task.setAsync(async);
         return task;
     }
 
