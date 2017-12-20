@@ -84,7 +84,11 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     fun onPlayerJoinSession(event: PlayerJoinSessionEvent) {
         if (isSession(event)) {
             event.blurPlayer.reset()
-            checkAndStart()
+            if (this.childrenSessions.isEmpty()) {
+                checkAndStart()
+            } else {
+                this.childrenSessions.first().addPlayer(event.blurPlayer)
+            }
         }
     }
 
@@ -117,15 +121,13 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     fun checkAndStart() {
         if (session.players.size >= data.requiredPlayers) {
 
-            // LobbyModule only supports 1 session at a time.
-            if (this.childrenSessions.isEmpty()) {
-                if (this.countdown != null) {
-                    if (this.countdown!!.state !== ComponentState.ENABLED) {
-                        this.countdown!!.start()
-                    }
-                } else {
-                    startNextSession()
+            check(this.childrenSessions.isEmpty()) { "LobbyModule only supports 1 session at a time." }
+            if (this.countdown != null) {
+                if (this.countdown!!.state !== ComponentState.ENABLED) {
+                    this.countdown!!.start()
                 }
+            } else {
+                startNextSession()
             }
         }
     }
