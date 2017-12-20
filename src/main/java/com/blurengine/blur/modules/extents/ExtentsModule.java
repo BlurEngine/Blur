@@ -48,7 +48,7 @@ public class ExtentsModule extends Module {
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
             if (serialized.getAsObject() instanceof List) {
                 ExtentSerializer ser = moduleManager.getModuleLoader().getExtentSerializer();
-                serialized.getAsList().stream().map(map -> ser.deserialize(map, null))
+                serialized.getAsList().stream().map(map -> ser.deserialize(map, Extent.class))
                     .forEach((s) -> { // This module doesnt care about the deserialized extents, those are registered to the session.
                     });
             } else {
