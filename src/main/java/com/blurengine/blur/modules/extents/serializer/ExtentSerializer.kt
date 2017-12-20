@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.modules.extents.serializer
 
+import com.blurengine.blur.components.shared.ExtentGuard
 import com.blurengine.blur.framework.BlurSerializer
 import com.blurengine.blur.framework.ModuleLoader
 import com.blurengine.blur.modules.extents.Extent
@@ -25,10 +26,12 @@ import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Block
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cuboid
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Cylinder
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializers.Union
+import com.blurengine.blur.utils.getSharedComponent
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
 import com.supaham.commons.bukkit.utils.SerializationUtils
 import com.supaham.commons.utils.ArrayUtils
+import com.supaham.commons.utils.StringUtils
 import pluginbase.config.serializers.SerializerSet
 import java.lang.reflect.InvocationTargetException
 import java.util.ArrayList
@@ -42,6 +45,8 @@ class ExtentSerializer(private val moduleLoader: ModuleLoader) : BlurSerializer<
 
     val manager: ExtentManager
         get() = this.moduleLoader.moduleManager.extentManager
+
+    val extentGuard: ExtentGuard get() = manager.session.getSharedComponent { ExtentGuard(manager.session) }
 
     init {
         val serializers = HashMap<String, ExtentTypeSerializer<*>>()
@@ -80,11 +85,16 @@ class ExtentSerializer(private val moduleLoader: ModuleLoader) : BlurSerializer<
     fun deserializeExtent(map: Map<String, Any>): Extent {
         val invalidTypes = ArrayList<String>()
 
-        val id = map.entries.stream().filter { e -> e.key.equals("id", ignoreCase = true) }.findFirst().map { e -> e.value.toString() }
+        val id = map.entries.firstOrNull { e -> e.key.equals("id", ignoreCase = true) }
+                ?.value?.toString()
+        val protect = map.entries.firstOrNull { e -> e.key.equals("protect", ignoreCase = true) }?.value
+                ?.let {
+                    StringUtils.parseBoolean(it.toString()).orElseThrow { IllegalArgumentException("$it is not valid for protect") }
+                } ?: false
 
         var extent: Extent? = null
         for ((key, value) in map) {
-            if (key.equals("id", ignoreCase = true)) {
+            if (key.toLowerCase() in listOf("id", "protect")) {
                 continue
             }
             // Get serializer by the name of the given key.
@@ -103,11 +113,15 @@ class ExtentSerializer(private val moduleLoader: ModuleLoader) : BlurSerializer<
 
         // If no extent was defined, then we must have an id reference
         if (extent == null) {
-            val extentId = id.orElseThrow { NullPointerException("no extent id or extent definition.") }
+            val extentId = id ?: throw NullPointerException("no extent id or extent definition.")
             extent = manager.getExtentByString(extentId)
         } else { // Extent was defined, add it.
-            val idStr = id.orElse(null)
-            manager.addExtent(idStr, extent)
+            manager.addExtent(id, extent)
+
+            // Extent specified to be protected
+            if (protect) {
+                extentGuard.extents.add(extent)
+            }
         }
         return extent
     }
