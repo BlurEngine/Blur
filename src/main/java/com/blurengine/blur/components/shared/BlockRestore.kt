@@ -24,6 +24,7 @@ import com.supaham.commons.bukkit.utils.BlockFaceUtils
 import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.BlockState
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -104,10 +105,6 @@ class BlockRestore(session: BlurSession) : SharedComponent(session) {
     operator fun get(block: Block) = _blocks[block]
 
     private inner class BlockListener : Listener {
-        @EventHandler
-        fun onPlayerInteract(event: PlayerInteractEvent) {
-            if (event.hasBlock() && shouldCancel(event.clickedBlock)) event.isCancelled = true
-        }
 
         @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
         fun onBlockPhysics(event: BlockPhysicsEvent) {
