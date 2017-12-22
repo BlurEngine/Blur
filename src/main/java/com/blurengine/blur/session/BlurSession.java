@@ -23,6 +23,7 @@ import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.players.PlayerPostLeaveSessionEvent;
+import com.blurengine.blur.events.players.PlayerSwitchSessionEvent;
 import com.blurengine.blur.events.session.SessionEnableEvent;
 import com.blurengine.blur.events.session.SessionLoadEvent;
 import com.blurengine.blur.events.session.SessionPreLoadEvent;
@@ -258,6 +259,16 @@ public abstract class BlurSession {
     public void addPlayer(@Nonnull BlurPlayer blurPlayer) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (!this.players.containsKey(blurPlayer.getUuid())) {
+            if (blurPlayer.blurSession != null && !(blurPlayer.blurSession instanceof RootBlurSession)) {
+                PlayerSwitchSessionEvent switchEvent = callEvent(new PlayerSwitchSessionEvent(blurPlayer, this));
+                if (switchEvent.isCancelled()) {
+                    return;
+                }
+                if (switchEvent.getNextSession() != null && switchEvent.getNextSession() != this) {
+                    switchEvent.getNextSession().addPlayer(blurPlayer);
+                    return;
+                }
+            }
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
@@ -306,10 +317,17 @@ public abstract class BlurSession {
             if (!quit && !(getParentSession() instanceof RootBlurSession)) {
                 nextSession = getParentSession();
             }
-            {
-                PlayerLeaveSessionEvent event = callEvent(new PlayerLeaveSessionEvent(blurPlayer, this, nextSession));
-                nextSession = event.getNextSession();
+
+            // Call session switch event when nextSession is valid
+            if (nextSession != null) {
+                PlayerSwitchSessionEvent switchEvent = callEvent(new PlayerSwitchSessionEvent(blurPlayer, nextSession));
+                if (switchEvent.isCancelled()) {
+                    return;
+                }
+                nextSession = switchEvent.getNextSession();
             }
+
+            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this, nextSession));
 
             // Unregister player custom data classes.
             for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {

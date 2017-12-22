@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 public class PlayerLeaveSessionEvent extends BlurPlayerEvent {
 
     private BlurSession nextSession;
-    
+
     public PlayerLeaveSessionEvent(@Nonnull BlurPlayer blurPlayer, @Nonnull BlurSession session, @Nullable BlurSession nextSession) {
         super(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), session);
         this.nextSession = nextSession;
@@ -41,10 +41,6 @@ public class PlayerLeaveSessionEvent extends BlurPlayerEvent {
     @Nullable
     public BlurSession getNextSession() {
         return nextSession;
-    }
-
-    public void setNextSession(@Nonnull BlurSession nextSession) {
-        this.nextSession = Preconditions.checkNotNull(nextSession, "nextSession");
     }
 
     private static final HandlerList handlerList = new HandlerList();
