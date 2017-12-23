@@ -18,6 +18,7 @@ package com.blurengine.blur;
 
 import com.blurengine.blur.events.players.PlayerDamagePlayerEvent;
 import com.blurengine.blur.events.players.PlayerMoveBlockEvent;
+import com.blurengine.blur.inventory.InventoryLayout;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.utils.EventUtils;
 
@@ -28,8 +29,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.PlayerInventory;
 
 /*
  * All events extend LOW to call Blur events at an early enough point in time that other code will be able to cancel these Bukkit events if necessary.
@@ -76,6 +79,19 @@ class BlurListener implements Listener {
             if (damageEvent.isCancelled()) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void preventUnclickableInventoryClicks(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) event.getWhoClicked();
+        BlurPlayer blurPlayer = plugin.getBlur().getPlayer(player);
+        InventoryLayout invLayout = blurPlayer.getCoreData().getInventoryLayout();
+        if ((event.getSlot() >= 0 && event.getSlot() <= 35) && event.getClickedInventory() instanceof PlayerInventory
+            && !invLayout.getTypeBySlot(event.getSlot()).isClickable()) {
+            event.setCancelled(true);
+            return;
         }
     }
 }
