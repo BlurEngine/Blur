@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.maploading
 import com.blurengine.blur.properties.BlurConfig
 import com.github.zafarkhaja.semver.Version
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer
+import pluginbase.config.annotation.Name
 import pluginbase.config.annotation.SerializeWith
 import java.util.UUID
 
@@ -38,6 +39,18 @@ class BlurMapConfig : BlurConfig() {
             private set
         var authors: List<Author>? = null
             private set
+        @Name("min-players")
+        var minPlayers: Int = 0
+            private set
+        @Name("max-players")
+        var maxPlayers: Int = 0
+            private set
+
+        fun checkValues() {
+            if (minPlayers > 0) {
+                require(minPlayers <= maxPlayers) { "minPlayers cannot be greater than maxPlayers." }
+            }
+        }
     }
 
     class Author {
