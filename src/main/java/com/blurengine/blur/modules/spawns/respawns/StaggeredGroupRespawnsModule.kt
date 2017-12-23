@@ -61,6 +61,15 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
     @Tick
     fun ticker() {
         val theDeadTeams = HashMultimap.create<BlurTeam, BlurPlayer>()
+
+        // Remove invalid/offline players
+        val it = theDead.keys.iterator()
+        for (entry in it) {
+            if (!session.players.values.any { it.session == session }) {
+                it.remove()
+            }
+        }
+
         theDead.keys.forEach { theDeadTeams.put(teamManager.getPlayerTeam(it), it) }
         theDeadTeams.asMap().forEach { _, players ->
             val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
