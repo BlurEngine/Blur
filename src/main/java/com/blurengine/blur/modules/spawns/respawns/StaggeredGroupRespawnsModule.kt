@@ -30,6 +30,12 @@ import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule.
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
 import com.google.common.collect.HashMultimap
+import org.apache.commons.lang.time.DurationFormatUtils
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.boss.BarColor
+import org.bukkit.boss.BarStyle
+import org.bukkit.boss.BossBar
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import pluginbase.config.annotation.Name
@@ -40,12 +46,16 @@ import java.util.WeakHashMap
 class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: StaggeredGroupRespawnsData) : WorldModule(moduleManager) {
 
     val theDead = WeakHashMap<BlurPlayer, Long>()
+    private val spawnerBossBar by lazy { SpawnerBossBar() }
 
     fun sendToDeathbox(blurPlayer: BlurPlayer) {
         theDead[blurPlayer] = System.currentTimeMillis()
         blurPlayer.coreData.isAlive = false
         if (data.teleportTo != null) {
             blurPlayer.player.teleport(data.teleportTo!!.randomLocation.toLocation(world))
+        }
+        if (data.useBossBar) {
+            spawnerBossBar.add(blurPlayer)
         }
     }
 
@@ -60,6 +70,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
     fun onBlurPlayerRespawn(event: BlurPlayerRespawnEvent) {
         if (isSession(event)) {
             theDead.remove(event.blurPlayer)
+            spawnerBossBar.remove(event.blurPlayer)
         }
     }
 
@@ -74,6 +85,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                 it.remove()
             }
         }
+        if (data.useBossBar) spawnerBossBar.ticker()
 
         theDead.keys.forEach { theDeadTeams.put(teamManager.getPlayerTeam(it), it) }
         theDeadTeams.asMap().forEach { _, players ->
@@ -106,6 +118,8 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         var minPlayers: Int = 0
         @Name("teleport-to")
         var teleportTo: Extent? = null
+        @Name("use-boss-bar")
+        var useBossBar: Boolean = true
 
         override fun parse(moduleManager: ModuleManager, serialized: SerializedModule): Module {
             serialized.load(this)
@@ -115,6 +129,64 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
             check(!maxTimer.isNegative && !maxTimer.isZero) { "max-timer must be positive." }
             check(minPlayers > 0) { "min-players must be greater than 0." }
             return StaggeredGroupRespawnsModule(moduleManager, this)
+        }
+    }
+
+    private inner class SpawnerBossBar {
+        private val _bossBars = HashMap<BlurPlayer, BossBar>()
+
+        fun ticker() {
+            _bossBars.forEach { blurPlayer, bossBar ->
+                if (blurPlayer !in theDead) {
+                    remove(blurPlayer)
+                    return@forEach
+                }
+                val deathTimeMs = (System.currentTimeMillis() - theDead[blurPlayer]!!)
+                val deathTimeRemaining = data.maxTimer.toMillis() - deathTimeMs
+                var progress = 1.0 - (deathTimeMs / data.maxTimer.toMillis().toDouble())
+                progress = Math.max(0.0, Math.min(progress, 1.0))
+                val color: BarColor
+                var title = when {
+                    progress > 2 / 3.0 -> {
+                        color = BarColor.GREEN
+                        "${ChatColor.GREEN}Respawning soon..."
+                    }
+                    progress > 1 / 3.0 -> {
+                        color = BarColor.YELLOW
+                        "${ChatColor.GOLD}Waiting for respawn group..."
+                    }
+                    else -> {
+                        color = BarColor.RED
+                        "${ChatColor.RED}Respawn imminent!"
+                    }
+                }
+                title += "    ${DurationFormatUtils.formatDuration(deathTimeRemaining, "ss.", false)}"
+                title += "${(deathTimeRemaining % 1000).toString().substring(0, 1)}s"
+                bossBar.title = title
+                bossBar.progress = progress
+                if (bossBar.color != color) {
+                    bossBar.color = color
+                }
+            }
+        }
+
+        fun add(blurPlayer: BlurPlayer): BossBar {
+            check(data.useBossBar) { "use-boss-bar disabled" }
+            val bar: BossBar = if (blurPlayer in _bossBars) {
+                _bossBars[blurPlayer]!!
+            } else {
+                Bukkit.createBossBar("TITLE NOT SET", BarColor.PURPLE, BarStyle.SOLID)
+                        .apply { _bossBars.put(blurPlayer, this) }
+            }
+            bar.progress = 1.0
+            bar.addPlayer(blurPlayer.player)
+            return bar
+        }
+
+        fun remove(blurPlayer: BlurPlayer): BossBar? {
+            return _bossBars.remove(blurPlayer)?.apply {
+                this.removePlayer(blurPlayer.player)
+            }
         }
     }
 }
