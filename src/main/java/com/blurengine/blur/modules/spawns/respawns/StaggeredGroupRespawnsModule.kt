@@ -136,7 +136,8 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         private val _bossBars = HashMap<BlurPlayer, BossBar>()
 
         fun ticker() {
-            _bossBars.forEach { blurPlayer, bossBar ->
+            val bossBars = HashMap(_bossBars)
+            bossBars.forEach { blurPlayer, bossBar ->
                 if (blurPlayer !in theDead) {
                     remove(blurPlayer)
                     return@forEach
