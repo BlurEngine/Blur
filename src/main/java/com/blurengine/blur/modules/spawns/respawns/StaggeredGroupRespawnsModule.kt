@@ -81,10 +81,10 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
             val passedMinWait = playerDeadTimes.filter { it.value >= data.minTimer.toMillis() }
 
             if (passedMinWait.size >= data.minPlayers) {
+                if (logger.debugLevel >= 2) {
+                    logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
+                }
                 passedMinWait.forEach {
-                    if (logger.debugLevel >= 2) {
-                        logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
-                    }
                     it.key.respawn()
                 }
             } else {
