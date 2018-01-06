@@ -161,7 +161,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                     }
                 }
                 title += "    ${DurationFormatUtils.formatDuration(deathTimeRemaining, "ss.", false)}"
-                title += "${(deathTimeRemaining % 1000).toString().substring(0, 1)}s"
+                title += "${(deathTimeRemaining % 1000).toString()[0]}s"
                 bossBar.title = title
                 bossBar.progress = progress
                 if (bossBar.color != color) {
