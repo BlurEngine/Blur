@@ -347,7 +347,11 @@ public abstract class BlurSession {
             blurPlayer.blurSession = nextSession;
             callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
             if (nextSession != null) {
-                callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
+                if (nextSession.getPlayer(blurPlayer.getUuid()).isPresent()) {
+                    callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
+                } else {
+                    nextSession.addPlayer(blurPlayer);
+                }
             }
         }
     }
