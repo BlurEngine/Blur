@@ -23,6 +23,7 @@ import com.blurengine.blur.utils.elapsed
 import com.supaham.commons.bukkit.utils.BlockFaceUtils
 import org.bukkit.Location
 import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.block.BlockState
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -188,6 +189,10 @@ class BlockRestoreData(val block: Block, to: MaterialData, expiry: Duration, lis
     fun checkExpiry(): Boolean {
         if (expired) {
             try {
+                if (from.type.hasGravity() && block.getRelative(BlockFace.DOWN).isEmpty) {
+                    // Allow gravity affected blocks spawn safely by delaying expiry
+                    return false
+                }
                 restore()
             } catch(e: Exception) {
                 e.printStackTrace()
