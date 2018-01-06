@@ -41,13 +41,18 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
     val theDead = WeakHashMap<BlurPlayer, Long>()
 
+    fun sendToDeathbox(blurPlayer: BlurPlayer) {
+        theDead[blurPlayer] = System.currentTimeMillis()
+        blurPlayer.coreData.isAlive = false
+        if (data.teleportTo != null) {
+            blurPlayer.player.teleport(data.teleportTo!!.randomLocation.toLocation(world))
+        }
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     fun onBlurPlayerDeath(event: BlurPlayerDeathEvent) {
         if (isSession(event)) {
-            theDead[event.blurPlayer] = System.currentTimeMillis()
-            if (data.teleportTo != null) {
-                event.blurPlayer.player.teleport(data.teleportTo!!.randomLocation.toLocation(world))
-            }
+            sendToDeathbox(event.blurPlayer)
         }
     }
 
