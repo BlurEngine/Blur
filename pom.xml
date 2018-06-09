@@ -131,7 +131,7 @@
 
     <build>
         <!-- Must be placed here (not shade plugin) to ensure generation of original-* jar to manage CI jar exclusion properly. -->
-        <finalName>${project.name}-${git.commit.id.abbrev}</finalName>
+        <finalName>${project.name}</finalName>
         <defaultGoal>clean install</defaultGoal>
         <plugins>
             <plugin>
