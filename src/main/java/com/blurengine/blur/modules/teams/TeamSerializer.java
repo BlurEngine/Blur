@@ -18,8 +18,13 @@ package com.blurengine.blur.modules.teams;
 
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
+import com.blurengine.blur.serializers.ComponentSerializer;
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
+import com.supaham.commons.bukkit.serializers.TextColorSerializer;
 import com.supaham.commons.serializers.ListSerializer;
+
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -85,11 +90,11 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         private String id;
         private String name = null;
         @Name("chat-color")
-        @SerializeWith(ColorStringSerializer.class)
-        private String chatColor;
+        @SerializeWith(TextColorSerializer.class)
+        private TextColor chatColor;
         @Name("chat-prefix")
-        @SerializeWith(ColorStringSerializer.class)
-        private String chatPrefix;
+        @SerializeWith(ComponentSerializer.class)
+        private TextComponent chatPrefix;
         private Color color = Color.WHITE;
         private int max = 100;
         @Name("max-overfill")

@@ -23,8 +23,12 @@ import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
 import com.blurengine.blur.session.BlurPlayer;
 import com.supaham.commons.bukkit.FuzzyColorMatchers;
-import com.supaham.commons.bukkit.utils.ChatColorUtils;
+import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.utils.StringUtils;
+
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
+import net.kyori.text.serializer.ComponentSerializers;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -50,8 +54,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
     private final String id;
     private String name;
-    private final String chatColor;
-    private final String chatPrefix;
+    private final TextColor chatColor;
+    private final TextComponent chatPrefix;
     private final Color color;
     private final int max;
     private final int maxOverfill;
@@ -100,7 +104,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         return "BlurTeam{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
-            ", chatColor='" + chatColor.replaceAll(ChatColor.COLOR_CHAR + "", "&") + '\'' +
+            ", chatColor='" + chatColor +
             ", chatPrefix='" + chatPrefix + '\'' +
             ", color=" + color +
             ", max=" + max +
@@ -125,8 +129,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         if (!team.getDisplayName().equals(getName())) {
             team.setDisplayName(getName());
         }
-        if (!team.getPrefix().equals(getChatPrefix())) {
-            team.setPrefix(getChatPrefix());
+        if (!team.getPrefix().equals(getChatPrefixLegacy())) {
+            team.setPrefix(getChatPrefixLegacy());
         }
         if (!team.getOption(Option.NAME_TAG_VISIBILITY).equals(getNametagVisibility().getBukkit())) {
             team.setOption(Option.NAME_TAG_VISIBILITY, getNametagVisibility().getBukkit());
@@ -186,12 +190,16 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         getManager().getSession().callEvent(new TeamRenameEvent(this, oldName, name));
     }
 
-    public String getChatColor() {
+    public TextColor getChatColor() {
         return chatColor;
     }
 
-    public String getChatPrefix() {
+    public TextComponent getChatPrefix() {
         return chatPrefix;
+    }
+
+    public String getChatPrefixLegacy() {
+        return ComponentSerializers.LEGACY.serialize(chatPrefix);
     }
 
     public Color getColor() {
@@ -231,7 +239,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
      * @return display name
      */
     public String getChatDisplayName() {
-        return this.chatColor + this.name;
+        ChatColor bukkitChatColor = ChatUtils.textColorToBukkit(this.chatColor);
+        return bukkitChatColor + this.name;
     }
 
     @Override
@@ -275,8 +284,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
         private String id;
         private String name;
-        private String chatColor;
-        private String chatPrefix = ChatColor.WHITE.toString();
+        private TextColor chatColor;
+        private TextComponent chatPrefix = TextComponent.of("").color(TextColor.WHITE);
         private Color color = Color.WHITE;
         private int max = 10;
         private int maxOverfill = 12;
@@ -296,12 +305,12 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
             return this;
         }
 
-        public Builder chatColor(String chatColor) {
+        public Builder chatColor(TextColor chatColor) {
             this.chatColor = chatColor;
             return this;
         }
 
-        public Builder chatPrefix(String chatPrefix) {
+        public Builder chatPrefix(TextComponent chatPrefix) {
             this.chatPrefix = chatPrefix;
             return this;
         }
@@ -340,10 +349,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
             Preconditions.checkNotNull(teamManager, "teamManager cannot be null.");
             StringUtils.checkNotNullOrEmpty(id, "id");
             Preconditions.checkNotNull(color, "color cannot be null.");
-            if (chatColor == null || chatColor.isEmpty()) {
-                chatColor = FuzzyColorMatchers.matchChatColor(color).toString();
-            } else {
-                chatColor = ChatColorUtils.deserialize(chatColor); // translate user friendly code
+            if (chatColor == null) {
+                chatColor = ChatUtils.bukkitToTextColor(FuzzyColorMatchers.matchChatColor(color));
             }
             if (name == null) {
                 name = id;
