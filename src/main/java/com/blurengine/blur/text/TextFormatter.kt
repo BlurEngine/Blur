@@ -28,9 +28,14 @@ import net.kyori.text.event.HoverEvent
 
 object TextFormatter {
     val PATTERN = """(?<!\\)\{(\d+)}""".toPattern()
-
+    var step = 0
     fun format(component: Component, args: Array<out Any?>): Component {
-        if (args.isEmpty()) return component
+        require(args.isNotEmpty()) { "args cannot be empty." }
+        return formatBuilder(component, args).build()
+    }
+
+    fun formatBuilder(component: Component, args: Array<out Any?>): BuildableComponent.Builder<*, *> {
+        require(args.isNotEmpty()) { "args cannot be empty." }
         val componentArgs: Map<Int, Component> = args
                 .mapIndexed { idx, it -> idx to it }
                 .filter { it.second is Component }
@@ -49,31 +54,47 @@ object TextFormatter {
             is SelectorComponent -> SelectorComponent.builder().also { _builder ->
                 _builder.pattern(replaceParams(component.pattern(), args))
             }
-            is TextComponent -> TextComponent.builder().also { _builder ->
+            is TextComponent -> TextComponent.builder("").let { _builder ->
+                var _builder = _builder
                 val matcher = PATTERN.matcher(component.content())
                 val sb = StringBuffer()
-                var appendedComponent = false
+                var lastWasContent: Boolean? = null
                 while(matcher.find()) {
                     val idx = matcher.group(1).toInt()
                     if (idx in componentArgs) {
-                        appendedComponent = true
-                        _builder.append(format(componentArgs[idx]!!, args))
                         matcher.appendReplacement(sb, "")
+                        if (sb.isNotEmpty()) {
+                            if (lastWasContent != false) {
+                                lastWasContent = true
+                                _builder.content(sb.toString())
+                            } else {
+                                _builder.append(TextComponent.of(sb.toString()))
+                            }
+                            sb.setLength(0)
+                        }
+                        val formattedComponentBuilder = formatBuilder(componentArgs[idx]!!, args)
+                        if (lastWasContent == null && formattedComponentBuilder is TextComponent.Builder) {
+                            _builder = formattedComponentBuilder
+                        } else {
+                            _builder.append(formattedComponentBuilder.build())
+                        }
+                        lastWasContent = false
                     } else {
                         val str = if (idx > args.lastIndex) "null" else args[idx].toString()
                         matcher.appendReplacement(sb, str)
                     }
                 }
-                if (appendedComponent) {
-                    _builder.content(sb.toString())
-                    val tailSb = matcher.appendTail(StringBuffer())
-                    if (tailSb.isNotEmpty()) {
-                        _builder.append(TextComponent.of(tailSb.toString()))
+
+                matcher.appendTail(sb)
+
+                if (sb.isNotEmpty()) {
+                    if (lastWasContent != false) {
+                        _builder.content(sb.toString())
+                    } else {
+                        _builder.append(TextComponent.of(sb.toString()))
                     }
-                } else {
-                    matcher.appendTail(sb)
-                    _builder.content(sb.toString())
                 }
+                _builder
             }
             is TranslatableComponent -> TranslatableComponent.builder().let { _builder ->
                 _builder.key(replaceParams(component.key(), args))
@@ -96,7 +117,8 @@ object TextFormatter {
         for (child in component.children()) {
             builder.append(format(child, args))
         }
-        return builder.build()
+        ++step
+        return builder
     }
 
     private fun replaceParams(string: CharSequence, args: Array<out Any?>): String {

@@ -30,7 +30,7 @@ import org.junit.Assert
 import org.junit.Test
 
 class TextFormatterTest {
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun testBasicEmptyArgs() {
         val baseActual = TextComponent.of("foo")
         val actual: Component = TextFormatter.format(baseActual, arrayOf())
@@ -38,7 +38,7 @@ class TextFormatterTest {
         Assert.assertEquals(expected, actual)
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun testComplexEmptyArgs() {
         val baseActual = TextComponent.of("foo ").append(TextComponent.of("bar"))
         val actual: Component = TextFormatter.format(baseActual, arrayOf())
@@ -126,6 +126,26 @@ class TextFormatterTest {
                 .decoration(TextDecoration.BOLD, true)
                 .clickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/run $arg"))
                 .hoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.of("/run $arg")))
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testComponentArgSameNode() {
+        val arg1 = TextComponent.of("foo")
+        val arg2 = TextComponent.of("baz")
+        val baseActual = TextComponent.of("{0} bar {1}")
+        val actual: Component = TextFormatter.format(baseActual, arrayOf(arg1, arg2))
+        val expected = arg1.append(TextComponent.of(" bar ")).append(arg2)
+        Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testComponentArgSameNode2() {
+        val arg1 = TextComponent.of("foo")
+        val arg2 = "baz"
+        val baseActual = TextComponent.of("{0} bar {1}")
+        val actual: Component = TextFormatter.format(baseActual, arrayOf(arg1, arg2))
+        val expected = arg1.append(TextComponent.of(" bar $arg2"))
         Assert.assertEquals(expected, actual)
     }
 }
