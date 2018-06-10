@@ -146,7 +146,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         val world = WorldCreator.name(worldDir.name).createWorld()
 
         // Create and load map config
-        val newSession = session.addChildSession(WorldBlurSession(session, world))
+        val newSession = session.addChildSession(WorldBlurSession(session, world, map))
         sessions.put(newSession, map)
         newSession.name = map.id
         newSession.moduleManager.moduleLoader.load(map.config.modules)

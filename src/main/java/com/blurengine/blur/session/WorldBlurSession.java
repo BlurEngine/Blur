@@ -19,6 +19,7 @@ package com.blurengine.blur.session;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.modules.maploading.BlurMap;
 import com.blurengine.blur.modules.teams.PlayersTeam;
 import com.blurengine.blur.modules.teams.SpectatorTeam;
 import com.blurengine.blur.modules.teams.TeamManager;
@@ -34,17 +35,20 @@ import javax.annotation.Nonnull;
 public class WorldBlurSession extends BlurSession {
 
     protected final World world;
+    private BlurMap blurMap;
 
-    public WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world) {
+    public WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world, @Nonnull BlurMap blurMap) {
         super(Preconditions.checkNotNull(parentSession, "parentSession cannot be null."), null);
         this.world = Preconditions.checkNotNull(world, "world cannot be null.");
+        this.blurMap = Preconditions.checkNotNull(blurMap, "blurMap cannot be null.");
         init();
     }
 
-    private WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world, @Nonnull ModuleManager moduleManager) {
+    private WorldBlurSession(@Nonnull BlurSession parentSession, @Nonnull World world, @Nonnull BlurMap blurMap, @Nonnull ModuleManager moduleManager) {
         super(Preconditions.checkNotNull(parentSession, "parentSession cannot be null."),
             Preconditions.checkNotNull(moduleManager, "moduleManager cannot be null."));
         this.world = Preconditions.checkNotNull(world, "world cannot be null.");
+        this.blurMap = Preconditions.checkNotNull(blurMap, "blurMap cannot be null.");
         init();
     }
 
@@ -67,14 +71,11 @@ public class WorldBlurSession extends BlurSession {
         return false;
     }
 
-    public WorldBlurSession createChildSession(@Nonnull World world) {
-        Preconditions.checkNotNull(world, "world cannot be null.");
-        WorldBlurSession session = new WorldBlurSession(this, world, this.moduleManager);
-        super.addChildSession(session);
-        return session;
-    }
-
     public World getWorld() {
         return world;
+    }
+
+    public BlurMap getBlurMap() {
+        return blurMap;
     }
 }
