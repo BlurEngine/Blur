@@ -70,7 +70,7 @@ public class XmlParserTest {
         Assert.assertEquals(expected, component);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RuntimeException.class)
     public void testInvalidColor() throws Exception {
         TextParsers.XML_PARSER.parse("<color color=\"BestC0l0R\">foo</color>");
     }
@@ -111,7 +111,7 @@ public class XmlParserTest {
         Assert.assertEquals(expected, component);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RuntimeException.class)
     public void testInvalidHoverAction() throws Exception {
         TextParsers.XML_PARSER.parse("<hover action=\"bar\" value=\"ay\">foo</hover>");
     }
@@ -124,7 +124,7 @@ public class XmlParserTest {
         Assert.assertEquals(expected, component);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RuntimeException.class)
     public void testInvalidClickAction() throws Exception {
         TextParsers.XML_PARSER.parse("<click action=\"bar\" value=\"ay\">foo</click>");
     }

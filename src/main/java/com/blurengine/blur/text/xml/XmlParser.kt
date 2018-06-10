@@ -43,13 +43,17 @@ class XmlParser : TextParser {
     override fun parse(source: String): Component {
         val source = "<span>$source</span>"
 
-        val context = JAXBContext.newInstance(Element::class.java)
-        val unmarshaller = context.createUnmarshaller()
-        val tag = unmarshaller.unmarshal(StringReader(source)) as Element
-        val builder = TextComponent.builder().content("")
-        tag.apply(builder)
-        tag.loop(builder)
-        return builder.build()
+        try {
+            val context = JAXBContext.newInstance(Element::class.java)
+            val unmarshaller = context.createUnmarshaller()
+            val tag = unmarshaller.unmarshal(StringReader(source)) as Element
+            val builder = TextComponent.builder().content("")
+            tag.apply(builder)
+            tag.loop(builder)
+            return builder.build()
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to parse: $source", e)
+        }
     }
 }
 
