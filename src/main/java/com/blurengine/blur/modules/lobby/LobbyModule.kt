@@ -86,7 +86,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             event.blurPlayer.reset()
             if (this.childrenSessions.isEmpty()) {
                 checkAndStart()
-            } else {
+            } else if (this.childrenSessions.first().state == ComponentState.ENABLED) {
                 this.childrenSessions.first().addPlayer(event.blurPlayer)
             }
         }
