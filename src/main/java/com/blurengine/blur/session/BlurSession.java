@@ -220,6 +220,9 @@ public abstract class BlurSession {
         }
         long startedAt = System.currentTimeMillis();
         this.started = false;
+        if (!setState(ComponentState.LOADED)) {
+            return;
+        }
         this.childrenSessions.forEach(BlurSession::stop);
         getLogger().fine("Stopping %s", getName());
         callEvent(new SessionStopEvent(this));
