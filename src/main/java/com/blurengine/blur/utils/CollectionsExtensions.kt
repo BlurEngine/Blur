@@ -16,6 +16,32 @@
 
 package com.blurengine.blur.utils
 
+fun <R : Comparable<R>> Iterable<R>.allMin(): List<R> = allMinBy { it }
+
+inline fun <T, R : Comparable<R>> Iterable<T>.allMinBy(selector: (T) -> R): List<T> {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return listOf()
+    val maxElems = mutableListOf(iterator.next())
+    var maxValue = selector(maxElems.first())
+    while (iterator.hasNext()) {
+        val next = iterator.next()
+        val value = selector(next)
+        inner@for (maxElem in maxElems) {
+            if (value <= maxValue) {
+                if (value < maxValue) { // new max value
+                    maxElems.clear()
+                    maxValue = value
+                }
+                maxElems.add(next)
+                break@inner
+            }
+        }
+    }
+    return maxElems
+}
+
+fun <R : Comparable<R>> Iterable<R>.allMax(): List<R> = allMaxBy { it }
+
 inline fun <T, R : Comparable<R>> Iterable<T>.allMaxBy(selector: (T) -> R): List<T> {
     val iterator = iterator()
     if (!iterator.hasNext()) return listOf()
