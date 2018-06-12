@@ -17,6 +17,7 @@
 package com.blurengine.blur.modules.maploading
 
 import com.blurengine.blur.framework.ModuleLoader
+import com.google.common.base.Objects
 import com.supaham.commons.bukkit.utils.SerializationUtils
 import pluginbase.config.datasource.yaml.YamlDataSource
 import java.io.File
@@ -65,5 +66,14 @@ class BlurMap {
         this.mapFile = mapFile
         require(mapFile.exists()) { "${mapFile.path} does not exist." }
         this.id = mapDirectory.name
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is BlurMap) return false
+        return this.id == other.id && this.mapFile == other.mapFile
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hashCode(this.id, this.mapFile)
     }
 }
