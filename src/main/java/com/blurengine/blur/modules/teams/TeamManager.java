@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.teams;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.framework.Component;
@@ -66,6 +67,8 @@ public class TeamManager extends Module implements SupervisorContext {
     private Map<String, BlurTeam> teams = new HashMap<>();
     private Map<BlurPlayer, BlurTeam> playerTeams = new HashMap<>();
     private final MetadataStorage<BlurTeam> teamMetadata = new BasicMetadataStorage<>();
+    private final List<TeamAssignmentStrategy> assignmentStrategies = new ArrayList<>();
+    private final RoundRobinBalancedTeamAssignmentStrategy fallbackAssignmentStrategy;
 
     static {
         ModuleLoader.register(TeamsModule.class);
@@ -73,6 +76,7 @@ public class TeamManager extends Module implements SupervisorContext {
 
     public TeamManager(ModuleManager moduleManager) {
         super(moduleManager);
+        fallbackAssignmentStrategy = new RoundRobinBalancedTeamAssignmentStrategy(this::getTeams);
     }
 
     public Optional<BlurTeam> getTeamById(@Nonnull String id) {
@@ -177,24 +181,33 @@ public class TeamManager extends Module implements SupervisorContext {
         return teamMetadata;
     }
 
+    public List<TeamAssignmentStrategy> getAssignmentStrategies() {
+        return assignmentStrategies;
+    }
+
     @EventHandler
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
         // TODO make initial team setting optional. E.g. if they game has already started, set them to spectators only.
-        if (isSession(event.getSession()) && getSpectatorTeam() != null) { // spectator team is null because this might be root session.
-            List<BlurTeam> smallestTeams = new ArrayList<>(teams.size());
-            int size = Integer.MAX_VALUE;
-            for (BlurTeam blurTeam : getTeams()) {
-                if (blurTeam.getPlayerCount() < size) {
-                    smallestTeams.clear();
-                    size = blurTeam.getPlayerCount();
-                }
-                if (blurTeam.getPlayerCount() == size) {
-                    smallestTeams.add(blurTeam);
+        if (isSession(event.getSession()) && !(getSession() instanceof RootBlurSession)) {
+            BlurTeam foundTeam = null;
+            for (TeamAssignmentStrategy assignmentStrategy : this.assignmentStrategies) {
+                BlurTeam team = assignmentStrategy.getTeam(event.getBlurPlayer());
+                if (team != null) {
+                    foundTeam = team;
+                    break;
                 }
             }
-            BlurTeam blurTeam = smallestTeams.stream().collect(CommonCollectors.singleRandom()).get();
-            getLogger().finer("Adding %s to team %s with size %s", event.getBlurPlayer().getDisplayName(), blurTeam.getId(), size);
-            blurTeam.addPlayer(event.getBlurPlayer());
+
+            if (foundTeam == null) {
+                if (this.assignmentStrategies.size() > 0) {
+                    getLogger().finer("Failed to find player from assignmentStrategies");
+                }
+                foundTeam = fallbackAssignmentStrategy.getTeam(event.getBlurPlayer());
+            }
+
+            getLogger().fine("Adding %s to team %s with size %s", event.getBlurPlayer().getDisplayName(),foundTeam.getId(),
+                foundTeam.getPlayerCount());
+            foundTeam.addPlayer(event.getBlurPlayer());
         }
     }
 
