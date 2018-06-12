@@ -43,7 +43,7 @@ class BlurMapConfig : BlurConfig() {
         var minPlayers: Int = 0
             private set
         @Name("max-players")
-        var maxPlayers: Int = 0
+        var maxPlayers: Int = Int.MAX_VALUE
             private set
 
         fun checkValues() {
