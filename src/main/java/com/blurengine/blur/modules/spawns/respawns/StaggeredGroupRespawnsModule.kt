@@ -85,8 +85,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
     fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
         if (isSession(event.session)) {
             if (data.useBossBar) {
-                theDead.remove(event.blurPlayer)
-                spawnerBossBar.remove(event.blurPlayer)
+                destroyPlayer(event.blurPlayer)
             }
         }
     }
