@@ -32,6 +32,7 @@ import com.supaham.commons.Joiner
 import com.supaham.commons.utils.CollectionUtils
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
+import org.bukkit.World
 import org.bukkit.WorldCreator
 import org.bukkit.event.EventHandler
 import pluginbase.config.annotation.Name
@@ -143,7 +144,12 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
             throw MapLoadException("Failed to duplicate " + map.mapDirectory.path, e)
         }
 
-        val world = WorldCreator.name(worldDir.name).createWorld()
+        val worldCreator = WorldCreator.name(worldDir.name)
+        
+        if (File(worldDir, "DIM-1").exists()) worldCreator.environment(World.Environment.NETHER)
+        else if (File(worldDir, "DIM1").exists()) worldCreator.environment(World.Environment.THE_END)
+
+        val world = worldCreator.createWorld()
 
         // Create and load map config
         val newSession = session.addChildSession(WorldBlurSession(session, world, map))
@@ -314,7 +320,8 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         }
 
         private fun isMinecraftWorldDir(file: File): Boolean {
-            return File(file, "level.dat").exists() && File(file, "region").exists()
+            return File(file, "level.dat").exists()
+                    && (File(file, "DIM1/region").exists() || File(file, "DIM-1/region").exists() || File(file, "region").exists())
         }
     }
 
@@ -326,7 +333,8 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         var nameTemplate = "{mapname}-{datetime}"
 
         // compressionType set from parse method above, represents compressing value.
-        @Transient var compressionTypeEnum = ArchiveCompressionType.ZIP
+        @Transient
+        var compressionTypeEnum = ArchiveCompressionType.ZIP
     }
 
     companion object {
