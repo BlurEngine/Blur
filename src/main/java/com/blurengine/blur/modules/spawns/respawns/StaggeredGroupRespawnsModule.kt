@@ -71,9 +71,13 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
     @EventHandler
     fun onBlurPlayerRespawn(event: BlurPlayerRespawnEvent) {
         if (isSession(event)) {
-            theDead.remove(event.blurPlayer)
-            spawnerBossBar.remove(event.blurPlayer)
+            destroyPlayer(event.blurPlayer)
         }
+    }
+    
+    private fun destroyPlayer(blurPlayer: BlurPlayer) {
+        theDead.remove(blurPlayer)
+        spawnerBossBar.remove(blurPlayer)
     }
 
     @EventHandler
