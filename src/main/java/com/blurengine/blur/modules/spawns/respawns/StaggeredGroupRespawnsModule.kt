@@ -92,7 +92,11 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
         // Remove invalid/offline players
         val it = theDead.keys.iterator()
-        for (entry in it) {
+        for (blurPlayer in it) {
+            if (data.deathbox?.contains(blurPlayer) == false) {
+                sendToDeathbox(blurPlayer)
+            }
+
             if (!session.players.values.any { it.session == session }) {
                 it.remove()
             }
@@ -130,6 +134,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         var minPlayers: Int = 0
         @Name("teleport-to")
         var teleportTo: Extent? = null
+        var deathbox: Extent? = null
         @Name("use-boss-bar")
         var useBossBar: Boolean = true
 
