@@ -31,6 +31,7 @@ import com.blurengine.blur.modules.extents.Extent
 import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule.StaggeredGroupRespawnsData
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
+import com.blurengine.blur.utils.getTeam
 import com.google.common.collect.HashMultimap
 import org.apache.commons.lang.time.DurationFormatUtils
 import org.bukkit.Bukkit
@@ -107,7 +108,13 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         }
         if (data.useBossBar) spawnerBossBar.ticker()
 
-        theDead.keys.forEach { theDeadTeams.put(teamManager.getPlayerTeam(it), it) }
+        theDead.keys.forEach {
+            if (!it.player.isValid) {
+                destroyPlayer(it)
+            } else {
+                theDeadTeams.put(it.getTeam(), it)
+            }
+        }
         theDeadTeams.asMap().forEach { _, players ->
             val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
             val passedMinWait = playerDeadTimes.filter { it.value >= data.minTimer.toMillis() }
