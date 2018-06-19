@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.spawns.respawns
 
 import com.blurengine.blur.events.players.BlurPlayerDeathEvent
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent
+import com.blurengine.blur.events.session.SessionStopEvent
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.ModuleData
 import com.blurengine.blur.framework.ModuleInfo
@@ -71,6 +72,14 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         if (isSession(event)) {
             theDead.remove(event.blurPlayer)
             spawnerBossBar.remove(event.blurPlayer)
+        }
+    }
+
+    @EventHandler
+    fun onSessionStop(event: SessionStopEvent) {
+        theDead.keys.filter { it.session == event.session }.forEach {
+            spawnerBossBar.remove(it)
+            theDead.remove(it)
         }
     }
 
