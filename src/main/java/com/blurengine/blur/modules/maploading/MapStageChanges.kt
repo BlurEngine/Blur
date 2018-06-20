@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ali Moghnieh
+ * Copyright 2018 Ali Moghnieh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package com.blurengine.blur.events.session;
+package com.blurengine.blur.modules.maploading
 
-import com.blurengine.blur.session.BlurSession;
+import com.blurengine.blur.modules.stages.StageChangeReason
 
-import org.bukkit.event.HandlerList;
-
-import javax.annotation.Nonnull;
-
-public class SessionStopEvent extends BlurSessionEvent {
-
-    public SessionStopEvent(@Nonnull BlurSession blurSession) {
-        super(blurSession);
-    }
-
-    private static final HandlerList handlerList = new HandlerList();
-
-    @Override
-    public HandlerList getHandlers() { return handlerList; }
-
-    public static HandlerList getHandlerList() { return handlerList; }
+enum class MapStageChanges: StageChangeReason {
+    MAP_LOAD_FAILURE
 }

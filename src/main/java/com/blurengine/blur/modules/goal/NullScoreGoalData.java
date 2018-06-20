@@ -18,7 +18,7 @@ package com.blurengine.blur.modules.goal;
 
 import com.blurengine.blur.modules.goal.GoalModule.ScoreGoalCase;
 import com.blurengine.blur.modules.goal.GoalModule.ScoreGoalData;
-import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.stages.StageChangeReasons;
 import com.blurengine.blur.utils.relationalops.Relationals;
 
 import java.util.Arrays;
@@ -31,6 +31,6 @@ public class NullScoreGoalData extends ScoreGoalData {
     public static final NullScoreGoalData INSTANCE = new NullScoreGoalData();
 
     private NullScoreGoalData() {
-        super(null, 0, Arrays.asList(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, Double.MAX_VALUE, Relationals.number(Double.MAX_VALUE))));
+        super(null, 0, Arrays.asList(new ScoreGoalCase(StageChangeReasons.OBJECTIVE_SUCCESS, Double.MAX_VALUE, Relationals.number(Double.MAX_VALUE))));
     }
 }

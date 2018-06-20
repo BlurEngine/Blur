@@ -27,7 +27,7 @@ import com.blurengine.blur.modules.extents.Extent
 import com.blurengine.blur.modules.extents.serializer.ExtentSerializer
 import com.blurengine.blur.modules.goal.GoalWinnersStageChangeData
 import com.blurengine.blur.modules.stages.StageChangeData
-import com.blurengine.blur.modules.stages.StageChangeReason
+import com.blurengine.blur.modules.stages.StageChangeReasons
 import com.blurengine.blur.session.BlurPlayer
 import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
@@ -57,7 +57,7 @@ class CheckpointsModule(manager: ModuleManager, val data: CheckpointsData) : Mod
 
         // player has reached the last point.        
         if (current >= this.data.points.size) {
-            val changeData = StageChangeData(StageChangeReason.OBJECTIVE_SUCCESS)
+            val changeData = StageChangeData(StageChangeReasons.OBJECTIVE_SUCCESS)
             val winnersData = changeData.getOrCreate<GoalWinnersStageChangeData>()
             winnersData.winners = mutableListOf(bp)
             stagesManager.nextStage(changeData)

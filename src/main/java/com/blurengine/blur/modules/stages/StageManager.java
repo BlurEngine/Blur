@@ -51,11 +51,11 @@ public class StageManager extends Module {
     @Override
     public void load() {
         super.load();
-        nextStage(new StageChangeData(StageChangeReason.STAGES_START));
+        nextStage(new StageChangeData(StageChangeReasons.STAGES_START));
     }
 
     private void reset() {
-        reset(new StageChangeData(StageChangeReason.UNKNOWN));
+        reset(new StageChangeData(StageChangeReasons.UNKNOWN));
     }
 
     private void reset(StageChangeData changeData) {
@@ -75,7 +75,7 @@ public class StageManager extends Module {
             // This is the end, call the StagesCompleteEvent. - Adele
             getSession().callEvent(new StagesCompleteEvent(changeData, lastStage));
             reset(changeData);
-            getSession().stop();
+            getSession().stop(changeData);
             return true;
         } else {
             Stage nextStage = this.stages.get(++this.stageIndex);// get next stage and update stageIndex.

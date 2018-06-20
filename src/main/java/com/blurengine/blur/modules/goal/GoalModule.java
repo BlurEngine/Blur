@@ -31,6 +31,7 @@ import com.blurengine.blur.modules.filters.serializer.FilterSerializer;
 import com.blurengine.blur.modules.goal.GoalModule.GoalModuleData;
 import com.blurengine.blur.modules.stages.StageChangeData;
 import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.stages.StageChangeReasons;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.supervisor.Amendable;
 import com.blurengine.blur.supervisor.SupervisorContext;
@@ -90,7 +91,7 @@ public class GoalModule extends Module implements SupervisorContext {
 
     private void timeIsUp() {
         getLogger().fine("GameModule time limit of " + DurationUtils.toString(this.data.timeLimit, true) + " reached.");
-        getStagesManager().nextStage(new StageChangeData(StageChangeReason.TIME_LIMIT));
+        getStagesManager().nextStage(new StageChangeData(StageChangeReasons.TIME_LIMIT));
     }
 
     public Map<Object, Double> getScores() {
@@ -348,11 +349,11 @@ public class GoalModule extends Module implements SupervisorContext {
         }
 
         private ScoreGoalCase successCase(Number number) {
-            return new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, number.doubleValue(), Relationals.number(number));
+            return new ScoreGoalCase(StageChangeReasons.OBJECTIVE_SUCCESS, number.doubleValue(), Relationals.number(number));
         }
 
         private ScoreGoalCase failureCase(Number number) {
-            return new ScoreGoalCase(StageChangeReason.OBJECTIVE_FAILED, number.doubleValue(), Relationals.number(number));
+            return new ScoreGoalCase(StageChangeReasons.OBJECTIVE_FAILED, number.doubleValue(), Relationals.number(number));
         }
 
         /**
@@ -404,7 +405,7 @@ public class GoalModule extends Module implements SupervisorContext {
                     String succeed = casesMap.get("succeed").toString();
                     double goal = Double.parseDouble(RelationalUtils.fixString(succeed, RelationalUtils.operator(succeed)));
                     Relational<Number> relational = RelationalUtils.deserializeNumber(succeed);
-                    scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReason.OBJECTIVE_SUCCESS, goal, relational));
+                    scoreGoalData.cases.add(new ScoreGoalCase(StageChangeReasons.OBJECTIVE_SUCCESS, goal, relational));
                 }
 
                 Preconditions.checkArgument(!scoreGoalData.cases.isEmpty(), "at least one case must be defined in GoalModule.");

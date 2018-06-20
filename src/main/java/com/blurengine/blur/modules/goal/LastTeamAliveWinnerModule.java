@@ -21,7 +21,7 @@ import com.blurengine.blur.framework.ModuleInfo;
 import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.stages.StageChangeData;
-import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.stages.StageChangeReasons;
 import com.blurengine.blur.modules.teams.BlurTeam;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
@@ -43,7 +43,7 @@ public class LastTeamAliveWinnerModule extends WorldModule {
         BlurTeam blurTeam = getTeamManager().getPlayerTeam(players.get(0));
         boolean allAliveAreSameTeam = getPlayersStream().allMatch(p -> getTeamManager().getPlayerTeam(p).equals(blurTeam));
         if (allAliveAreSameTeam) {
-            StageChangeData changeData = new StageChangeData(StageChangeReason.OBJECTIVE_SUCCESS);
+            StageChangeData changeData = new StageChangeData(StageChangeReasons.OBJECTIVE_SUCCESS);
 
             GoalWinnersStageChangeData winnersData = changeData.getOrCreate(GoalWinnersStageChangeData.class);
             winnersData.setWinners(Collections.singletonList(blurTeam));

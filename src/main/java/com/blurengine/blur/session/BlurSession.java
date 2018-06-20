@@ -37,6 +37,8 @@ import com.blurengine.blur.framework.SharedComponent;
 import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
 import com.blurengine.blur.framework.metadata.MetadataStorage;
 import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
+import com.blurengine.blur.modules.stages.StageChangeData;
+import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
@@ -214,7 +216,7 @@ public abstract class BlurSession {
         return true;
     }
 
-    public void stop() {
+    public void stop(StageChangeData stopData) {
         if (!started) {
             return;
         }
@@ -223,9 +225,9 @@ public abstract class BlurSession {
         if (!setState(ComponentState.LOADED)) {
             return;
         }
-        this.childrenSessions.forEach(BlurSession::stop);
+        this.childrenSessions.forEach(s -> s.stop(stopData));
         getLogger().fine("Stopping %s", getName());
-        callEvent(new SessionStopEvent(this));
+        callEvent(new SessionStopEvent(this, stopData));
 
         this.moduleManager.disable();
         this.sharedComponents.values().stream()

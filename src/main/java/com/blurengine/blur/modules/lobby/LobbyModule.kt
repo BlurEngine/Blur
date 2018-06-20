@@ -34,7 +34,9 @@ import com.blurengine.blur.modules.lobby.LobbyModule.LobbyData
 import com.blurengine.blur.modules.maploading.MapLoadException
 import com.blurengine.blur.modules.maploading.MapLoaderModule
 import com.blurengine.blur.modules.maploading.MapLoaderPreLoadEvent
+import com.blurengine.blur.modules.maploading.MapStageChanges
 import com.blurengine.blur.modules.spawns.SpawnsModule
+import com.blurengine.blur.modules.stages.StageChangeData
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import org.bukkit.event.EventHandler
@@ -158,7 +160,8 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             this.childrenSessions.add(childSession)
         } catch (e: MapLoadException) {
             e.printStackTrace()
-            session.stop() // Stop session because of the map load failure.
+            val stopData = StageChangeData(MapStageChanges.MAP_LOAD_FAILURE)
+            session.stop(stopData) // Stop session because of the map load failure.
         }
 
     }

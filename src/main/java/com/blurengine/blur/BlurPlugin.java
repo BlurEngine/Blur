@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.commands.BlurCommandProviders;
 import com.blurengine.blur.framework.ModuleManager;
+import com.blurengine.blur.modules.stages.StageChangeData;
+import com.blurengine.blur.modules.stages.StageChangeReasons;
 import com.blurengine.blur.supervisor.BlurReportContext;
 import com.supaham.commons.bukkit.ServerShutdown;
 import com.supaham.commons.bukkit.ServerShutdown.ServerShutdownEvent;
@@ -99,7 +101,8 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
 
     private void cleanup() {
         if (this.rootSession != null) {
-            this.rootSession.stop();
+            StageChangeData stopData = new StageChangeData(StageChangeReasons.SHUTDOWN);
+            this.rootSession.stop(stopData);
         }
     }
 

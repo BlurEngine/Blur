@@ -25,6 +25,7 @@ import com.blurengine.blur.modules.filters.Filter.FilterResponse;
 import com.blurengine.blur.modules.goal.GoalModule.ScoreGoalData;
 import com.blurengine.blur.modules.stages.StageChangeData;
 import com.blurengine.blur.modules.stages.StageChangeReason;
+import com.blurengine.blur.modules.stages.StageChangeReasons;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class ScoreComponent extends AbstractComponent {
         Optional<StageChangeReason> stageChangeReason = score.checkGoalMet();
         stageChangeReason.ifPresent(r -> {
             StageChangeData changeData = new StageChangeData(r);
-            if (r == StageChangeReason.OBJECTIVE_SUCCESS) {
+            if (r == StageChangeReasons.OBJECTIVE_SUCCESS) {
                 GoalWinnersStageChangeData winnersData = changeData.getOrCreate(GoalWinnersStageChangeData.class);
                 winnersData.getWinners().add(score.getObject());
             }
