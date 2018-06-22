@@ -25,8 +25,6 @@ import com.blurengine.blur.utils.elapsed
 import com.blurengine.blur.utils.isPositive
 import com.blurengine.blur.utils.toTicks
 import com.google.common.collect.HashBasedTable
-import com.google.common.collect.HashMultimap
-import com.google.common.collect.LinkedHashMultimap
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -39,7 +37,7 @@ import java.util.Collections
 import java.util.UUID
 
 class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
-    private val _entityEffects = LinkedHashMultimap.create<UUID, PotionData>()
+    private val _entityEffects = HashBasedTable.create<UUID, PotionEffectType, PotionData>()
 
     init {
         addListener(EntityListener())
@@ -47,40 +45,25 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
 
     @Tick
     fun tick() {
-        val entriesIterator = _entityEffects.keys().iterator()
-        while (entriesIterator.hasNext()) {
-            val uuid = entriesIterator.next()
-            val dataIterator = _entityEffects[uuid].iterator()
+        _entityEffects.rowMap().forEach { (uuid, potionsMap) ->
             val entity = session.server.getEntity(uuid) as? LivingEntity
-            val effectsToRemove = if (entity != null) HashSet<PotionEffectType>() else Collections.emptySet<PotionEffectType>()
-            while (dataIterator.hasNext()) {
-                val data = dataIterator.next()
+
+            val potionsIt = potionsMap.values.iterator()
+            potionsIt.forEachRemaining {
                 // Handle absence
                 if (entity == null) {
-                    if (!data.potion.sessionPersistent) {
-                        dataIterator.remove()
-                        continue
+                    if (!it.potion.sessionPersistent) {
+                        potionsIt.remove()
                     }
+                    return@forEachRemaining
                 }
+                it.expiresTicks--
 
-                data.expiresTicks--
-                if (data.done) {
-                    dataIterator.remove()
-                    effectsToRemove.add(data.potion.type)
-                } else {
-                    if (entity != null && !entity.hasPotionEffect(data.potion.type)) {
-                        data.apply(entity)
-                    }
-                }
-            }
-            if (entity != null) {
-                for (type in effectsToRemove) {
-                    val otherPotion = _entityEffects.get(uuid).filter { it.potion.type == type }.firstOrNull()
-                    if (otherPotion != null) {
-                        otherPotion.apply(entity)
-                    } else {
-                        entity.removePotionEffect(type)
-                    }
+                if (it.done) {
+                    entity.removePotionEffect(it.potion.type)
+                    potionsIt.remove()
+                } else if (!entity.hasPotionEffect(it.potion.type)) {
+                    it.apply(entity)
                 }
             }
         }
@@ -101,52 +84,58 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
 
     fun clearAll(uuid: UUID) {
         val entity = session.server.getEntity(uuid) as? LivingEntity
-        if (entity == null) {
-            _entityEffects.removeAll(uuid)
-            return
+        val potions = _entityEffects.row(uuid).values
+        if (entity != null) {
+            potions.forEach {
+                entity.removePotionEffect(it.potion.type)
+            }
         }
-        val it = _entityEffects[uuid].iterator()
-        while (it.hasNext()) {
-            val data = it.next()
-            entity.removePotionEffect(data.potion.type)
-            it.remove()
-        }
+        potions.clear()
     }
-    
-    fun clearAll() = _entityEffects.keySet().forEach(this::clearAll)
 
-    fun apply(entity: LivingEntity, potion: BlurPotionEffect, force: Boolean = false) {
-        val potionData = PotionData(potion.copy())
-        _entityEffects.put(entity.uniqueId, potionData)
-        potionData.apply(entity, force)
+    fun clearAll() = _entityEffects.rowKeySet().forEach(this::clearAll)
+
+    fun apply(entity: LivingEntity, potion: BlurPotionEffect, force: Boolean = false): Boolean {
+        var force = force
+        var potionData: PotionData
+        if (!_entityEffects.contains(entity.uniqueId, potion.type)) {
+            potionData = PotionData(potion.copy())
+            _entityEffects.put(entity.uniqueId, potion.type, potionData)
+        } else {
+            potionData = _entityEffects.get(entity.uniqueId, potion.type)
+            if (potionData.merge(potion)) {
+                entity.removePotionEffect(potion.type)
+                force = true
+            }
+        }
+        return potionData.apply(entity, force)
     }
 
     fun getPotionData(entity: LivingEntity, potionEffectType: PotionEffectType) = getPotionData(entity.uniqueId, potionEffectType)
     fun getPotionData(entity: LivingEntity) = getPotionData(entity.uniqueId)
 
-    fun getPotionData(uuid: UUID, potionEffectType: PotionEffectType): Set<PotionData> {
-        return Collections.unmodifiableSet(_entityEffects.get(uuid).filter { it.potion.type == potionEffectType }.toSet())
+    fun getPotionData(uuid: UUID, potionEffectType: PotionEffectType): PotionData? {
+        return _entityEffects.get(uuid, potionEffectType)
     }
 
     fun getPotionData(uuid: UUID): Set<PotionData> {
-        return Collections.unmodifiableSet(_entityEffects.get(uuid))
+        return Collections.unmodifiableSet(HashSet(_entityEffects.row(uuid).values))
     }
 
     inner class EntityListener : Listener {
 
         @EventHandler
         fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
-            val it = _entityEffects[event.blurPlayer.uuid].iterator()
+            val it = _entityEffects.row(event.blurPlayer.uuid).iterator()
             val player = event.blurPlayer.player
             while (it.hasNext()) {
-                // Remove potion effects that are not death persistent.
-                val data = it.next()
+                // Remove potion effects that are not session persistent.
+                val data = it.next().value
                 player.removePotionEffect(data.potion.type) // remove all effects
                 if (!data.potion.sessionPersistent) {
                     it.remove()
                 }
             }
-
         }
 
         @EventHandler
@@ -160,12 +149,12 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
         }
 
         private fun handleDeath(uuid: UUID) {
-            val it = _entityEffects[uuid].iterator()
+            val it = _entityEffects.row(uuid).iterator()
+            val entity = session.server.getEntity(uuid) as? LivingEntity
             while (it.hasNext()) {
                 // Remove potion effects that are not death persistent.
-                val data = it.next()
+                val data = it.next().value
                 if (!data.potion.deathPersistent) {
-                    val entity = session.server.getEntity(uuid) as? LivingEntity
                     entity?.removePotionEffect(data.potion.type)
                     it.remove()
                 }
@@ -173,7 +162,10 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
         }
     }
 
-    inner class PotionData(val potion: BlurPotionEffect) {
+    inner class PotionData(potion: BlurPotionEffect) {
+        var potion: BlurPotionEffect = potion
+            private set
+
         internal var expiresTicks: Int
         internal var lastApply = Instant.MIN
         val done: Boolean
@@ -183,18 +175,53 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
             require(potion.amplifier >= 0) { "amplifier cannot be less than 0." }
             require(potion.duration.isPositive()) { "duration must be positive." }
             expiresTicks = potion.duration.toTicks(session)
-            if (potion.hidingDuration || expiresTicks < 0) expiresTicks = Int.MAX_VALUE
+            if (expiresTicks < 0) {
+                expiresTicks = Int.MAX_VALUE
+            }
         }
 
-        fun apply(entity: LivingEntity, force: Boolean = false) {
-            if (force || (lastApply.elapsed(potion.reapplyDuration))) {
-                entity.addPotionEffect(createPotionEffect(), true)
+        fun merge(p2: BlurPotionEffect): Boolean {
+            require(p2.type == this.potion.type) { "Potion type mismatch during merge" }
+
+            var change = false
+            if (p2.amplifier > potion.amplifier) {
+                potion = p2
+                expiresTicks = p2.duration.toTicks(session)
+                change = true
+            } else if (p2.amplifier == potion.amplifier
+                    && (Instant.now().plus(p2.duration) > lastApply.plus(potion.duration))) {
+                // ^ consider lastApply because both potion durations are just that and will not be sufficient
+                // to match the current live potion status (i.e. progress of expiresTicks)
+                potion = p2
+                expiresTicks = p2.duration.toTicks(session)
+                change = true
+            }
+            if (p2.ambient != potion.ambient) {
+                potion = potion.copy(ambient = p2.ambient)
+                change = true
+            }
+            if (p2.particles != potion.particles) {
+                potion = potion.copy(ambient = p2.particles)
+                change = true
+            }
+            if (expiresTicks < 0) {
+                expiresTicks = Int.MAX_VALUE
+            }
+            return change
+        }
+
+        fun apply(entity: LivingEntity, force: Boolean = false): Boolean {
+            val applied: Boolean
+            if (force || (potion.reapplyDuration.isPositive() && lastApply.elapsed(potion.reapplyDuration))) {
+                applied = entity.addPotionEffect(createPotionEffect(), true)
                 lastApply = Instant.now()
             } else {
-                if (entity.addPotionEffect(createPotionEffect(), false)) {
+                applied = entity.addPotionEffect(createPotionEffect(), false)
+                if (applied) {
                     lastApply = Instant.now()
                 }
             }
+            return applied
         }
 
         internal fun createPotionEffect() = PotionEffect(potion.type, expiresTicks, potion.amplifier, potion.ambient, potion.particles)
