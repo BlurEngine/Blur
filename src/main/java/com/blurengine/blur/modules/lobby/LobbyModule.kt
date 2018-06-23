@@ -69,6 +69,11 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         if (data.games == 1) {
             val blurPlayer = session.blur.getPlayer(event.player)
             session.addPlayer(blurPlayer)
+            
+            // Code placed here because order of session modules init/event execution is very important. 
+            if (this.childrenSessions.first().state == ComponentState.ENABLED) {
+                this.childrenSessions.first().addPlayer(blurPlayer)
+            }
         } else {
             logger.warning("LobbyModule can't handle more than one game at a time yet.")
         }
@@ -88,8 +93,6 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             event.blurPlayer.reset()
             if (this.childrenSessions.isEmpty()) {
                 checkAndStart()
-            } else if (this.childrenSessions.first().state == ComponentState.ENABLED) {
-                this.childrenSessions.first().addPlayer(event.blurPlayer)
             }
         }
     }
