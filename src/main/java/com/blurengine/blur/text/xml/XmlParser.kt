@@ -178,7 +178,8 @@ open class Element {
             if (!matcher.matches()) {
                 throw IllegalArgumentException("onClick syntax is invalid ('$onClick')")
             }
-            val action = ClickEvent.Action.valueOf(matcher.group(1))
+            val action = ClickEvent.Action.values().firstOrNull { it.toString() == matcher.group(1) }
+                    ?: throw IllegalArgumentException("${matcher.group(1)} is not a valid ClickEvent.Action")
             val data = String.format(matcher.group(2))
             builder.clickEvent(ClickEvent(action, data))
         }
@@ -188,7 +189,8 @@ open class Element {
             if (!matcher.matches()) {
                 throw IllegalArgumentException("onHover syntax is invalid ('$onHover')")
             }
-            val action = HoverEvent.Action.valueOf(matcher.group(1))
+            val action = HoverEvent.Action.values().firstOrNull { it.toString() == matcher.group(1) }
+                    ?: throw IllegalArgumentException("${matcher.group(1)} is not a valid HoverEvent.Action")
             val data = String.format(matcher.group(2))
             builder.hoverEvent(HoverEvent(action, TextComponent.of(data)))
         }
