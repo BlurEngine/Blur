@@ -69,9 +69,9 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         if (data.games == 1) {
             val blurPlayer = session.blur.getPlayer(event.player)
             session.addPlayer(blurPlayer)
-            
+
             // Code placed here because order of session modules init/event execution is very important. 
-            if (this.childrenSessions.first().state == ComponentState.ENABLED) {
+            if (this.childrenSessions.isNotEmpty() && this.childrenSessions.first().state == ComponentState.ENABLED) {
                 this.childrenSessions.first().addPlayer(blurPlayer)
             }
         } else {
