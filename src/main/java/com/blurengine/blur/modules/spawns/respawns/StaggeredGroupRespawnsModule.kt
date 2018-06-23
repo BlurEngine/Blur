@@ -28,9 +28,11 @@ import com.blurengine.blur.framework.SerializedModule
 import com.blurengine.blur.framework.WorldModule
 import com.blurengine.blur.framework.ticking.Tick
 import com.blurengine.blur.modules.extents.Extent
+import com.blurengine.blur.modules.spawns.SpawnsModule
 import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule.StaggeredGroupRespawnsData
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
+import com.blurengine.blur.utils.getModule
 import com.blurengine.blur.utils.getTeam
 import com.google.common.collect.HashMultimap
 import org.apache.commons.lang.time.DurationFormatUtils
@@ -50,6 +52,15 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
     val theDead = WeakHashMap<BlurPlayer, Long>()
     private val spawnerBossBar by lazy { SpawnerBossBar() }
+
+    override fun load() {
+        super.load()
+        // Disable SpawnsModule join handling.
+        session.getModule<SpawnsModule>().firstOrNull()?.let {
+            logger.fine { "Disabling late join in StaggeredGroupRespawns" }
+            it.data.handleLateJoinSpawn = false
+        }
+    }
 
     fun sendToDeathbox(blurPlayer: BlurPlayer) {
         theDead[blurPlayer] = System.currentTimeMillis()

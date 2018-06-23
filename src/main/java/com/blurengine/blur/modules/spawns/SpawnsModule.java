@@ -58,7 +58,7 @@ import pluginbase.config.annotation.SerializeWith;
 @ModuleInfo(name = "Spawns", dataClass = SpawnsData.class)
 public class SpawnsModule extends WorldModule {
 
-    private final SpawnsData data;
+    public final SpawnsData data;
     /** Contains a list of players respawning forcefully by this module. See spawnPlayer method with spigot respawn call.*/
     private final WeakSet<Player> validRespawningPlayers = new WeakSet<>();
 
@@ -92,7 +92,7 @@ public class SpawnsModule extends WorldModule {
 
     @EventHandler
     public void onPlayerJoinSession(PlayerJoinSessionEvent event) {
-        if (isSession(event)) {
+        if (isSession(event) && data.handleLateJoinSpawn) {
             if (event.getSession().isStarted()) {
                 event.getBlurPlayer().respawn();
 // FIXME This code is commented out as it causes the players to spawn when the session hasn't started. This isn't ideal as it causes two spawns to occur
@@ -181,6 +181,8 @@ public class SpawnsModule extends WorldModule {
         private List<Spawn> spawns;
         @Name("spawn-on-start")
         private Spawn spawnOnStart;
+        @Name("handle-late-join-spawn")
+        public boolean handleLateJoinSpawn = true;
 
         @Override
         public Module parse(ModuleManager moduleManager, SerializedModule serialized) throws ModuleParseException {
