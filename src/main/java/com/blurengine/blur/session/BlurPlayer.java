@@ -190,18 +190,39 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     }
 
     @Override
-    public boolean hasMetadata(Object object) {
-        return getSession().getPlayerMetadata().contains(this, object);
+    public boolean hasMetadata(@Nonnull Object object) {
+        BlurSession session = getSession();
+        do {
+            boolean has = session.getPlayerMetadata().contains(this, object);
+            if (has) {
+                return has;
+            }
+        } while ((session = session.getParentSession()) != null);
+        return false;
     }
 
     @Override
-    public <T> boolean hasMetadata(Class<T> metadataClass) {
-        return getSession().getPlayerMetadata().contains(this, metadataClass);
+    public <T> boolean hasMetadata(@Nonnull Class<T> metadataClass) {
+        BlurSession session = getSession();
+        do {
+            boolean has = session.getPlayerMetadata().contains(this, metadataClass);
+            if (has) {
+                return has;
+            }
+        } while ((session = session.getParentSession()) != null);
+        return false;
     }
 
     @Override
-    public <T> T getMetadata(Class<T> metadataClass) {
-        return getSession().getPlayerMetadata().get(this, metadataClass);
+    public <T> T getMetadata(@Nonnull Class<T> metadataClass) {
+        BlurSession session = getSession();
+        do {
+            T found = session.getPlayerMetadata().get(this, metadataClass);
+            if (found != null) {
+                return found;
+            }
+        } while ((session = session.getParentSession()) != null);
+        return null;
     }
 
     @Override
