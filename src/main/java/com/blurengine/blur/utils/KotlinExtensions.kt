@@ -29,6 +29,7 @@ import com.blurengine.blur.text.TextFormatter
 import com.supaham.commons.bukkit.utils.ImmutableVector
 import com.supaham.commons.bukkit.utils.RelativeVector
 import com.supaham.commons.minecraft.world.space.Position
+import net.kyori.text.TextComponent
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -94,6 +95,29 @@ inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(crossinl
 
 fun BlurSession.tl(messageNode: String): net.kyori.text.Component {
     return moduleManager.messagesManager[messageNode]!!.component
+}
+
+fun net.kyori.text.TextComponent.appendKt(index: Int, component: net.kyori.text.TextComponent): net.kyori.text.TextComponent {
+    this.detectCycle(component)
+    // -1 begins to define the component parameter as the new parent. Then, the receiver and its children become direct descendants of the builder 
+    when {
+        index == -1 -> {
+            val builder = TextComponent.builder()
+            builder.mergeStyle(this)
+            builder.mergeStyle(component)
+            builder.content(component.content())
+            this.resetStyle()
+            // Append old parent, and only itself, as a child of builder.
+            // Then, add the old parent's children as siblings alongside it in the builder.
+            builder.append(TextComponent.builder(this.content()).mergeStyle(this).build())
+            builder.append(this.children())
+            return builder.build()
+        }
+        index > 0 -> {
+            return component.copy().apply { this@apply.children().add(index, component) }
+        }
+        else -> throw IndexOutOfBoundsException("index must be positive or -1")
+    }
 }
 
 fun Duration.toTicks(session: BlurSession) = session.millisecondsToTicks(toMillis())
