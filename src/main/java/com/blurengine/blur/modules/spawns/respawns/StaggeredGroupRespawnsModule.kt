@@ -62,6 +62,11 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         }
     }
 
+    override fun disable() {
+        super.disable()
+        theDead.keys.forEach { destroyPlayer(it) }
+    }
+
     fun sendToDeathbox(blurPlayer: BlurPlayer) {
         theDead[blurPlayer] = System.currentTimeMillis()
         blurPlayer.coreData.isAlive = false
@@ -86,7 +91,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
             destroyPlayer(event.blurPlayer)
         }
     }
-    
+
     private fun destroyPlayer(blurPlayer: BlurPlayer) {
         theDead.remove(blurPlayer)
         spawnerBossBar.remove(blurPlayer)
