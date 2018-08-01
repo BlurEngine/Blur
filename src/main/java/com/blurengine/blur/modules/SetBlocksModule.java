@@ -26,7 +26,9 @@ import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.SetBlocksModule.SetBlocksData;
 import com.blurengine.blur.framework.ModuleData;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.BlockVector;
 
@@ -49,7 +51,7 @@ public class SetBlocksModule extends WorldModule {
         Runnable runnable = () -> {
             for (Extent extent : data.extents) {
                 for (BlockVector bv : extent) {
-                    bv.toLocation(getSession().getWorld()).getBlock().setTypeIdAndData(data.blockData.getItemTypeId(), data.blockData.getData(), data.physics);
+                    bv.toLocation(getSession().getWorld()).getBlock().setBlockData(data.blockData, data.physics);
                 }
             }
         };
@@ -64,7 +66,7 @@ public class SetBlocksModule extends WorldModule {
     public static final class SetBlocksData implements ModuleData {
 
         private List<Extent> extents = new ArrayList<>();
-        private MaterialData blockData = new MaterialData(Material.STONE);
+        private BlockData blockData = Material.STONE.createBlockData();
         private Duration delay;
         private Duration interval;
         private boolean physics = true;

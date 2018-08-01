@@ -25,7 +25,7 @@ import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.BlockState
-import org.bukkit.event.Event
+import org.bukkit.block.data.BlockData
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -35,8 +35,6 @@ import org.bukkit.event.block.BlockFormEvent
 import org.bukkit.event.block.BlockGrowEvent
 import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.block.BlockSpreadEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.material.MaterialData
 import java.time.Duration
 import java.time.Instant
 import java.util.Collections
@@ -83,7 +81,7 @@ class BlockRestore(session: BlurSession) : SharedComponent(session) {
         _blocks.remove(block)?.restore()
     }
 
-    fun add(block: Block, to: MaterialData, expiry: Duration): Boolean {
+    fun add(block: Block, to: BlockData, expiry: Duration): Boolean {
         if (block in _blocks) {
             _blocks[block]!!.update(to, expiry)
         } else {
@@ -92,7 +90,7 @@ class BlockRestore(session: BlurSession) : SharedComponent(session) {
         return true
     }
 
-    fun add(block: Block, to: MaterialData, expiry: Duration, listener: BlockRestoreListener? = null): Boolean {
+    fun add(block: Block, to: BlockData, expiry: Duration, listener: BlockRestoreListener? = null): Boolean {
         if (block in _blocks) {
             _blocks[block]!!.update(to, expiry, listener)
         } else {
@@ -150,8 +148,8 @@ interface BlockRestoreListener {
     fun onRestore(blockData: BlockRestoreData)
 }
 
-class BlockRestoreData(val block: Block, to: MaterialData, expiry: Duration, listener: BlockRestoreListener? = null) {
-    var to: MaterialData = to
+class BlockRestoreData(val block: Block, to: BlockData, expiry: Duration, listener: BlockRestoreListener? = null) {
+    var to: BlockData = to
         private set
     var listener: BlockRestoreListener? = listener
         private set
@@ -167,7 +165,7 @@ class BlockRestoreData(val block: Block, to: MaterialData, expiry: Duration, lis
         set()
     }
 
-    fun update(to: MaterialData, expiry: Duration, listener: BlockRestoreListener? = this.listener) {
+    fun update(to: BlockData, expiry: Duration, listener: BlockRestoreListener? = this.listener) {
         if (to != this.to) {
             this.to = to
             set()
@@ -178,7 +176,7 @@ class BlockRestoreData(val block: Block, to: MaterialData, expiry: Duration, lis
     }
 
     private fun set() {
-        this.block.setTypeIdAndData(to.itemType.id, to.data, false)
+        this.block.setBlockData(to, false)
     }
 
     fun restore() {
