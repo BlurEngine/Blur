@@ -32,7 +32,7 @@
 
         <spigot.version>1.13-R0.1-SNAPSHOT</spigot.version>
         <commons-bukkit.version>0.5.6-SNAPSHOT</commons-bukkit.version>
-        <kotlin.version>1.2.51</kotlin.version>
+        <kotlin.version>1.2.41</kotlin.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <text.version>1.12-SNAPSHOT</text.version>
         <java-semver.version>0.9.0</java-semver.version>
@@ -56,20 +56,10 @@
             <url>http://repo.onarandombox.com/content/repositories/thirdparty-dev/</url>
         </repository>
         <repository>
-            <id>kotlin-eap</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1/</url>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>kotlin-eap</id>
-            <url>https://dl.bintray.com/kotlin/kotlin-eap-1.1/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
