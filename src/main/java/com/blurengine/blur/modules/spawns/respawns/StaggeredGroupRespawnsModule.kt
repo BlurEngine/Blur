@@ -71,6 +71,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         theDead[blurPlayer] = System.currentTimeMillis()
         blurPlayer.coreData.isAlive = false
         if (data.teleportTo != null) {
+            blurPlayer.player.leaveVehicle()
             blurPlayer.player.teleport(data.teleportTo!!.randomLocation.toLocation(world))
         }
         if (data.useBossBar) {
