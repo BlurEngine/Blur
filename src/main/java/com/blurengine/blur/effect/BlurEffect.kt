@@ -90,9 +90,6 @@ abstract class BlurEffect(val component: Component, delay: Int = 0, interval: In
      * Spawns a particle at a location with the given color, doing so successfully requires certain fields to be tailored for it.
      */
     fun spawnColor(particle: Particle, location: Location, color: Color) {
-        val offX = color.red / 255f
-        val offY = color.green / 255f
-        val offZ = color.blue / 255f
-        location.world.spawnParticleKt(particle, location, offX = offX, offY = offY, offZ = offZ, count = 0, extra = 1)
+        location.world.spawnParticleKt(particle, location, count = 0, extra = 1, data = Particle.DustOptions(color, 1.0f))
     }
 }

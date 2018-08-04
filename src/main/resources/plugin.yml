@@ -3,3 +3,4 @@ main: ${main.class}
 version: ${project.version}-git-${git.commit.id.abbrev}
 load: STARTUP
 authors: [SupaHam]
+api-version: 1.13

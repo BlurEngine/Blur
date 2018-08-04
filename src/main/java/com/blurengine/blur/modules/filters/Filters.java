@@ -19,7 +19,6 @@ package com.blurengine.blur.modules.filters;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.filters.Filter.FilterResponse;
-import com.supaham.commons.bukkit.utils.MaterialUtils;
 import com.supaham.commons.utils.RandomUtils;
 
 import org.bukkit.Material;
@@ -32,6 +31,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -271,15 +271,18 @@ public class Filters {
         @Override
         public FilterResponse test(Object object) {
             if (object instanceof MaterialData) {
-                return FilterResponse.from(MaterialUtils.same((MaterialData) object, this.materialData));
+                return FilterResponse.from(Objects.equals(materialData, object));
             } else if (object instanceof Block) {
-                return FilterResponse.from(MaterialUtils.same((Block) object, this.materialData));
+                MaterialData materialData = new MaterialData(((Block) object).getType(), ((Block) object).getData());
+                return FilterResponse.from(Objects.equals(materialData, this.materialData));
             } else if (object instanceof BlockState) {
-                return FilterResponse.from(MaterialUtils.same(((BlockState) object).getBlock(), this.materialData));
+                BlockState state = (BlockState) object;
+                MaterialData materialData = new MaterialData(state.getType(), ((Block) object).getData());
+                return FilterResponse.from(Objects.equals(materialData, this.materialData));
             } else if (object instanceof ItemStack) {
-                return FilterResponse.from(MaterialUtils.same((ItemStack) object, this.materialData));
+                return FilterResponse.from(Objects.equals(((ItemStack) object).getData(), this.materialData));
             } else if (object instanceof Material && this.materialData.getData() <= 0) {
-                return FilterResponse.from(MaterialUtils.same((Material) object, (byte) -1, this.materialData));
+                return FilterResponse.from(object == this.materialData.getItemType());
             } else {
                 return FilterResponse.ABSTAIN;
             }
