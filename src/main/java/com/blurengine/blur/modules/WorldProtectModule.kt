@@ -23,7 +23,9 @@ import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.framework.SerializedModule
 import com.blurengine.blur.framework.WorldModule
 import com.blurengine.blur.modules.WorldProtectModule.WorldProtectData
+import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -66,31 +68,36 @@ import pluginbase.config.annotation.Name
 
 @ModuleInfo(name = "WorldProtect", dataClass = WorldProtectData::class)
 class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectData) : WorldModule(moduleManager) {
-    private fun Event.test(bool: Boolean? = null): Boolean {
+    private fun Event.test(bool: Boolean): Boolean {
         val world = when (this) {
             is WorldEvent -> world
             is EntityEvent -> entity.world
             is PlayerEvent -> player.world
             is BlockEvent -> block.world
             is WeatherEvent -> world
-            else -> throw UnsupportedOperationException("Unsupported event " + this.javaClass.name)
+            else -> null
         }
-        return getWorld() == world && (bool ?: true)
+        if (world != null && getWorld() != world) {
+            return false
+        }
+        return bool
     }
+
+    private fun Entity.isCreative() = this is Player && this.gameMode == GameMode.CREATIVE
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
-        if (event.test(data.blockBreak)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.blockBreak)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent) {
-        if (event.test(data.blockPlace)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.blockPlace)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockIgnite(event: BlockIgniteEvent) {
-        if (event.test(data.blockIgnite)) event.isCancelled = true
+        if (!event.ignitingEntity.isCreative() && event.test(data.blockIgnite)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
@@ -140,7 +147,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onEntityBreakDoor(event: EntityBreakDoorEvent) {
-        if (event.test(data.entityBreakDoor)) event.isCancelled = true
+        if (!event.entity.isCreative() && event.test(data.entityBreakDoor)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
@@ -161,6 +168,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onHangingBreak(event: HangingBreakEvent) {
+        if (event.entity.isCreative()) return
         if (event.test(data.hangingBreak)) {
             event.isCancelled = true
         } else if (event.test(data.hangingBreakByPlayer) && event is HangingBreakByEntityEvent && event.remover is Player) {
@@ -170,49 +178,50 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onHangingPlace(event: HangingPlaceEvent) {
-        if (event.test(data.hangingPlace)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.hangingPlace)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDamage(event: VehicleDamageEvent) {
-        if (event.test(data.vehicleDamage)) event.isCancelled = true
+        if (!event.attacker.isCreative() && event.test(data.vehicleDamage)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDestroy(event: VehicleDestroyEvent) {
-        if (event.test(data.vehicleDestroy)) event.isCancelled = true
+        if (!event.attacker.isCreative() && event.test(data.vehicleDestroy)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        if (event.hasBlock() && event.test(data.interactBlock)) {
+        if (event.hasBlock() && !event.player.isCreative() && event.test(data.interactBlock)) {
             event.isCancelled = true
         }
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPrepareItemCraft(event: PrepareItemCraftEvent) {
+        if (event.viewers.first().isCreative()) return
         if (event.test(data.itemCraft)) event.inventory.result = ItemStack(Material.AIR)
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerBedEnter(event: PlayerBedEnterEvent) {
-        if (event.test(data.playerBedEnter)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.playerBedEnter)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBucketEmpty(event: PlayerBucketEmptyEvent) {
-        if (event.test(data.bucketEmpty)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.bucketEmpty)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBucketFill(event: PlayerBucketFillEvent) {
-        if (event.test(data.bucketFill)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.bucketFill)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPlayerShearEntity(event: PlayerShearEntityEvent) {
-        if (event.test(data.shearEntity)) event.isCancelled = true
+        if (!event.player.isCreative() && event.test(data.shearEntity)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
