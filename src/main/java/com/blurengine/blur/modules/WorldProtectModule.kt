@@ -285,7 +285,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var bucketEmpty: Boolean = true
         @Name("bucket-fill")
         var bucketFill: Boolean = true
-        @Name("shear=entity")
+        @Name("shear-entity")
         var shearEntity: Boolean = true
 
         @Name("weather-change")
