@@ -99,7 +99,12 @@ public interface SpawnDirection {
 
             Vector playerHead = location.toVector().add(new Vector(0, ((LivingEntity) entity).getEyeHeight(), 0));
             Location playerOffset = target.subtract(playerHead).toLocation(location.getWorld());
-            float pitch = (float) -Math.toDegrees(Math.asin(playerOffset.getY() / playerOffset.length()));
+            float pitch;
+            if (playerOffset.lengthSquared() > 0) {
+                pitch = (float) -Math.toDegrees(Math.asin(playerOffset.getY() / playerOffset.length()));
+            } else {
+                pitch = entity.getLocation().getPitch();
+            }
             location.setYaw(angle);
             location.setPitch(pitch);
         }
