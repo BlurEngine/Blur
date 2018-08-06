@@ -47,6 +47,7 @@ import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
@@ -55,6 +56,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerBucketFillEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerShearEntityEvent
@@ -151,6 +153,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onEntityPickupItem(event: EntityPickupItemEvent) {
+        if (!event.entity.isCreative() && event.test(data.playerDropItem)) event.isCancelled = true
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onCreatureSpawn(event: CreatureSpawnEvent) {
         if (event.test(data.creatureSpawn)) {
             val allow = when (event.spawnReason) {
@@ -234,6 +241,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         if (event.test(data.cleanUpArrows) && event.entity.type == EntityType.ARROW) event.entity.remove()
     }
 
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerDropItem(event: PlayerDropItemEvent) {
+        if (!event.player.isCreative() && event.test(data.playerDropItem)) event.isCancelled = true
+    }
+
     class WorldProtectData : ModuleData {
         @Name("block-break")
         var blockBreak: Boolean = true
@@ -262,6 +274,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var entityExplode: Boolean = true
         @Name("entity-break-door")
         var entityBreakDoor: Boolean = true
+        @Name("entity-pickup-item")
+        var entityPickupItem: Boolean = true
         @Name("creature-spawn")
         var creatureSpawn: Boolean = true
         @Name("hanging-break")
@@ -287,6 +301,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var bucketFill: Boolean = true
         @Name("shear-entity")
         var shearEntity: Boolean = true
+        @Name("player-drop-item")
+        var playerDropItem: Boolean = true
 
         @Name("weather-change")
         var weatherChange: Boolean = true
