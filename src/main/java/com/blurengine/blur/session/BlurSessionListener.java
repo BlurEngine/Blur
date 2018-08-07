@@ -24,8 +24,10 @@ import com.blurengine.blur.framework.Module;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Optional;
 
@@ -55,6 +57,13 @@ public class BlurSessionListener implements Listener {
         if (isSession(blurPlayer)) {
             blurPlayer.die();
         }
+    }
+
+    // Priority HIGH is crucial as the BlurPlayer reference is disposed of in HIGHEST
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        BlurPlayer blurPlayer = session.getBlur().getPlayer(event.getPlayer());
+        session.removePlayer(blurPlayer, true);
     }
 
     private Optional<BlurPlayer> getPlayer(Entity entity) {

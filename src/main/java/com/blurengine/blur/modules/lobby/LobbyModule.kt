@@ -80,14 +80,6 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     }
 
     @EventHandler
-    fun onPlayerQuit(event: PlayerQuitEvent) {
-        val blurPlayer = session.blur.getPlayer(event.player)
-        if (players.contains(blurPlayer)) {
-            session.removePlayer(blurPlayer, true)
-        }
-    }
-
-    @EventHandler
     fun onPlayerJoinSession(event: PlayerJoinSessionEvent) {
         if (isSession(event)) {
             event.blurPlayer.reset()
