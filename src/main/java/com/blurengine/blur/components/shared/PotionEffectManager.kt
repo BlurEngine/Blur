@@ -235,7 +235,7 @@ data class BlurPotionEffect(val type: PotionEffectType, val amplifier: Int, val 
 }
 
 object BlurPotionEffects {
-    val NO_JUMP = BlurPotionEffect(PotionEffectType.JUMP, 128, Duration.ofSeconds(30))
-    val NO_WALK = BlurPotionEffect(PotionEffectType.SLOW, 6, Duration.ofSeconds(30))
+    val NO_JUMP = BlurPotionEffect(PotionEffectType.JUMP, 128, Duration.ofSeconds(30), particles = false)
+    val NO_WALK = BlurPotionEffect(PotionEffectType.SLOW, 6, Duration.ofSeconds(30), particles = false)
     val INFINITE_INVISIBLITY = BlurPotionEffect(PotionEffectType.SLOW, 6, Duration.ofSeconds(30))
 }
