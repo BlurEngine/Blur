@@ -513,7 +513,8 @@ public abstract class BlurSession {
     }
 
     public int millisecondsToTicks(long ms) {
-        return (int) ms / ticksAsMs;
+        long ticks = ms / ticksAsMs;
+        return ticks <= Integer.MAX_VALUE ? (int) ticks : Integer.MAX_VALUE;
     }
     
     /* ================================
