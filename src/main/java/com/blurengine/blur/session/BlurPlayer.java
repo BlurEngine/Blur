@@ -51,6 +51,7 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
 
     private final BukkitPlayerManager manager;
     BlurSession blurSession;
+    private boolean quitting;
 
     public BlurPlayer(BukkitPlayerManager manager, @Nonnull Player player) {
         super(player);
@@ -173,6 +174,13 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         getSession().callEvent(event);
     }
 
+    public boolean isQuitting() {
+        return quitting;
+    }
+
+    protected void setQuitting(boolean quitting) {
+        this.quitting = quitting;
+    }
     /* ================================
      * >> DELEGATE METHODS
      * ================================ */

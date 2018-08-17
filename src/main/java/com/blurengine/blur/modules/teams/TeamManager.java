@@ -19,7 +19,7 @@ package com.blurengine.blur.modules.teams;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.RootBlurSession;
+import com.blurengine.blur.session.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.framework.Component;
@@ -36,7 +36,6 @@ import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 import com.blurengine.blur.supervisor.Amendable;
 import com.blurengine.blur.supervisor.SupervisorContext;
-import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.utils.BeanUtils;
 
 import org.bukkit.event.EventHandler;

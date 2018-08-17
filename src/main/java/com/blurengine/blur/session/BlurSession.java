@@ -19,7 +19,6 @@ package com.blurengine.blur.session;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.Blur;
-import com.blurengine.blur.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.players.PlayerPostLeaveSessionEvent;
@@ -38,10 +37,8 @@ import com.blurengine.blur.framework.metadata.BasicMetadataStorage;
 import com.blurengine.blur.framework.metadata.MetadataStorage;
 import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
 import com.blurengine.blur.modules.stages.StageChangeData;
-import com.blurengine.blur.modules.stages.StageChangeReason;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
-import com.supaham.commons.bukkit.scoreboards.CommonScoreboard;
 import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
@@ -101,7 +98,6 @@ public abstract class BlurSession {
     protected final SessionManager sessionManager;
     protected final ModuleManager moduleManager;
     private final BlurSession parentSession;
-    private final BlurSessionListener listener = new BlurSessionListener(this);
     private final Set<BlurSession> childrenSessions = new HashSet<>();
     private File rootDirectory = new File(".");
     private String name = getClass().getSimpleName(); // Default session name to short class name
@@ -170,7 +166,6 @@ public abstract class BlurSession {
         Preconditions.checkArgument(getTicksPerSecond() > 0, "ticksPerSecond must be greater than 0.");
         long startedAt = System.currentTimeMillis();
         this.ticker = new SessionTicker();
-        getBlur().getPlugin().registerEvents(this.listener);
         this.sharedComponents.values().stream()
             .filter(module -> module.getState() == ComponentState.UNLOADED)
             .forEach(this::loadSharedComponent);
@@ -240,11 +235,10 @@ public abstract class BlurSession {
             .forEach(this::unloadSharedComponent);
 
         for (BlurPlayer blurPlayer : new HashSet<>(this.players.values())) {
-            removePlayer(blurPlayer, false);
+            removePlayer(blurPlayer);
         }
         this.ticker.stop();
         this.ticker = null;
-        getBlur().getPlugin().unregisterEvents(this.listener);
         this.onStopTasks.forEach(Runnable::run);
         if (this.parentSession != null) {
             this.parentSession.removeChildSession(this);
@@ -314,12 +308,12 @@ public abstract class BlurSession {
         }
     }
 
-    public void removePlayer(@Nonnull BlurPlayer blurPlayer, boolean quit) {
+    public void removePlayer(@Nonnull BlurPlayer blurPlayer) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
         if (this.players.containsKey(blurPlayer.getUuid())) {
             getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
             BlurSession nextSession = null;
-            if (!quit && !(getParentSession() instanceof RootBlurSession)) {
+            if (!blurPlayer.isQuitting() && !(getParentSession() instanceof RootBlurSession)) {
                 nextSession = getParentSession();
             }
 
@@ -347,12 +341,15 @@ public abstract class BlurSession {
             }
 
             // If a player is removed from this session, all children should not have the same player.
-            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer, quit));
+            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
             this.players.remove(blurPlayer.getUuid());
-            blurPlayer.blurSession = nextSession;
             callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
-            if (nextSession != null) {
+
+            if (blurPlayer.isQuitting()) {
+                blurPlayer.blurSession = getParentSession();
+            } else if (nextSession != null) {
                 if (nextSession.getPlayer(blurPlayer.getUuid()).isPresent()) {
+                    blurPlayer.blurSession = nextSession;
                     callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
                 } else {
                     nextSession.addPlayer(blurPlayer);
