@@ -31,7 +31,7 @@
         <main.class>${main.package}.BlurPlugin</main.class>
 
         <spigot.version>1.13-R0.1-SNAPSHOT</spigot.version>
-        <commons-bukkit.version>0.5.6-SNAPSHOT</commons-bukkit.version>
+        <commons-bukkit.version>0.6.0-SNAPSHOT</commons-bukkit.version>
         <kotlin.version>1.2.41</kotlin.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <text.version>1.12-1.6.4</text.version>
