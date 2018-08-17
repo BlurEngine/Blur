@@ -22,6 +22,7 @@ import com.blurengine.blur.Blur;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
 import com.blurengine.blur.events.players.PlayerPostLeaveSessionEvent;
+import com.blurengine.blur.events.players.PlayerPreJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerSwitchSessionEvent;
 import com.blurengine.blur.events.session.SessionEnableEvent;
 import com.blurengine.blur.events.session.SessionLoadEvent;
@@ -272,6 +273,8 @@ public abstract class BlurSession {
             getLogger().finer("Adding %s to %s", blurPlayer.getName(), getName());
             this.players.put(blurPlayer.getUuid(), blurPlayer);
             blurPlayer.blurSession = this;
+
+            callEvent(new PlayerPreJoinSessionEvent(blurPlayer, this));
             initializePlayerDataClasses(blurPlayer);
             callEvent(new PlayerJoinSessionEvent(blurPlayer, this, false));
         }
