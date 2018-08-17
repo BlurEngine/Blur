@@ -110,6 +110,7 @@ public abstract class BlurSession {
     private SessionTicker ticker;
 
     private final Map<UUID, BlurPlayer> players = new HashMap<>();
+    private final Map<BlurPlayer, Instant> removingPlayers = new HashMap<>();
     //    private final Table<BlurPlayer, Class, Object> customData = HashBasedTable.create();
     private final MetadataStorage<BlurPlayer> playerMetadata = new BasicMetadataStorage<>();
 
@@ -308,54 +309,61 @@ public abstract class BlurSession {
         }
     }
 
-    public void removePlayer(@Nonnull BlurPlayer blurPlayer) {
+    public boolean removePlayer(@Nonnull BlurPlayer blurPlayer) {
         Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
-        if (this.players.containsKey(blurPlayer.getUuid())) {
-            getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
-            BlurSession nextSession = null;
-            if (!blurPlayer.isQuitting() && !(getParentSession() instanceof RootBlurSession)) {
-                nextSession = getParentSession();
-            }
-
-            // Call session switch event when nextSession is valid
-            if (nextSession != null) {
-                PlayerSwitchSessionEvent switchEvent = callEvent(new PlayerSwitchSessionEvent(blurPlayer, nextSession));
-                if (switchEvent.isCancelled()) {
-                    return;
+        if (this.players.containsKey(blurPlayer.getUuid()) && !removingPlayers.containsKey(blurPlayer)) {
+            removingPlayers.put(blurPlayer, Instant.now());
+            try {
+                getLogger().finer("Removing %s from %s", blurPlayer.getName(), getName());
+                BlurSession nextSession = null;
+                if (!blurPlayer.isQuitting() && !(getParentSession() instanceof RootBlurSession)) {
+                    nextSession = getParentSession();
                 }
-                nextSession = switchEvent.getNextSession();
-            }
 
-            callEvent(new PlayerLeaveSessionEvent(blurPlayer, this, nextSession));
-
-            // Unregister player custom data classes.
-            for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {
-                if (data instanceof PlayerData) {
-                    ((PlayerData) data).disable();
+                // Call session switch event when nextSession is valid
+                if (nextSession != null) {
+                    PlayerSwitchSessionEvent switchEvent = callEvent(new PlayerSwitchSessionEvent(blurPlayer, nextSession));
+                    if (switchEvent.isCancelled()) {
+                        return false;
+                    }
+                    nextSession = switchEvent.getNextSession();
                 }
-                for (Class<? extends Module> moduleClass : moduleManager.getModules().keySet()) {
-                    Module module = moduleManager.getModules().get(moduleClass).iterator().next();
-                    module.removeTickable(data);
-                }
-                playerMetadata.remove(blurPlayer, data);
-            }
 
-            // If a player is removed from this session, all children should not have the same player.
-            this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
-            this.players.remove(blurPlayer.getUuid());
-            callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
+                callEvent(new PlayerLeaveSessionEvent(blurPlayer, this, nextSession));
 
-            if (blurPlayer.isQuitting()) {
-                blurPlayer.blurSession = getParentSession();
-            } else if (nextSession != null) {
-                if (nextSession.getPlayer(blurPlayer.getUuid()).isPresent()) {
-                    blurPlayer.blurSession = nextSession;
-                    callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
-                } else {
-                    nextSession.addPlayer(blurPlayer);
+                // Unregister player custom data classes.
+                for (Object data : new HashSet<>(playerMetadata.getList(blurPlayer))) {
+                    if (data instanceof PlayerData) {
+                        ((PlayerData) data).disable();
+                    }
+                    for (Class<? extends Module> moduleClass : moduleManager.getModules().keySet()) {
+                        Module module = moduleManager.getModules().get(moduleClass).iterator().next();
+                        module.removeTickable(data);
+                    }
+                    playerMetadata.remove(blurPlayer, data);
                 }
+
+                // If a player is removed from this session, all children should not have the same player.
+                this.childrenSessions.forEach(s -> s.removePlayer(blurPlayer));
+                this.players.remove(blurPlayer.getUuid());
+                callEvent(new PlayerPostLeaveSessionEvent(blurPlayer, this));
+
+                if (blurPlayer.isQuitting()) {
+                    blurPlayer.blurSession = getParentSession();
+                } else if (nextSession != null) {
+                    if (nextSession.getPlayer(blurPlayer.getUuid()).isPresent()) {
+                        blurPlayer.blurSession = nextSession;
+                        callEvent(new PlayerJoinSessionEvent(blurPlayer, nextSession, true));
+                    } else {
+                        nextSession.addPlayer(blurPlayer);
+                    }
+                }
+            } finally {
+                removingPlayers.remove(blurPlayer);
             }
+            return true;
         }
+        return false;
     }
 
     public void broadcastMessage(@Nonnull String message, Object... args) {
