@@ -190,12 +190,14 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDamage(event: VehicleDamageEvent) {
-        if (!event.attacker.isCreative() && event.test(data.vehicleDamage)) event.isCancelled = true
+        if (event.attacker?.isCreative() == true) return
+        if (event.test(data.vehicleDamage)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDestroy(event: VehicleDestroyEvent) {
-        if (!event.attacker.isCreative() && event.test(data.vehicleDestroy)) event.isCancelled = true
+        if (event.attacker?.isCreative() == true) return
+        if (event.test(data.vehicleDestroy)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
