@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -136,7 +137,9 @@ public class ModuleManager {
         if (this.stageManager.getStages().isEmpty()) {
             this.stageManager.addDefaultStage();
         }
-        this.modules.values().stream().filter(module -> module.getState() == ComponentState.UNLOADED).forEach(this::loadModule);
+        List<Module> registeredModules = this.modules.values().stream().filter(module -> module.getState()
+            == ComponentState.UNLOADED).collect(Collectors.toList());
+        registeredModules.forEach(this::loadModule);
     }
 
     public void unload() {
