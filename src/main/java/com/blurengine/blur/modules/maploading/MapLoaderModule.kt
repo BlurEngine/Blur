@@ -32,8 +32,6 @@ import com.supaham.commons.Joiner
 import com.supaham.commons.utils.CollectionUtils
 import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
-import org.bukkit.World
-import org.bukkit.WorldCreator
 import org.bukkit.event.EventHandler
 import pluginbase.config.annotation.Name
 import java.io.BufferedReader
@@ -112,6 +110,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
 
         if (canDelete) {
             try {
+                logger.fine("Deleting stale map: %s", worldFolder.path)
                 FileUtils.deleteDirectory(worldFolder)
             } catch (e: IOException) {
                 logger.log(Level.SEVERE, "Failed to delete " + worldFolder.path, e)
@@ -138,16 +137,22 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         val worldName = GENERATED_WORLD_DIRECTORY_PREFIX + map.id
 
         val worldDir = File(Bukkit.getWorldContainer(), worldName)
+        if (worldDir.exists()) {
+            try {
+                logger.fine("Deleting stale map: %s", worldDir.path)
+                FileUtils.deleteDirectory(worldDir)
+            } catch (e: IOException) {
+                throw MapLoadException("Failed to delete old directory: " + map.mapDirectory.path, e)
+            }
+        }
         try {
+            logger.fine("Copying %s to directory: %s", map.mapDirectory.path, worldDir.path)
             FileUtils.copyDirectory(map.mapDirectory, worldDir)
         } catch (e: IOException) {
-            throw MapLoadException("Failed to duplicate " + map.mapDirectory.path, e)
+            throw MapLoadException("Failed to duplicate: " + map.mapDirectory.path, e)
         }
 
-        val worldCreator = WorldCreator.name(worldDir.name)
-        
-        if (File(worldDir, "DIM-1").exists()) worldCreator.environment(World.Environment.NETHER)
-        else if (File(worldDir, "DIM1").exists()) worldCreator.environment(World.Environment.THE_END)
+        val worldCreator = map.config.map!!.worldSettings.toWorldCreator(worldDir.name)
 
         val world = worldCreator.createWorld()
 
@@ -279,7 +284,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
             val _nonMC = ArrayList<File>()
             for (file in files) {
                 when (addMapDir(file)) {
-                // This line adds the file directory to this.mapPaths
+                    // This line adds the file directory to this.mapPaths
                     1 -> _inexistant.add(file)
                     2 -> _nonDirs.add(file)
                     3 -> _nonMC.add(file)

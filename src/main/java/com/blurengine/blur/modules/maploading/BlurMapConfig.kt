@@ -19,6 +19,9 @@ package com.blurengine.blur.modules.maploading
 import com.blurengine.blur.properties.BlurConfig
 import com.github.zafarkhaja.semver.Version
 import com.supaham.commons.bukkit.serializers.ColorStringSerializer
+import org.bukkit.World
+import org.bukkit.WorldCreator
+import org.bukkit.WorldType
 import pluginbase.config.annotation.Name
 import pluginbase.config.annotation.SerializeWith
 import java.util.UUID
@@ -45,6 +48,9 @@ class BlurMapConfig : BlurConfig() {
         @Name("max-players")
         var maxPlayers: Int = Int.MAX_VALUE
             private set
+        @Name("world-settings")
+        var worldSettings = WorldSettings()
+            private set
 
         fun checkValues() {
             if (minPlayers > 0) {
@@ -58,5 +64,36 @@ class BlurMapConfig : BlurConfig() {
             private set
         var role: String? = null
             private set
+    }
+
+    class WorldSettings {
+        var seed: String? = null
+            private set
+        var environment: World.Environment? = World.Environment.NORMAL
+            private set
+        var type: WorldType? = WorldType.NORMAL
+            private set
+        var generatorSettings: String = ""
+            private set
+        var generateStructures: Boolean = true
+            private set
+
+        // Do not allow name as a setting as that is defined via map loader
+
+        fun toWorldCreator(name: String) = WorldCreator(name)
+                .environment(environment)
+                .type(type)
+                .generatorSettings(generatorSettings)
+                .generateStructures(generateStructures)
+                .apply {
+                    if (seed != null) {
+                        try {
+                            seed(seed!!.toLong())
+                        } catch (e: NumberFormatException) {
+                            seed(seed!!.hashCode().toLong())
+                        }
+                    }
+                }
+
     }
 }
