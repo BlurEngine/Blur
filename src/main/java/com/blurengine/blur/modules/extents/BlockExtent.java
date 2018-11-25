@@ -18,6 +18,7 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
 import com.supaham.commons.bukkit.utils.ImmutableBlockVector;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
@@ -29,18 +30,23 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a Cuboid shaped {@link Extent}, containing two points where the cuboid begins and ends, minimum to maximum respectively.
  */
-public class BlockExtent implements Extent {
+public class BlockExtent implements Extent, DirectionalExtent {
 
-    public static final BlockExtent ZERO = new BlockExtent(new ImmutableBlockVector(0, 0, 0));
+    public static final BlockExtent ZERO = new BlockExtent(new ImmutableBlockVector(0, 0, 0), null);
 
     private ImmutableVector vector;
+    private ExtentDirection direction = NullExtentDirection.INSTANCE;
 
-    public BlockExtent(@Nonnull ImmutableVector vector) {
+    public BlockExtent(@Nonnull ImmutableVector vector, @Nullable ExtentDirection direction) {
         this.vector = Preconditions.checkNotNull(vector, "vector cannot be null.");
+        if (direction != null) {
+            this.direction = direction;
+        }
     }
 
     @Override
@@ -84,6 +90,12 @@ public class BlockExtent implements Extent {
     @Override
     public boolean isInfinite() {
         return false;
+    }
+
+    @Nonnull
+    @Override
+    public ExtentDirection getDirection() {
+        return this.direction;
     }
 
     public ImmutableVector getVector() {

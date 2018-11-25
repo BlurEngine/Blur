@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.bukkit.utils.VectorUtils;
+import com.supaham.commons.minecraft.world.space.Position;
 
 import org.bukkit.util.Vector;
 
@@ -102,5 +103,9 @@ public interface BlurSerializer<T> extends Serializer<T> {
 
     default Vector getVector(String string) {
         return VectorUtils.deserialize(string);
+    }
+
+    default Position getPosition(String string) {
+        return SerializationUtils.SERIALIZER_SET.getClassSerializer(Position.class).deserialize(string, Position.class);
     }
 }

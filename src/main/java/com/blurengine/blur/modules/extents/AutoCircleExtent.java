@@ -18,14 +18,14 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -34,33 +34,40 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents an {@link Extent} that consists of {@link Vector}s, radius, and offset in radians.
  */
-public class AutoCircleExtent implements Extent {
+public class AutoCircleExtent implements Extent, DirectionalExtent {
 
     protected Vector base;
-    protected List<Vector> pointsList;
+    protected int points;
     protected double radius;
     protected double offsetRadians;
+    protected ExtentDirection direction = NullExtentDirection.INSTANCE;
 
+    protected List<Vector> pointsList;
     protected int lastPoint;
     protected List<BlockVector> bvCache;
 
-    public AutoCircleExtent(@Nonnull Vector base, @Nonnull Collection<Vector> pointsList, double radius, double offsetRadians) {
+    public AutoCircleExtent(@Nonnull Vector base, int points, double radius, double offsetRadians) {
+        this(base, points, radius, offsetRadians, null);
+    }
+
+    public AutoCircleExtent(@Nonnull Vector base, int points, double radius, double offsetRadians,
+                            @Nullable ExtentDirection direction) {
         Preconditions.checkNotNull(base, "base cannot be null.");
-        Preconditions.checkNotNull(pointsList, "points cannot be null.");
+        Preconditions.checkArgument(points > 0, "points must be greater than 0.");
         Preconditions.checkArgument(radius > 0, "radius must be greater than 0.");
 
         this.base = base;
-        if (pointsList instanceof List) {
-            this.pointsList = Collections.unmodifiableList((List<Vector>) pointsList);
-        } else {
-            this.pointsList = Collections.unmodifiableList(new ArrayList<>(pointsList));
-        }
         this.radius = radius;
         this.offsetRadians = offsetRadians;
+        this.pointsList = generatePoints();
+        if (direction != null) {
+            this.direction = direction;
+        }
     }
 
     @Override
@@ -76,8 +83,8 @@ public class AutoCircleExtent implements Extent {
 
     @Override
     public MutableExtent mutable() throws UnsupportedOperationException {
-        MutableAutoCircleExtent mutable = new MutableAutoCircleExtent(this.base, this.radius, this.pointsList.size(), this.offsetRadians);
-        mutable.pointsList = new ArrayList<>(this.pointsList);
+        MutableAutoCircleExtent mutable = new MutableAutoCircleExtent(this.base, this.radius, this.points, this.offsetRadians);
+        mutable.pointsList = this.pointsList;
         return mutable;
     }
 
@@ -108,7 +115,13 @@ public class AutoCircleExtent implements Extent {
     public boolean isInfinite() {
         return false;
     }
-    
+
+    @NotNull
+    @Override
+    public ExtentDirection getDirection() {
+        return direction;
+    }
+
     public ImmutableVector getBase() {
         return new ImmutableVector(this.base);
     }
@@ -129,17 +142,29 @@ public class AutoCircleExtent implements Extent {
         return offsetRadians;
     }
 
+    protected List<Vector> generatePoints() {
+        double x = base.getX();
+        double z = base.getZ();
+        // TODO optimize by using already existing vectors.
+        List<Vector> points = IntStream.range(0, this.points).mapToObj(i -> {
+            double angle = ((double) i / this.points) * Math.PI * 2 + offsetRadians;
+            double dX = Math.cos(angle) * radius + x;
+            double dZ = Math.sin(angle) * radius + z;
+            return new Vector(dX, base.getY(), dZ);
+        }).collect(Collectors.toList());
+        return Collections.unmodifiableList(points);
+    }
+
     public static final class MutableAutoCircleExtent extends AutoCircleExtent implements MutableExtent {
 
-        private int points;
-        private boolean dirty = true;
+        private boolean dirty = false;
 
         public MutableAutoCircleExtent(@Nonnull Vector base, double radius, int points, double offsetRadians) {
-            super(base, new ArrayList<>(), radius, offsetRadians);
+            super(base, points, radius, offsetRadians);
             setPoints(points);
             regenerate();
         }
-        
+
         public Vector getMutableBase() {
             return this.base;
         }
@@ -174,19 +199,20 @@ public class AutoCircleExtent implements Extent {
             }
         }
 
-        public void regenerate() {
-            if (!dirty) {
-                return;
+        public void setDirection(@Nullable ExtentDirection direction) {
+            if (direction == null) {
+                direction = NullExtentDirection.INSTANCE;
             }
-            double x = base.getX();
-            double z = base.getZ();
-            // TODO optimize by using already existing vectors.
-            this.pointsList = IntStream.range(0, points).mapToObj(i -> {
-                double angle = ((double) i / points) * Math.PI * 2 + offsetRadians;
-                double dX = Math.cos(angle) * radius + x;
-                double dZ = Math.sin(angle) * radius + z;
-                return new Vector(dX, base.getY(), dZ);
-            }).collect(Collectors.toList());
+            if (!this.direction.equals(direction)) {
+                this.direction = direction;
+                this.dirty = true;
+            }
+        }
+
+        public void regenerate() {
+            if (dirty) {
+                this.pointsList = generatePoints();
+            }
         }
 
         @Override

@@ -18,31 +18,42 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
 import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.utils.RandomUtils;
 
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a Cuboid shaped {@link Extent}, containing two points where the cuboid begins and ends, minimum to maximum respectively.
  */
-public class CuboidExtent implements Extent {
+public class CuboidExtent implements Extent, DirectionalExtent {
 
     private Vector min;
     private Vector max;
+    private ExtentDirection direction = NullExtentDirection.INSTANCE;
 
     public CuboidExtent(@Nonnull Vector v1, @Nonnull Vector v2) {
+        this(v1, v2, null);
+    }
+
+    public CuboidExtent(@Nonnull Vector v1, @Nonnull Vector v2, @Nullable ExtentDirection direction) {
         Preconditions.checkNotNull(v1, "v1 cannot be null.");
         Preconditions.checkNotNull(v2, "v2 cannot be null.");
         this.min = Vector.getMinimum(v1, v2);
         this.max = Vector.getMaximum(v1, v2);
+        if (direction != null) {
+            this.direction = direction;
+        }
     }
 
     @Override
@@ -73,6 +84,12 @@ public class CuboidExtent implements Extent {
     @Override
     public boolean isInfinite() {
         return false;
+    }
+
+    @NotNull
+    @Override
+    public ExtentDirection getDirection() {
+        return direction;
     }
 
     public Vector getMinimumPoint() {

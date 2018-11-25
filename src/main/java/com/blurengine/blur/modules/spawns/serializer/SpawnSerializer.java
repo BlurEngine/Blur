@@ -25,11 +25,6 @@ import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.filters.Filters;
 import com.blurengine.blur.modules.spawns.Spawn;
-import com.blurengine.blur.modules.spawns.SpawnDirection;
-import com.blurengine.blur.modules.spawns.SpawnDirection.FixedSpawnDirection;
-import com.blurengine.blur.modules.spawns.SpawnDirection.NullSpawnDirection;
-import com.blurengine.blur.modules.spawns.SpawnDirection.PointToSpawnDirection;
-import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -57,7 +52,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
     public Spawn deserialize(@Nullable Object serialized, @Nonnull Class wantedType, @Nonnull SerializerSet serializerSet) {
         return getSpawn(serialized);
     }
-    
+
     /* ================================
      * >> Deserialization methods
      * ================================ */
@@ -73,16 +68,6 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
         Preconditions.checkArgument(!map.isEmpty(), "given map is empty.");
 
         SpawnData destination = new SpawnData(extent);
-        // Pass the given extent argument as a default for SpawnData in case the _map_ doesn't have an extent override.
-        if (map.containsKey("yaw") || map.containsKey("pitch")) {
-            Object yaw = map.get("yaw");
-            Object pitch = map.get("pitch");
-            destination.direction = new FixedSpawnDirection(yaw == null ? 0 : Float.parseFloat(yaw.toString()),
-                pitch == null ? 0 : Float.parseFloat(pitch.toString()));
-        } else if (map.containsKey("point-to")) {
-            destination.direction = new PointToSpawnDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
-        }
-        
         if (map.containsKey("filter")) {
             destination.filter = this.moduleLoader.getFilterSerializer().deserialize(map.get("filter"), Filter.class);
         }
@@ -146,7 +131,6 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
     private static class SpawnData {
 
         private Extent extent;
-        private transient SpawnDirection direction = NullSpawnDirection.INSTANCE;
         private transient Filter filter = Filters.ALWAYS_ALLOW;
 
         private SpawnData() {}
@@ -156,7 +140,7 @@ public class SpawnSerializer implements BlurSerializer<Spawn> {
         }
 
         public Spawn toSpawn() {
-            return new Spawn(extent, direction, filter);
+            return new Spawn(extent, filter);
         }
     }
 }

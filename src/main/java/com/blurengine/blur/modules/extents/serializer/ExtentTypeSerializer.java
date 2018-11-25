@@ -20,6 +20,11 @@ import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.modules.extents.Extent;
+import com.blurengine.blur.modules.extents.ExtentDirection;
+import com.blurengine.blur.modules.extents.ExtentDirection.FixedExtentDirection;
+import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
+import com.blurengine.blur.modules.extents.ExtentDirection.PointToExtentDirection;
+import com.supaham.commons.bukkit.utils.VectorUtils;
 
 import java.util.Map;
 
@@ -64,6 +69,19 @@ public abstract class ExtentTypeSerializer<T extends Extent> implements BlurSeri
         }
         deserializedPreHandler(serialized);
         return deserialize(serialized);
+    }
+
+    protected ExtentDirection deserializeExtentDirection(Map map) {
+        if (map.containsKey("yaw") || map.containsKey("pitch")) {
+            Object yaw = map.get("yaw");
+            Object pitch = map.get("pitch");
+            return new FixedExtentDirection(yaw == null ? 0 : Float.parseFloat(yaw.toString()),
+                pitch == null ? 0 : Float.parseFloat(pitch.toString()));
+        } else if (map.containsKey("point-to")) {
+            return new PointToExtentDirection(VectorUtils.deserializeRelative(map.get("point-to").toString()));
+        } else {
+            return NullExtentDirection.INSTANCE;
+        }
     }
 
     protected void deserializedPreHandler(Object o) {

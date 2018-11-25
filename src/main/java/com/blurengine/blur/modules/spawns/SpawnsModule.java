@@ -29,6 +29,8 @@ import com.blurengine.blur.framework.ModuleParseException;
 import com.blurengine.blur.framework.SerializedModule;
 import com.blurengine.blur.framework.WorldModule;
 import com.blurengine.blur.modules.extents.BlockExtent;
+import com.blurengine.blur.modules.extents.DirectionalExtent;
+import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.ExtentNotFoundException;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
@@ -66,8 +68,11 @@ public class SpawnsModule extends WorldModule {
         Preconditions.checkNotNull(spawn, "spawn cannot be null.");
         Preconditions.checkNotNull(world, "world cannot be null.");
         Preconditions.checkNotNull(entity, "entity cannot be null.");
-        Location location = spawn.getExtent().getRandomLocation().toLocation(world);
-        spawn.getSpawnDirection().applyTo(location, entity);
+        Extent extent = spawn.getExtent();
+        Location location = extent.getRandomLocation().toLocation(world);
+        if (extent instanceof DirectionalExtent) {
+            ((DirectionalExtent) extent).getDirection().applyTo(location, entity);
+        }
         return location;
     }
 

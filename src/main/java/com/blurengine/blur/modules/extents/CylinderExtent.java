@@ -18,10 +18,12 @@ package com.blurengine.blur.modules.extents;
 
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
 import com.supaham.commons.bukkit.utils.ImmutableVector;
 
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,20 +31,29 @@ import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a Cylinder {@link Extent} implementation where a circular area is selected with a height.
  */
-public class CylinderExtent implements Extent {
+public class CylinderExtent implements Extent, DirectionalExtent {
 
     private final ImmutableVector base;
     private final double radius;
     private final double height;
+    private ExtentDirection direction = NullExtentDirection.INSTANCE;
 
     public CylinderExtent(@Nonnull ImmutableVector base, double radius, double height) {
+        this(base, radius, height, null);
+    }
+
+    public CylinderExtent(@Nonnull ImmutableVector base, double radius, double height, @Nullable ExtentDirection direction) {
         this.base = Preconditions.checkNotNull(base, "base vector cannot be null.");
         this.radius = radius;
         this.height = height;
+        if (direction != null) {
+            this.direction = direction;
+        }
     }
 
     @Override
@@ -92,6 +103,12 @@ public class CylinderExtent implements Extent {
     @Override
     public boolean isInfinite() {
         return false;
+    }
+
+    @NotNull
+    @Override
+    public ExtentDirection getDirection() {
+        return direction;
     }
 
     public ImmutableVector getBase() {
