@@ -79,7 +79,7 @@ public class CylinderExtent implements Extent {
             double angle = ((double) i / spacing) * PI2;
             double dX = Math.cos(angle) * this.radius + this.base.getX();
             double dZ = Math.sin(angle) * this.radius + this.base.getZ();
-            
+
             // TODO Height 1 currently counts two separate heights, should it stay like that?
             for (int j = 0; j <= (int) this.height; j++) {
                 result.add(new BlockVector(dX, this.base.getY() + j, dZ));
@@ -87,6 +87,11 @@ public class CylinderExtent implements Extent {
             }
         }
         return result.iterator();
+    }
+
+    @Override
+    public boolean isInfinite() {
+        return false;
     }
 
     public ImmutableVector getBase() {
