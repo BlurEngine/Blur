@@ -132,6 +132,19 @@ fun BlurPlayer.getTeam() = session.moduleManager.teamManager.getPlayerTeam(this)
 
 inline fun <reified T : Module> BlurSession.getModule(): List<T> = this.getModule(T::class.java)
 
+/**
+ * Returns list of modules while climbing through session hierarchy.
+ */
+inline fun <reified T : Module> BlurSession.getModuleClimbing(): List<T> {
+    val modules = this.getModule(T::class.java)
+    var parent = this.parentSession
+    while (parent != null) {
+        modules += parent.getModule(T::class.java)
+        parent = parent.parentSession
+    }
+    return modules
+}
+
 fun RelativeVector.withMultiply(vector: Vector): Vector {
     val _vector = vector.clone()
     _vector.x = if (this.isXRelative) _vector.x * x else x
