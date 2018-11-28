@@ -212,6 +212,7 @@ public class TeamManager extends Module implements SupervisorContext {
 
     @EventHandler
     public void onPlayerLeaveSession(PlayerLeaveSessionEvent event) {
+        if (!isSession(event)) return;
         setPlayerTeam(event.getBlurPlayer(), null);
     }
 
