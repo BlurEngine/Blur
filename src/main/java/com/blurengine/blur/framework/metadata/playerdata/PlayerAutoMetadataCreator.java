@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.framework.metadata.playerdata;
 
+import com.blurengine.blur.framework.Component;
 import com.blurengine.blur.framework.metadata.auto.AbstractAutoMetadataCreator;
 import com.blurengine.blur.framework.metadata.auto.MetadataCreator;
 import com.blurengine.blur.session.BlurPlayer;
@@ -26,6 +27,12 @@ import java.lang.reflect.InvocationTargetException;
 import javax.annotation.Nonnull;
 
 public class PlayerAutoMetadataCreator extends AbstractAutoMetadataCreator<BlurPlayer> {
+
+    private final Component ownerComponent;
+
+    public PlayerAutoMetadataCreator(Component ownerComponent) {
+        this.ownerComponent = ownerComponent;
+    }
 
     @Nonnull
     @Override
@@ -61,6 +68,10 @@ public class PlayerAutoMetadataCreator extends AbstractAutoMetadataCreator<BlurP
     @Override
     public <T> void registerClass(@Nonnull Class<T> clazz) {
         super.registerClass(clazz);
+        for (BlurPlayer blurPlayer : this.ownerComponent.getPlayers()) {
+            Object data = instantiateClass(clazz, blurPlayer);
+            this.ownerComponent.getSession().addPlayerData(this.ownerComponent, blurPlayer, data);
+        }
     }
 
     /**
@@ -72,5 +83,9 @@ public class PlayerAutoMetadataCreator extends AbstractAutoMetadataCreator<BlurP
     @Override
     public <T> void registerClass(@Nonnull Class<T> clazz, @Nonnull MetadataCreator<T, BlurPlayer> creator) {
         super.registerClass(clazz, creator);
+        for (BlurPlayer blurPlayer : this.ownerComponent.getPlayers()) {
+            Object data = creator.create(blurPlayer);
+            this.ownerComponent.getSession().addPlayerData(this.ownerComponent, blurPlayer, data);
+        }
     }
 }

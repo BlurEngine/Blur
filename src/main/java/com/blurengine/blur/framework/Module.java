@@ -52,6 +52,10 @@ public abstract class Module extends AbstractComponent {
         return moduleInfo;
     }
 
+    public Set<Module> getSubmodules() {
+        return submodules;
+    }
+
     public boolean addSubmodule(@Nonnull Module module) {
         Preconditions.checkNotNull(module, "module");
         if (this.submodules.add(module)) {

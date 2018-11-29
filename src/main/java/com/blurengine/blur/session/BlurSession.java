@@ -285,9 +285,6 @@ public abstract class BlurSession {
         for (Class<? extends Module> clazz : moduleManager.getModules().keySet()) {
             Module module = moduleManager.getModules().get(clazz).iterator().next();
             initializeComponentPlayerDataClasses(module, blurPlayer);
-            for (Component component : module.getSubcomponents()) {
-                initializeComponentPlayerDataClasses(component, blurPlayer);
-            }
         }
     }
 
@@ -297,6 +294,14 @@ public abstract class BlurSession {
         // Initialise data instances
         for (Object data : dataInstances) {
             addPlayerData(component, blurPlayer, data);
+        }
+        if (component instanceof Module) {
+            for (Module submodule : ((Module) component).getSubmodules()) {
+                initializeComponentPlayerDataClasses(submodule, blurPlayer);
+            }
+        }
+        for (Component subcomponent : component.getSubcomponents()) {
+            initializeComponentPlayerDataClasses(subcomponent, blurPlayer);
         }
     }
 

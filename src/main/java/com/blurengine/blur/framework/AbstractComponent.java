@@ -262,7 +262,7 @@ public abstract class AbstractComponent implements Component {
     @Override
     public PlayerAutoMetadataCreator getPlayerMetadataCreator() {
         if (playerMetadataCreator == null) {
-            playerMetadataCreator = new PlayerAutoMetadataCreator();
+            playerMetadataCreator = new PlayerAutoMetadataCreator(this);
         }
         return playerMetadataCreator;
     }
