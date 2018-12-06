@@ -19,6 +19,7 @@ package com.blurengine.blur.modules.teams;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import com.blurengine.blur.framework.SharedComponent;
 import com.blurengine.blur.session.RootBlurSession;
 import com.blurengine.blur.events.players.PlayerJoinSessionEvent;
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent;
@@ -99,6 +100,9 @@ public class TeamManager extends Module implements SupervisorContext {
             for (Component component : module.getSubcomponents()) {
                 initializeComponentTeamDataClasses(component, blurTeam);
             }
+        }
+        for (SharedComponent component : getSession().getSharedComponents().values()) {
+            initializeComponentTeamDataClasses(component, blurTeam);
         }
     }
 

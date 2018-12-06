@@ -286,6 +286,9 @@ public abstract class BlurSession {
             Module module = moduleManager.getModules().get(clazz).iterator().next();
             initializeComponentPlayerDataClasses(module, blurPlayer);
         }
+        for (SharedComponent component : sharedComponents.values()) {
+            initializeComponentPlayerDataClasses(component, blurPlayer);
+        }
     }
 
     private void initializeComponentPlayerDataClasses(Component component, BlurPlayer blurPlayer) {
