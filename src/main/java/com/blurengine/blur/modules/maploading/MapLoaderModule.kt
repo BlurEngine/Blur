@@ -215,7 +215,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
                 var fileString = checkNotNull<Any>(_map["file"], "MapLoader maps missing file property.").toString()
                 fileString = fileString.replace("\\{directory\\}".toRegex(), this.directory!!.toString())
 
-                val file = File(directory, fileString)
+                val file = File(fileString)
                 check(file.exists(), "%s does not exist.", file)
                 check(file.isFile, "%s must be a file.", file)
 
