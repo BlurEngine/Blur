@@ -97,7 +97,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     @EventHandler
     fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
         if (isSession(event)) {
-            if (this.countdown != null) {
+            if (this.countdown != null && !testCriteria()) {
                 this.countdown!!.stop()
             }
         }
@@ -119,9 +119,11 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             }
         }
     }
-
+    
+    fun testCriteria() = session.players.size >= data.requiredPlayers
+ 
     fun checkAndStart() {
-        if (session.players.size >= data.requiredPlayers) {
+        if (testCriteria()) {
 
             check(this.childrenSessions.isEmpty()) { "LobbyModule only supports 1 session at a time." }
             if (this.countdown != null) {
