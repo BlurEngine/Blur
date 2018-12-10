@@ -69,10 +69,6 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
 
         this.blur = new Blur(this);
         this.rootSession = new RootBlurSession(this.blur.getSessionManager());
-        ModuleManager moduleManager = this.rootSession.getModuleManager();
-
-        // Load from serialized modules, here's how the whoooole chain starts!
-        moduleManager.getModuleLoader().load(getSettings().getModules());
 
         // SUPERVISOR
         if (getServer().getPluginManager().getPlugin("Supervisor") != null) {
@@ -85,7 +81,13 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         }
 
         // Immediately load, enable and start the root session to get the wheels going.
-        new TickerTask(this, 0, this.rootSession::start).start();
+        new TickerTask(this, 0, () -> {
+            ModuleManager moduleManager = this.rootSession.getModuleManager();
+            // Load from serialized modules, here's how the whoooole chain starts!
+            moduleManager.getModuleLoader().load(getSettings().getModules());
+            this.rootSession.start();
+            
+        }).start();
     }
 
     // Cleanup blur during shutdown.
