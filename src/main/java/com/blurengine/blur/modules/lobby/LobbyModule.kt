@@ -39,6 +39,11 @@ import com.blurengine.blur.modules.spawns.SpawnsModule
 import com.blurengine.blur.modules.stages.StageChangeData
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
+import com.blurengine.blur.text.dsl.TextComponentBuilder
+import com.supaham.commons.utils.StringUtils
+import net.kyori.text.TextComponent
+import net.kyori.text.format.TextColor
+import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerJoinEvent
@@ -181,9 +186,50 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
 
     private inner class LobbyCountdown : GlobalGameCountdown(this@LobbyModule, Math.max(1, (data.countdown.toMillis() / 50).toInt())) {
 
+        val ARROW: String = "${ChatColor.WHITE}${ChatColor.BOLD}\u00BB"
+
+        val countdownMessage: TextComponentBuilder get() = TextComponentBuilder(ARROW) {
+            text(" Next match will start in ").color(TextColor.YELLOW)
+        }
+        
         override fun onEnd() {
             super.onEnd()
             startNextSession()
+        }
+
+        override fun onTick() {
+            super.onTick()
+            // Only send message when its a second tick
+            if (ticks % session.ticksPerSecond != 0) {
+                return
+            }
+            val seconds = ticks / session.ticksPerSecond
+            var hasMessage = false
+            val countdownMessage: TextComponentBuilder by lazy {
+                hasMessage = true
+                this.countdownMessage
+            }
+            if (seconds % 60 == 0) {
+                countdownMessage.apply {
+                    val minutes = seconds / 60
+                    text("$minutes ${StringUtils.appendIfPlural(minutes, "minute", false)}"){
+                        color(TextColor.RED)
+                    }
+                    text(".")
+                }
+            } else if (seconds <= 30) {
+                if (seconds <= 10 || seconds % 10 == 0) {
+                    countdownMessage.apply {
+                        text("$seconds ${StringUtils.appendIfPlural(seconds, "second", false)}") {
+                            color(TextColor.RED)
+                        }
+                        text(".")
+                    }
+                }
+            }
+            if (hasMessage) {
+                session.broadcastMessage(countdownMessage.build())
+            }
         }
     }
 }
