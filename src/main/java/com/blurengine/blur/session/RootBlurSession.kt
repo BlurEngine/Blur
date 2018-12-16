@@ -46,7 +46,7 @@ class RootBlurSession(manager: SessionManager) : BlurSession(Preconditions.check
             session.removePlayer(blurPlayer)
 
             session = session.parentSession
-            if (session != null) {
+            if (session != null && session !is RootBlurSession) {
                 check(blurPlayer.session == session) { "blurPlayer session after removal is not parent." }
             }
         } while (session != null)
