@@ -83,9 +83,8 @@ public abstract class AbstractComponent implements Component {
 
     @Override
     public boolean tryLoad() {
-        if (!setState(ComponentState.LOADED)) {
-            return false;
-        }
+        getLogger().finer("Loading %s component", getClass().getSimpleName());
+        Preconditions.checkState(setState(ComponentState.LOADED), "Failed to set component state to LOADED");
         this.tasksThatHaveBeenRan.clear();
 
         this.listeners.forEach(getSession().getBlur().getPlugin()::registerEvents);
@@ -95,43 +94,57 @@ public abstract class AbstractComponent implements Component {
         this.tasksThatHaveBeenRan.addAll(this.tasks.stream().filter(t -> t.getInterval() < 0).collect(Collectors.toList()));
 
         load();
-        boolean resultOfAllLoads = getSubcomponentsStream().map(Component::tryLoad).filter(b -> !b).findFirst().orElse(true);
+        boolean resultOfAllLoads = getSubcomponentsStream()
+            .filter(comp -> comp.getState().isAcceptable(ComponentState.LOADED))
+            .map(Component::tryLoad)
+            .filter(b -> !b)
+            .findFirst().orElse(true);
         return resultOfAllLoads;
     }
 
     @Override
     public boolean tryUnload() {
-        if (!setState(ComponentState.UNLOADED)) {
-            return false;
-        }
+        getLogger().finer("Unloading %s component", getClass().getSimpleName());
+        Preconditions.checkState(setState(ComponentState.UNLOADED), "Failed to set component state to UNLOADED");
+
         this.listeners.forEach(getSession().getBlur().getPlugin()::unregisterEvents);
         this.tasks.forEach(TickerTask::stop);
         this.tasksThatHaveBeenRan.clear();
 
         unload();
-        boolean resultOfAllUnloads = getSubcomponentsStream().map(Component::tryUnload).filter(b -> !b).findFirst().orElse(true);
+        boolean resultOfAllUnloads = getSubcomponentsStream()
+            .filter(comp -> comp.getState().isAcceptable(ComponentState.UNLOADED))
+            .map(Component::tryUnload)
+            .filter(b -> !b)
+            .findFirst().orElse(true);
         return resultOfAllUnloads;
     }
 
     @Override
     public boolean tryEnable() {
-        if (!setState(ComponentState.ENABLED)) {
-            return false;
-        }
+        getLogger().finer("Enabling %s component", getClass().getSimpleName());
+        Preconditions.checkState(setState(ComponentState.ENABLED), "Failed to set component state to ENABLED");
 
         enable();
-        boolean resultOfAllEnables = getSubcomponentsStream().map(Component::tryEnable).filter(b -> !b).findFirst().orElse(true);
+        boolean resultOfAllEnables = getSubcomponentsStream()
+            .filter(comp -> comp.getState().isAcceptable(ComponentState.ENABLED))
+            .map(Component::tryEnable)
+            .filter(b -> !b)
+            .findFirst().orElse(true);
         return resultOfAllEnables;
     }
 
     @Override
     public boolean tryDisable() {
-        if (!setState(ComponentState.LOADED)) {
-            return false;
-        }
+        getLogger().finer("Disabling %s component", getClass().getSimpleName());
+        Preconditions.checkState(setState(ComponentState.LOADED), "Failed to set component state to LOADED");
 
         disable();
-        boolean resultOfAllDisables = getSubcomponentsStream().map(Component::tryDisable).filter(b -> !b).findFirst().orElse(true);
+        boolean resultOfAllDisables = getSubcomponentsStream()
+            .filter(comp -> comp.getState().isAcceptable(ComponentState.LOADED))
+            .map(Component::tryDisable)
+            .filter(b -> !b)
+            .findFirst().orElse(true);
         return resultOfAllDisables;
     }
 
