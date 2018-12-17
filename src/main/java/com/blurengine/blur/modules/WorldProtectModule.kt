@@ -27,6 +27,7 @@ import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -45,6 +46,7 @@ import org.bukkit.event.block.LeavesDecayEvent
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityBreakDoorEvent
 import org.bukkit.event.entity.EntityCombustEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
@@ -58,6 +60,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerBucketFillEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerShearEntityEvent
 import org.bukkit.event.vehicle.VehicleDamageEvent
@@ -189,6 +192,30 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
+        if (!event.player.isCreative()) {
+            event.isCancelled = when {
+                event.rightClicked is ItemFrame -> event.test(data.hangingInteract)
+                else -> false
+            }
+            
+        }
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
+        val damagerPlayer = event.damager as? Player ?: return
+
+        if (!damagerPlayer.isCreative()) {
+            event.isCancelled = when {
+                event.entity is ItemFrame -> event.test(data.hangingInteract)
+                else -> false
+            }
+            
+        }
+    }
+
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onVehicleDamage(event: VehicleDamageEvent) {
         if (event.attacker?.isCreative() == true) return
         if (event.test(data.vehicleDamage)) event.isCancelled = true
@@ -286,6 +313,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var hangingBreakByPlayer: Boolean = true
         @Name("hanging-place")
         var hangingPlace: Boolean = true
+        @Name("hanging-interact")
+        var hangingInteract: Boolean = true
         @Name("vehicle-damage")
         var vehicleDamage: Boolean = true
         @Name("vehicle-destroy")
