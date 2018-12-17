@@ -141,6 +141,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         if (!team.getOption(Option.COLLISION_RULE).equals(getCollisionRule().getBukkit())) {
             team.setOption(Option.COLLISION_RULE, getCollisionRule().getBukkit());
         }
+        team.setColor(ChatUtils.textColorToBukkit(getChatColor()));
         if (updatePlayers) {
             Set<String> oldEntries = players.stream().map(BlurPlayer::getName).collect(Collectors.toSet());
             oldEntries.removeAll(team.getEntries());
