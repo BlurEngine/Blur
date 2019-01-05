@@ -203,15 +203,15 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
-    fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
+    fun onEntityDamageByPlayer(event: EntityDamageByEntityEvent) {
         val damagerPlayer = event.damager as? Player ?: return
 
         if (!damagerPlayer.isCreative()) {
             event.isCancelled = when {
                 event.entity is ItemFrame -> event.test(data.hangingInteract)
-                else -> false
+                else -> event.test(data.playerDamageEntity)
             }
-            
+
         }
     }
 
@@ -334,6 +334,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var shearEntity: Boolean = true
         @Name("player-drop-item")
         var playerDropItem: Boolean = true
+        @Name("player-damage-entity")
+        var playerDamageEntity: Boolean = true
 
         @Name("weather-change")
         var weatherChange: Boolean = true
