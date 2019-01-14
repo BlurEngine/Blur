@@ -25,6 +25,8 @@ import com.blurengine.blur.framework.ModuleManager;
 import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
 import com.blurengine.blur.inventory.InventoryLayout;
 
+import java.time.Instant;
+
 import javax.annotation.Nonnull;
 
 @ModuleInfo(name = "BlurCore")
@@ -43,11 +45,15 @@ public class BlurCoreModule extends Module {
         private InventoryLayout inventoryLayout;
         private int kills;
         private int deaths;
+        private final Instant sessionJoinTime;
 
         public BlurPlayerCoreData(@Nonnull BlurPlayer blurPlayer) {
             Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null.");
             this.blurPlayer = blurPlayer;
             this.inventoryLayout = new InventoryLayout(blurPlayer.getPlayer().getInventory());
+
+            // Assumes this class is created as soon as the player joins the session. Can be placed better.
+            sessionJoinTime = Instant.now();
         }
 
         public boolean isAlive() {
@@ -80,6 +86,10 @@ public class BlurCoreModule extends Module {
 
         public void setDeaths(int deaths) {
             this.deaths = deaths;
+        }
+
+        public Instant getSessionJoinTime() {
+            return sessionJoinTime;
         }
     }
 }
