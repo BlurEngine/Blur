@@ -16,12 +16,14 @@
 
 package com.blurengine.blur.session
 
+import com.blurengine.blur.utils.toBlurPlayer
 import com.google.common.base.Preconditions
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
 /**
@@ -35,6 +37,14 @@ class RootBlurSession(manager: SessionManager) : BlurSession(Preconditions.check
         blur.plugin.registerEvents(this)
     }
 
+    /*
+     * All players in the game are a part of RootBlurSession for encouraging compatible modules.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onPlayerJoin(event: PlayerJoinEvent) {
+        addPlayer(event.player.toBlurPlayer())
+    }
+
     // Priority HIGH is crucial as the BlurPlayer reference is disposed of in HIGHEST
     @EventHandler(priority = EventPriority.HIGH)
     fun onPlayerQuit(event: PlayerQuitEvent) {
@@ -46,7 +56,7 @@ class RootBlurSession(manager: SessionManager) : BlurSession(Preconditions.check
             session.removePlayer(blurPlayer)
 
             session = session.parentSession
-            if (session != null && session !is RootBlurSession) {
+            if (session != null) {
                 check(blurPlayer.session == session) { "blurPlayer session after removal is not parent." }
             }
         } while (session != null)
