@@ -32,6 +32,7 @@ import com.blurengine.blur.modules.extents.BlockExtent;
 import com.blurengine.blur.modules.extents.DirectionalExtent;
 import com.blurengine.blur.modules.extents.Extent;
 import com.blurengine.blur.modules.extents.ExtentNotFoundException;
+import com.blurengine.blur.modules.extents.UnionExtent;
 import com.blurengine.blur.modules.spawns.SpawnsModule.SpawnsData;
 import com.blurengine.blur.modules.spawns.serializer.SpawnSerializer;
 import com.blurengine.blur.session.BlurPlayer;
@@ -48,6 +49,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -69,6 +71,9 @@ public class SpawnsModule extends WorldModule {
         Preconditions.checkNotNull(world, "world cannot be null.");
         Preconditions.checkNotNull(entity, "entity cannot be null.");
         Extent extent = spawn.getExtent();
+        if (extent instanceof UnionExtent) {
+            extent = CollectionUtils.getRandomElement(((UnionExtent) extent).getExtents());
+        }
         Location location = extent.getRandomLocation().toLocation(world);
         if (extent instanceof DirectionalExtent) {
             ((DirectionalExtent) extent).getDirection().applyTo(location, entity);
