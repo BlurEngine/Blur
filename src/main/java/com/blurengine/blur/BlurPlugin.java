@@ -31,14 +31,24 @@ import com.supaham.commons.bukkit.TickerTask;
 import com.supaham.commons.bukkit.listeners.PlayerListeners;
 import com.supaham.commons.state.State;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
+
+import co.aikar.commands.BukkitCommandIssuer;
 
 /**
  * Bukkit plugin class for {@link Blur}.
  */
 public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listener {
+
+    /*
+     * Counter for how many plugins hooked in here for waiting before loading we start the root session.
+     */
+    private static int pluginsHooked = 0;
 
     private static BlurPlugin instance;
 
@@ -46,6 +56,27 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
     private RootBlurSession rootSession;
 
     public static BlurPlugin get() { return instance; }
+
+    /**
+     * Registers a plugin that is hooking into Blur and requires priority of loading before starting RootBlurSession.
+     * @param plugin
+     */
+    public static void hook(Plugin plugin) {
+        pluginsHooked++;
+    }
+
+    /**
+     * Reverses pause effect from {@link #hook(Plugin)}.
+     * @param plugin
+     */
+    public static void unhook(Plugin plugin) {
+        if (pluginsHooked > 0) {
+            pluginsHooked--;
+            if (instance != null) {
+                instance.startRootSession();
+            }
+        }
+    }
 
     public BlurPlugin() {
         Preconditions.checkState(instance == null, "BlurPlugin already initialized.");
@@ -57,6 +88,9 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
     public void onEnable() {
         super.onEnable();
 
+        this.blur = new Blur(this);
+        this.rootSession = new RootBlurSession(this.blur.getSessionManager());
+
         // This is important for handling immediate shutdown via commands.
         ServerShutdown module = new ServerShutdown(getModuleContainer());
         getModuleContainer().register(module);
@@ -66,9 +100,6 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
         registerEvents(new BlurListener(this));
 
         setupCommands();
-
-        this.blur = new Blur(this);
-        this.rootSession = new RootBlurSession(this.blur.getSessionManager());
 
         // SUPERVISOR
         if (getServer().getPluginManager().getPlugin("Supervisor") != null) {
@@ -80,14 +111,26 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
             return;
         }
 
-        // Immediately load, enable and start the root session to get the wheels going.
-        new TickerTask(this, 0, () -> {
-            ModuleManager moduleManager = this.rootSession.getModuleManager();
-            // Load from serialized modules, here's how the whoooole chain starts!
-            moduleManager.getModuleLoader().load(getSettings().getModules());
-            this.rootSession.start();
-            
-        }).start();
+        if (pluginsHooked == 0) {
+            startRootSession();
+        } else {
+            // Immediately load, enable and start the root session to get the wheels going.
+            new TickerTask(this, 0, this::startRootSession).start();
+        }
+    }
+
+    private void startRootSession() {
+        if (this.rootSession.isStarted()) {
+            // Mission accomplished
+            return;
+        }
+        // Clear hook count
+        pluginsHooked = 0;
+
+        ModuleManager moduleManager = this.rootSession.getModuleManager();
+        // Load from serialized modules, here's how the whoooole chain starts!
+        moduleManager.getModuleLoader().load(getSettings().getModules());
+        this.rootSession.start();
     }
 
     // Cleanup blur during shutdown.
@@ -100,6 +143,13 @@ public class BlurPlugin extends SimpleCommonPlugin<BlurPlugin> implements Listen
     public void onDisable() {
         super.onDisable();
         cleanup();
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        BukkitCommandIssuer issuer = getCommandsManager().getCommandIssuer(sender);
+        getCommandsManager().getRootCommand(label).execute(issuer, label, args);
+        return super.onCommand(sender, command, label, args);
     }
 
     private void cleanup() {

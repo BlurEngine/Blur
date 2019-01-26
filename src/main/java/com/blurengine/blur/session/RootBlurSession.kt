@@ -30,11 +30,15 @@ import org.bukkit.event.player.PlayerQuitEvent
  * Represents a root [BlurSession] that is incharge of all the other [BlurSession]. There should only exist one instance of this class
  * across the whole program.
  */
-class RootBlurSession(manager: SessionManager) : BlurSession(Preconditions.checkNotNull(manager, "manager cannot be null."), null), Listener {
+class RootBlurSession(private val manager: SessionManager) : BlurSession(Preconditions.checkNotNull(manager, "manager cannot be null."), null), Listener {
 
-    init {
-        manager.addSession(this)
-        blur.plugin.registerEvents(this)
+    override fun load(): Boolean {
+        if (super.load()) {
+            manager.addSession(this)
+            blur.plugin.registerEvents(this)
+            return true
+        }
+        return false
     }
 
     /*
