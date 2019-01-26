@@ -19,7 +19,6 @@ package com.blurengine.blur.modules.spawns.respawns
 import com.blurengine.blur.events.players.BlurPlayerDeathEvent
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent
 import com.blurengine.blur.events.players.PlayerLeaveSessionEvent
-import com.blurengine.blur.events.players.PlayerSwitchSessionEvent
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.ModuleData
 import com.blurengine.blur.framework.ModuleInfo
@@ -101,14 +100,16 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
     @EventHandler
     fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
         if (isSession(event.session)) {
-            if (data.useBossBar) {
-                destroyPlayer(event.blurPlayer)
-            }
+            destroyPlayer(event.blurPlayer)
         }
     }
 
     @Tick
     fun ticker() {
+        if (theDead.isEmpty()) {
+            return
+        }
+
         val theDeadTeams = HashMultimap.create<BlurTeam, BlurPlayer>()
 
         // Remove invalid/offline players
@@ -120,21 +121,20 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
             if (!session.players.values.any { it.session == session }) {
                 it.remove()
+                continue
             }
-        }
-        if (data.useBossBar) spawnerBossBar.ticker()
-
-        theDead.keys.forEach {
-            if (!it.player.isValid) {
-                destroyPlayer(it)
+            if (!blurPlayer.player.isValid) {
+                destroyPlayer(blurPlayer)
             } else {
-                theDeadTeams.put(it.getTeam(), it)
+                theDeadTeams.put(blurPlayer.getTeam(), blurPlayer)
             }
         }
+
         theDeadTeams.asMap().forEach { _, players ->
             val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
             val passedMinWait = playerDeadTimes.filter { it.value >= data.minTimer.toMillis() }
 
+            // Check if enough players waited minimum duration  
             if (passedMinWait.size >= data.minPlayers) {
                 if (logger.debugLevel >= 2) {
                     logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
@@ -143,11 +143,18 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                     it.key.respawn()
                 }
             } else {
-                passedMinWait.filter { it.value >= data.maxTimer.toMillis() }.forEach {
-                    logger.finer("${it.key.name} waited ${data.maxTimer.seconds}s.")
+                val needToSpawn = passedMinWait.filter { it.value >= data.maxTimer.toMillis() }
+                if (needToSpawn.isNotEmpty()) {
+                    logger.finer("$needToSpawn waited ${data.maxTimer.seconds}s.")
+                }
+                needToSpawn.forEach {
                     it.key.respawn()
                 }
             }
+        }
+
+        if (data.useBossBar) {
+            spawnerBossBar.ticker()
         }
     }
 
