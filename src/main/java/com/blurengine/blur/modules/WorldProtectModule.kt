@@ -29,6 +29,7 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority.LOWEST
@@ -198,20 +199,29 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
                 event.rightClicked is ItemFrame -> event.test(data.hangingInteract)
                 else -> false
             }
-            
         }
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onEntityDamageByPlayer(event: EntityDamageByEntityEvent) {
-        val damagerPlayer = event.damager as? Player ?: return
+        val damager = event.damager
+        fun checkPlayer(damager: Player) {
+            if (!damager.isCreative()) {
+                event.isCancelled = when {
+                    event.entity is ItemFrame -> event.test(data.hangingInteract)
+                    else -> event.test(data.playerDamageEntity)
+                }
 
-        if (!damagerPlayer.isCreative()) {
-            event.isCancelled = when {
-                event.entity is ItemFrame -> event.test(data.hangingInteract)
-                else -> event.test(data.playerDamageEntity)
             }
+        }
 
+        if (damager is Player) {
+            checkPlayer(damager)
+        } else if (damager is Projectile) {
+            val shooter = damager.shooter
+            if (shooter is Player) {
+                checkPlayer(shooter)
+            }
         }
     }
 
