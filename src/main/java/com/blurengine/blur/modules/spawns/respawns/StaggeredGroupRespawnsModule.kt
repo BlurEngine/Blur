@@ -144,8 +144,8 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                 }
             } else {
                 val needToSpawn = passedMinWait.filter { it.value >= data.maxTimer.toMillis() }
-                if (needToSpawn.isNotEmpty()) {
-                    logger.finer("$needToSpawn waited ${data.maxTimer.seconds}s.")
+                if (needToSpawn.isNotEmpty() && logger.debugLevel >= 2) {
+                    logger.finer("${needToSpawn.map { it.key.name }} waited ${data.maxTimer.seconds}s.")
                 }
                 needToSpawn.forEach {
                     it.key.respawn()
