@@ -113,14 +113,13 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         val theDeadTeams = HashMultimap.create<BlurTeam, BlurPlayer>()
 
         // Remove invalid/offline players
-        val it = theDead.keys.iterator()
-        for (blurPlayer in it) {
+        for (blurPlayer in theDead.keys.toMutableSet()) {
             if (data.deathbox?.contains(blurPlayer) == false) {
                 sendToDeathbox(blurPlayer)
             }
 
             if (!session.players.values.any { it.session == session }) {
-                it.remove()
+                destroyPlayer(blurPlayer)
                 continue
             }
             if (!blurPlayer.player.isValid) {
