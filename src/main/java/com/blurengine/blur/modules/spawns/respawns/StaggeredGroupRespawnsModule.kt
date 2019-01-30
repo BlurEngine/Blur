@@ -63,7 +63,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
 
     override fun disable() {
         super.disable()
-        theDead.keys.forEach { destroyPlayer(it) }
+        theDead.keys.toMutableSet().forEach { destroyPlayer(it) }
     }
 
     fun sendToDeathbox(blurPlayer: BlurPlayer) {
