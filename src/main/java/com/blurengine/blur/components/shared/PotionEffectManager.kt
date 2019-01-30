@@ -45,7 +45,9 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
 
     @Tick
     fun tick() {
-        _entityEffects.rowMap().forEach { (uuid, potionsMap) ->
+        // Make copy of map to prevent CME when potionsIt removal causes _entityEffects key to be removed as well.
+        val entityEffects = _entityEffects.rowMap().toMutableMap()
+        entityEffects.forEach { (uuid, potionsMap) ->
             val entity = session.server.getEntity(uuid) as? LivingEntity
 
             val potionsIt = potionsMap.values.iterator()
