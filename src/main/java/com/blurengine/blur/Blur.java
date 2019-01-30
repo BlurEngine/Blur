@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import pluginbase.logging.PluginLogger;
 
@@ -150,19 +151,15 @@ public class Blur {
     }
 
     /**
-     * Returns a {@link BlurPlayer} instance for a {@link Player}. If the {@code player} doesn't have an instance, one is immediately created and
-     * returned.
+     * Returns a {@link BlurPlayer} instance for a {@link Player}. Returns null if the {@link Player} is not online.
      *
      * @param player bukkit player to get BlurPlayer from
      * @return BlurPlayer instance
      */
-    @Nonnull
+    @Nullable
     public BlurPlayer getPlayer(@Nonnull Player player) {
-        BlurPlayer blurPlayer = getPlayerManager().getPlayer(player);
-        if (blurPlayer == null) {
-            blurPlayer = getPlayerManager().createPlayer(player);
-        }
-        return blurPlayer;
+        Preconditions.checkNotNull(player, "player");
+        return getPlayerManager().getPlayer(player);
     }
 
     public PluginLogger getLogger() {

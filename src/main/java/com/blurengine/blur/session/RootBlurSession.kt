@@ -44,15 +44,16 @@ class RootBlurSession(private val manager: SessionManager) : BlurSession(Precond
     /*
      * All players in the game are a part of RootBlurSession for encouraging compatible modules.
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        addPlayer(event.player.toBlurPlayer())
+        val blurPlayer = event.player.toBlurPlayer()!!
+        addPlayer(blurPlayer)
     }
 
     // Priority HIGH is crucial as the BlurPlayer reference is disposed of in HIGHEST
     @EventHandler(priority = EventPriority.HIGH)
     fun onPlayerQuit(event: PlayerQuitEvent) {
-        val blurPlayer = blur.getPlayer(event.player)
+        val blurPlayer = blur.getPlayer(event.player) ?: return
         blurPlayer.isQuitting = true
         // recursively remove player from each session in the order child all the way up to greatest ancestor (RootBlurSession).
         var session = blurPlayer.session
@@ -69,6 +70,6 @@ class RootBlurSession(private val manager: SessionManager) : BlurSession(Precond
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val blurPlayer = blur.getPlayer(event.entity)
-        blurPlayer.die()
+        blurPlayer?.die()
     }
 }

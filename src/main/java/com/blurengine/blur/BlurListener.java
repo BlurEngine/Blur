@@ -61,7 +61,7 @@ class BlurListener implements Listener {
         Location to = event.getTo();
         if (!from.toVector().equals(to.toVector())) {
             BlurPlayer blurPlayer = plugin.getBlur().getPlayer(event.getPlayer());
-            if (blurPlayer.getSession() != null) {
+            if (blurPlayer != null && blurPlayer.getSession() != null) {
                 EventUtils.callEvent(new PlayerMoveBlockEvent(event, blurPlayer));
             }
         }
@@ -73,6 +73,10 @@ class BlurListener implements Listener {
         if (event.getEntity() instanceof Player && damager instanceof Player) {
             BlurPlayer blurDamager = plugin.getBlur().getPlayer((Player) damager);
             BlurPlayer blurVictim = plugin.getBlur().getPlayer((Player) event.getEntity());
+            if (blurDamager == null || blurVictim == null) {
+                plugin.getLog().info("Bad damager/victim damager=%s | victim=%s", blurDamager, blurVictim);
+                return;
+            }
 
             PlayerDamagePlayerEvent damageEvent = new PlayerDamagePlayerEvent(blurDamager, blurVictim, event);
             blurDamager.getSession().callEvent(damageEvent);
@@ -84,9 +88,14 @@ class BlurListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void preventUnclickableInventoryClicks(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
         Player player = (Player) event.getWhoClicked();
         BlurPlayer blurPlayer = plugin.getBlur().getPlayer(player);
+        if (blurPlayer == null) {
+            return;
+        }
         InventoryLayout invLayout = blurPlayer.getCoreData().getInventoryLayout();
         if ((event.getSlot() >= 0 && event.getSlot() <= 35) && event.getClickedInventory() instanceof PlayerInventory
             && !invLayout.getTypeBySlot(event.getSlot()).isClickable()) {

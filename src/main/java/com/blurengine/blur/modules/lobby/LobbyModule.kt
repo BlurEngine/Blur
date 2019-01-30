@@ -41,13 +41,11 @@ import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import com.blurengine.blur.text.dsl.TextComponentBuilder
 import com.supaham.commons.utils.StringUtils
-import net.kyori.text.TextComponent
 import net.kyori.text.format.TextColor
 import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import pluginbase.config.annotation.Name
 import java.time.Duration
 import java.util.ArrayList
@@ -72,7 +70,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         if (data.games == 1) {
-            val blurPlayer = session.blur.getPlayer(event.player)
+            val blurPlayer = session.blur.getPlayer(event.player)!!
             session.addPlayer(blurPlayer)
 
             // Code placed here because order of session modules init/event execution is very important. 
@@ -119,9 +117,9 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             }
         }
     }
-    
+
     fun testCriteria() = session.players.size >= data.requiredPlayers
- 
+
     fun checkAndStart() {
         if (testCriteria()) {
 
@@ -190,10 +188,11 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
 
         val ARROW: String = "${ChatColor.WHITE}${ChatColor.BOLD}\u00BB"
 
-        val countdownMessage: TextComponentBuilder get() = TextComponentBuilder(ARROW) {
-            text(" Next match will start in ").color(TextColor.YELLOW)
-        }
-        
+        val countdownMessage: TextComponentBuilder
+            get() = TextComponentBuilder(ARROW) {
+                text(" Next match will start in ").color(TextColor.YELLOW)
+            }
+
         override fun onEnd() {
             super.onEnd()
             startNextSession()
@@ -214,7 +213,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             if (seconds % 60 == 0) {
                 countdownMessage.apply {
                     val minutes = seconds / 60
-                    text("$minutes ${StringUtils.appendIfPlural(minutes, "minute", false)}"){
+                    text("$minutes ${StringUtils.appendIfPlural(minutes, "minute", false)}") {
                         color(TextColor.RED)
                     }
                     text(".")
