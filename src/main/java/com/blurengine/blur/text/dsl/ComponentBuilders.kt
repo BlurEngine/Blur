@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.text.dsl
 
+import com.supaham.commons.bukkit.utils.ChatUtils
 import net.kyori.text.BuildableComponent
 import net.kyori.text.Component
 import net.kyori.text.KeybindComponent
@@ -29,20 +30,24 @@ import net.kyori.text.format.TextColor
 import net.kyori.text.format.TextDecoration
 import java.util.UUID
 
+@Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
 open class ComponentBuilder<C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>>(val builder: B) {
 
     fun build(): C = builder.build()
 
-    fun append(builder: ComponentBuilder<*, *>) = apply {
-        this@ComponentBuilder.builder.append(builder.builder.build())
+    fun append(builder: ComponentBuilder<*, *>, newline: Boolean = false) = apply {
+        append(builder.build(), newline)
     }
 
-    fun append(builder: BuildableComponent.Builder<*, *>) = apply {
-        this@ComponentBuilder.builder.append(builder.build())
+    fun append(builder: BuildableComponent.Builder<*, *>, newline: Boolean = false) = apply {
+        append(builder.build(), newline)
     }
 
-    fun append(component: Component) = apply {
+    fun append(component: Component, newline: Boolean = false) = apply {
         this@ComponentBuilder.builder.append(component)
+        if (newline) {
+            this@ComponentBuilder.builder.append(ChatUtils.NEW_LINE)
+        }
     }
 
     fun color(color: TextColor) = apply { builder.color(color) }
