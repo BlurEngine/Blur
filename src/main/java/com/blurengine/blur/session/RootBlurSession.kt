@@ -70,6 +70,6 @@ class RootBlurSession(private val manager: SessionManager) : BlurSession(Precond
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val blurPlayer = blur.getPlayer(event.entity)
-        blurPlayer?.die()
+        blurPlayer?.die(event)
     }
 }

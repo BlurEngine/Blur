@@ -35,6 +35,7 @@ import net.kyori.text.TextComponent;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 
 import java.time.Duration;
 import java.util.List;
@@ -130,11 +131,11 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     /**
      * Kills this player by calling {@link BlurPlayerDeathEvent}.
      */
-    public void die() {
+    public void die(Event eventTrigger) {
         BlurPlayerCoreData coreData = getCoreData();
         coreData.setDeaths(coreData.getDeaths() + 1);
         coreData.setAlive(false);
-        this.blurSession.callEvent(new BlurPlayerDeathEvent(this, getLocation()));
+        this.blurSession.callEvent(new BlurPlayerDeathEvent(this, getLocation(), eventTrigger));
     }
 
     /**
@@ -153,8 +154,9 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         Preconditions.checkNotNull(victim, "victim");
         BlurPlayerCoreData coreData = getCoreData();
         coreData.setKills(coreData.getKills() + 1);
-        this.blurSession.callEvent(new PlayerKilledEvent(victim, victim.getLocation(), this));
-        victim.die();
+        PlayerKilledEvent killedEvent = new PlayerKilledEvent(victim, victim.getLocation(), this, null);
+        this.blurSession.callEvent(killedEvent);
+        victim.die(killedEvent);
     }
 
     /**

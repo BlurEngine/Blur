@@ -21,9 +21,11 @@ import com.google.common.base.Preconditions;
 import com.blurengine.blur.session.BlurPlayer;
 
 import org.bukkit.Location;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents an event that is fired when a {@link BlurPlayer} is killed by another {@link BlurPlayer}.
@@ -32,13 +34,13 @@ public class PlayerKilledEvent extends BlurPlayerDeathEvent {
 
     private final BlurPlayer killer;
 
-    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull BlurPlayer killer) {
-        super(victim);
+    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull BlurPlayer killer, @Nullable Event eventTrigger) {
+        super(victim, eventTrigger);
         this.killer = Preconditions.checkNotNull(killer, "killer cannot be null.");
     }
 
-    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull Location location, @Nonnull BlurPlayer killer) {
-        super(victim, location);
+    public PlayerKilledEvent(@Nonnull BlurPlayer victim, @Nonnull Location location, @Nonnull BlurPlayer killer, @Nullable Event eventTrigger) {
+        super(victim, location, eventTrigger);
         this.killer = Preconditions.checkNotNull(killer, "killer cannot be null.");
     }
 
