@@ -100,7 +100,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         logger.fine("Unloading %s from MapLoader.", session.name)
         val world = session.world
         world.players.forEach { player -> player.teleport(Bukkit.getWorlds()[0].spawnLocation) } // TODO change fixed world.
-        Bukkit.unloadWorld(world, true)
+        require(Bukkit.unloadWorld(world, true)) { "Failed to unload world ${world.name}"}
         var canDelete = true
 
         val worldFolder = world.worldFolder
