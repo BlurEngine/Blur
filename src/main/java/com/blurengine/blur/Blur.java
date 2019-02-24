@@ -18,7 +18,6 @@ package com.blurengine.blur;
 
 import com.google.common.base.Preconditions;
 
-import com.blurengine.blur.commands.BlurCommands;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.framework.ticking.TickFieldHolder;
 import com.blurengine.blur.modules.BoundariesModule;
@@ -89,7 +88,6 @@ public class Blur {
         this.sessionManager = new SessionManager(this);
         this.playerManager = new BlurPlayerManager(plugin);
         this.logger = plugin.getLog();
-        this.plugin.getCommandsManager().registerCommand(new BlurCommands(this));
     }
 
     static {

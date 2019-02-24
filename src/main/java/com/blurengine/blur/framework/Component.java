@@ -31,6 +31,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import co.aikar.commands.BaseCommand;
+
 /**
  * Represents a component class that serves as a general class for using in modules. An example of a component is {@link Countdown}.
  */
@@ -228,4 +230,40 @@ public interface Component extends Listener, SessionHelperInterface {
     boolean addSubcomponent(@Nonnull Component component);
 
     boolean removeSubcomponent(@Nonnull Component component);
+
+    /**
+     * Returns an immutable set of commands registered to this component.
+     *
+     * @return set of tickables
+     */
+    @Nonnull
+    Set<BaseCommand> getCommands();
+
+    /**
+     * Returns whether a {@link BaseCommand} is registered to this component.
+     *
+     * @param command command to check
+     *
+     * @return whether the command is added to this component
+     */
+    boolean hasCommand(@Nonnull BaseCommand command);
+
+    /**
+     * Registers a {@link BaseCommand} to this component. Upon registration, if this module is enabled, the command will automatically be
+     * registered into the server until it is unregistered using {@link #removeCommand(BaseCommand)}.
+     *
+     * @param command command to register
+     *
+     * @return whether the command was added to this component
+     */
+    boolean addCommand(@Nonnull BaseCommand command);
+
+    /**
+     * Unregisters a {@link BaseCommand} from this component.
+     *
+     * @param command command to unregister
+     *
+     * @return whether the command was removed from this component
+     */
+    boolean removeCommand(@Nonnull BaseCommand command);
 }

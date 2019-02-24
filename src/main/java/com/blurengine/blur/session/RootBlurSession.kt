@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.session
 
+import com.blurengine.blur.commands.BlurCommands
 import com.blurengine.blur.utils.toBlurPlayer
 import com.google.common.base.Preconditions
 
@@ -36,6 +37,7 @@ class RootBlurSession(private val manager: SessionManager) : BlurSession(Precond
         if (super.load()) {
             manager.addSession(this)
             blur.plugin.registerEvents(this)
+            blur.plugin.commandsManager.registerCommand(BlurCommands(this))
             return true
         }
         return false

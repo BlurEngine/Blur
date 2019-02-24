@@ -17,6 +17,7 @@
 package com.blurengine.blur.commands;
 
 import com.blurengine.blur.Blur;
+import com.blurengine.blur.session.BlurSession;
 import com.supaham.commons.bukkit.Colors;
 import com.supaham.commons.bukkit.commands.flags.Flag;
 import com.supaham.commons.bukkit.commands.flags.FlagParseResult;
@@ -45,6 +46,7 @@ public class BlurCommands extends BaseCommand {
 
     private static Component HEADER;
     private static Component FOOTER;
+    private final BlurSession session;
     private final Blur blur;
     private FlagParser blurFlagParser;
 
@@ -63,8 +65,9 @@ public class BlurCommands extends BaseCommand {
         FOOTER = TextComponent.of(sb.toString());
     }
 
-    public BlurCommands(Blur blur) {
-        this.blur = blur;
+    public BlurCommands(BlurSession session) {
+        this.session = session;
+        this.blur = session.getBlur();
     }
 
     @CommandAlias("blur")

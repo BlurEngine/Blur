@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import com.blurengine.blur.BlurPlugin;
 import com.blurengine.blur.countdown.Countdown;
 import com.blurengine.blur.framework.metadata.playerdata.PlayerAutoMetadataCreator;
 import com.blurengine.blur.framework.metadata.teamdata.TeamAutoMetadataCreator;
@@ -38,6 +39,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
+import co.aikar.commands.BaseCommand;
+
 /**
  * Represents a component class that serves as a general class for using in modules. An example of a component is {@link Countdown}.
  */
@@ -51,6 +54,7 @@ public abstract class AbstractComponent implements Component {
     private PlayerAutoMetadataCreator playerMetadataCreator;
     private TeamAutoMetadataCreator teamMetadataCreator;
     private final Set<Component> subcomponents = new HashSet<>();
+    private final Set<BaseCommand> commands = new HashSet<>();
 
     private ComponentState state = ComponentState.UNLOADED;
 
@@ -89,6 +93,7 @@ public abstract class AbstractComponent implements Component {
 
         this.listeners.forEach(getSession().getBlur().getPlugin()::registerEvents);
         this.tasks.forEach(TickerTask::start);
+        this.commands.forEach(getSession().getBlur().getPlugin().getCommandsManager()::registerCommand);
         // TODO Fix further by modifying the TickerTask class to support pauses, etc. 
         // Identify all single-run tasks
         this.tasksThatHaveBeenRan.addAll(this.tasks.stream().filter(t -> t.getInterval() < 0).collect(Collectors.toList()));
@@ -110,6 +115,7 @@ public abstract class AbstractComponent implements Component {
         this.listeners.forEach(getSession().getBlur().getPlugin()::unregisterEvents);
         this.tasks.forEach(TickerTask::stop);
         this.tasksThatHaveBeenRan.clear();
+        this.commands.forEach(getSession().getBlur().getPlugin().getCommandsManager()::unregisterCommand);
 
         unload();
         boolean resultOfAllUnloads = getSubcomponentsStream()
@@ -325,6 +331,41 @@ public abstract class AbstractComponent implements Component {
         if (this.subcomponents.remove(component)) {
             component.tryDisable();
             component.tryUnload();
+            return true;
+        }
+        return false;
+    }
+
+    @Nonnull
+    @Override
+    public Set<BaseCommand> getCommands() {
+        return Collections.unmodifiableSet(commands);
+    }
+
+    @Override
+    public boolean hasCommand(@Nonnull BaseCommand command) {
+        Preconditions.checkNotNull(command, "command cannot be null.");
+        return this.commands.contains(command);
+    }
+
+    @Override
+    public boolean addCommand(@Nonnull BaseCommand command) {
+        if (this.commands.add(command)) {
+            if (this.state != ComponentState.UNLOADED) {
+                getSession().getBlur().getPlugin().getCommandsManager().registerCommand(command);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeCommand(@Nonnull BaseCommand command) {
+        Preconditions.checkNotNull(command, "command cannot be null.");
+        if (this.commands.remove(command)) {
+            if (this.state != ComponentState.UNLOADED) {
+                getSession().getBlur().getPlugin().getCommandsManager().unregisterCommand(command);
+            }
             return true;
         }
         return false;
