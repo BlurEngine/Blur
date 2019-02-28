@@ -16,9 +16,26 @@
 
 package com.blurengine.blur.modules.stages
 
+import java.util.Objects
+
 interface StageChangeReason {
     val name: String
+
 }
+
+abstract class AbstractStageChangeReason : StageChangeReason {
+    override fun equals(other: Any?): Boolean {
+        return other is StageChangeReason && other.name == this.name
+    }
+    override fun toString(): String {
+        return name
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(name)
+    }
+}
+
 /**
  * An enumeration of reasons as to why a [StageManager] would change its stage.
  */
