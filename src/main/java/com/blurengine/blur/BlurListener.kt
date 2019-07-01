@@ -49,7 +49,7 @@ internal class BlurListener(private val plugin: BlurPlugin) : Listener {
     fun callPlayerMoveBlockEvent(event: PlayerMoveEvent) {
         val from = event.from
         val to = event.to
-        if (from.toVector() != to.toVector()) {
+        if (from.toVector() != to!!.toVector()) {
             val blurPlayer = plugin.blur.getPlayer(event.player)
             if (blurPlayer != null && blurPlayer.session != null) {
                 EventUtils.callEvent(PlayerMoveBlockEvent(event, blurPlayer))

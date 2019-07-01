@@ -130,7 +130,7 @@ open class Element {
                     if (chatColor == ChatColor.MAGIC) {
                         textDeco = TextDecoration.OBFUSCATED
                     } else {
-                        textDeco = Enums.findFuzzyByValue(TextDecoration::class.java, chatColor.name)
+                        textDeco = Enums.findFuzzyByValue(TextDecoration::class.java, chatColor!!.name)
                     }
                     if (textDeco != null) {
                         builder.decoration(textDeco, state)
