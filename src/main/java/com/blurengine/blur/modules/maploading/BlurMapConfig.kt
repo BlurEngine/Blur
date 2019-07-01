@@ -81,8 +81,8 @@ class BlurMapConfig : BlurConfig() {
         // Do not allow name as a setting as that is defined via map loader
 
         fun toWorldCreator(name: String) = WorldCreator(name)
-                .environment(environment)
-                .type(type)
+                .environment(environment!!)
+                .type(type!!)
                 .generatorSettings(generatorSettings)
                 .generateStructures(generateStructures)
                 .apply {

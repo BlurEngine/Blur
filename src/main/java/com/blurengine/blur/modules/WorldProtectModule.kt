@@ -103,7 +103,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onBlockIgnite(event: BlockIgniteEvent) {
-        if ((event.ignitingEntity !is Player || !event.ignitingEntity.isCreative()) && event.test(data.blockIgnite)) event.isCancelled = true
+        if ((event.ignitingEntity !is Player || !(event.ignitingEntity as Player).isCreative()) && event.test(data.blockIgnite)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
@@ -189,7 +189,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onHangingPlace(event: HangingPlaceEvent) {
-        if (!event.player.isCreative() && event.test(data.hangingPlace)) event.isCancelled = true
+        if (!event.player!!.isCreative() && event.test(data.hangingPlace)) event.isCancelled = true
     }
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)

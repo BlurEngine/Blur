@@ -47,7 +47,7 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
             outlines.putAll(pdata.extent, doExtent(pdata.extent))
             newTask({
                 outlines.get(pdata.extent).forEach {
-                    world.spawnParticle(pdata.particle, it.toLocation(this.world), 2, 0.0, 0.0, 0.0, 0.0)
+                    world.spawnParticle(pdata.particle!!, it.toLocation(this.world), 2, 0.0, 0.0, 0.0, 0.0)
                 }
             }).interval(pdata.interval).build()
         }

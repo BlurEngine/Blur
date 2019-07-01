@@ -93,8 +93,8 @@ class EntityFreezer(session: BlurSession) : SharedComponent(session) {
             if (!data.turningAllowed || !LocationUtils.isSameCoordinates(event.from, event.to)) {
                 val tp = event.from
                 if (data.turningAllowed) {
-                    tp.yaw = event.to.yaw
-                    tp.pitch = event.to.pitch
+                    tp.yaw = event.to!!.yaw
+                    tp.pitch = event.to!!.pitch
                 }
                 event.player.teleport(tp)
             }
