@@ -134,6 +134,11 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         }
     }
 
+    fun skipCountdown() {
+        check(this.childrenSessions.isEmpty()) { "LobbyModule only supports 1 session at a time." }
+        startNextSession()
+    }
+    
     private fun startNextSession() {
         if (this.countdown != null) {
             this.countdown!!.stop()
