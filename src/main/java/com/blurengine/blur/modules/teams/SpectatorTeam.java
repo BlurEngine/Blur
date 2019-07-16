@@ -16,6 +16,9 @@
 
 package com.blurengine.blur.modules.teams;
 
+import net.kyori.text.format.TextColor;
+import org.bukkit.Color;
+
 /**
  * Represents a {@link BlurTeam} designed for spectating players.
  */
@@ -24,6 +27,14 @@ public class SpectatorTeam extends BlurTeam {
     public static final String TEAM_ID = "spectators";
 
     public SpectatorTeam(TeamManager manager) {
-        super(manager, BlurTeam.builder().id(TEAM_ID).name("Spectators").max(9001).maxOverfill(9001));
+        super(manager, BlurTeam.builder()
+                .id(TEAM_ID)
+                .name("Spectators")
+                .max(9001)
+                .maxOverfill(9001)
+                .chatColor(TextColor.WHITE)
+                .collisionRule(CollisionRule.NOONE)
+                .nametagVisibility(NametagVisibility.NOONE)
+                .color(Color.WHITE));
     }
 }
