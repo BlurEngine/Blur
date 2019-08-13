@@ -48,10 +48,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -63,8 +60,12 @@ import pluginbase.config.annotation.SerializeWith;
 public class SpawnsModule extends WorldModule {
 
     public final SpawnsData data;
-    /** Contains a list of players respawning forcefully by this module. See spawnPlayer method with spigot respawn call.*/
+    /**
+     * Contains a list of players respawning forcefully by this module. See spawnPlayer method with spigot respawn call.
+     */
     private final WeakSet<Player> validRespawningPlayers = new WeakSet<>();
+    public final List<SpawnStrategy> spawnStrategies = new ArrayList<>();
+    private final SpawnStrategy fallbackSpawnStrategy;
 
     public static Location getLocationFromSpawn(Spawn spawn, World world, Entity entity) {
         Preconditions.checkNotNull(spawn, "spawn cannot be null.");
@@ -84,6 +85,11 @@ public class SpawnsModule extends WorldModule {
     public SpawnsModule(ModuleManager moduleManager, SpawnsData data) {
         super(moduleManager);
         this.data = data;
+        fallbackSpawnStrategy = new DefaultSpawnStrategy(this::getSpawns, data.defaultSpawn);
+    }
+
+    public Collection<Spawn> getSpawns() {
+        return Collections.unmodifiableCollection(data.spawns);
     }
 
     @EventHandler
@@ -177,8 +183,23 @@ public class SpawnsModule extends WorldModule {
     }
 
     public Spawn getNextSpawnForEntity(Entity entity) {
-        return data.spawns.stream().filter(s -> s.getFilter().test(entity).isAllowed()).findFirst()
-            .orElse(data.defaultSpawn);
+        Spawn foundSpawn = null;
+        for (SpawnStrategy spawnStrategy : this.spawnStrategies) {
+            Spawn spawn = spawnStrategy.getSpawn(entity);
+            if (spawn != null) {
+                foundSpawn = spawn;
+                break;
+            }
+        }
+
+        if (foundSpawn == null || foundSpawn.getFilter().test(entity).isDenied()) {
+            if (this.spawnStrategies.size() > 0) {
+                getLogger().finer("Failed to find player from assignmentStrategies");
+            }
+            foundSpawn = fallbackSpawnStrategy.getSpawn(entity);
+        }
+
+        return foundSpawn;
     }
 
     public static final class SpawnsData implements ModuleData {
@@ -226,12 +247,12 @@ public class SpawnsModule extends WorldModule {
 
             /*
              * If no default spawn is specified, we must set one internally by default based on BlockExtent.ZERO. This ensures there is always a
-             * fallback to spawn players to. Despite how chaotic it may seem, it is up to the user to fix the issue of spawns. 
+             * fallback to spawn players to. Despite how chaotic it may seem, it is up to the user to fix the issue of spawns.
              */
             if (this.defaultSpawn == null) {
                 try { // Use extent by id DEFAULT_SPAWN
                     this.defaultSpawn = moduleManager.getModuleLoader().getSpawnSerializer()
-                        .deserialize(DEFAULT_SPAWN, Spawn.class, serialized.getSerializerSet());
+                            .deserialize(DEFAULT_SPAWN, Spawn.class, serialized.getSerializerSet());
                 } catch (ExtentNotFoundException e) { // force set fallback spawn
                     this.defaultSpawn = new Spawn(BlockExtent.ZERO);
                 }
