@@ -36,6 +36,12 @@ public abstract class BlurSessionEvent extends Event {
         this.blurSession = blurSession;
     }
 
+    public BlurSessionEvent(@Nonnull BlurSession blurSession, boolean isAsync) {
+        super(isAsync);
+        Preconditions.checkNotNull(blurSession, "session cannot be null.");
+        this.blurSession = blurSession;
+    }
+
     @Nonnull
     public BlurSession getSession() {
         return blurSession;

@@ -35,8 +35,17 @@ public abstract class BlurPlayerEvent extends BlurSessionEvent {
         this(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession());
     }
 
+    public BlurPlayerEvent(@Nonnull BlurPlayer blurPlayer, boolean isAsync) {
+        this(Preconditions.checkNotNull(blurPlayer, "blurPlayer cannot be null."), blurPlayer.getSession(), isAsync);
+    }
+
     public BlurPlayerEvent(BlurPlayer blurPlayer, @Nonnull BlurSession session) {
         super(Preconditions.checkNotNull(session, "session cannot be null."));
+        this.blurPlayer = blurPlayer;
+    }
+
+    public BlurPlayerEvent(BlurPlayer blurPlayer, @Nonnull BlurSession session, boolean isAsync) {
+        super(Preconditions.checkNotNull(session, "session cannot be null."), isAsync);
         this.blurPlayer = blurPlayer;
     }
 
