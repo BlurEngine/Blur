@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.modules.spawns;
 
+import com.blurengine.blur.modules.teams.StrategyPriority;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.events.players.BlurPlayerRespawnEvent;
@@ -51,6 +52,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -68,7 +70,7 @@ public class SpawnsModule extends WorldModule {
      * Contains a list of players respawning forcefully by this module. See spawnPlayer method with spigot respawn call.
      */
     private final WeakSet<Player> validRespawningPlayers = new WeakSet<>();
-    public final List<SpawnStrategy> spawnStrategies = new ArrayList<>();
+    public final Map<SpawnStrategy, StrategyPriority> spawnStrategies = new HashMap<>();
     private final SpawnStrategy fallbackSpawnStrategy;
 
     public static Location getLocationFromSpawn(Spawn spawn, World world, Entity entity) {
@@ -188,11 +190,12 @@ public class SpawnsModule extends WorldModule {
 
     public Spawn getNextSpawnForEntity(Entity entity) {
         Spawn foundSpawn = null;
-        for (SpawnStrategy spawnStrategy : this.spawnStrategies) {
+        StrategyPriority foundPriority = null;
+        for (SpawnStrategy spawnStrategy : this.spawnStrategies.keySet()) {
             Spawn spawn = spawnStrategy.getSpawn(entity);
-            if (spawn != null) {
+            if (spawn != null && (foundPriority == null || foundPriority.getSlot() < spawnStrategies.get(spawnStrategy).getSlot())) {
                 foundSpawn = spawn;
-                break;
+                foundPriority = spawnStrategies.get(spawnStrategy);
             }
         }
 
