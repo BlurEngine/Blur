@@ -44,11 +44,13 @@ import org.bukkit.event.EventHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +69,7 @@ public class TeamManager extends Module implements SupervisorContext {
     private Map<String, BlurTeam> teams = new HashMap<>();
     private Map<BlurPlayer, BlurTeam> playerTeams = new HashMap<>();
     private final MetadataStorage<BlurTeam> teamMetadata = new BasicMetadataStorage<>();
-    private final List<TeamAssignmentStrategy> assignmentStrategies = new ArrayList<>();
+    private final Map<TeamAssignmentStrategy, StrategyPriority> assignmentStrategies = new HashMap<>();
     private final RoundRobinBalancedTeamAssignmentStrategy fallbackAssignmentStrategy;
 
     static {
@@ -184,7 +186,7 @@ public class TeamManager extends Module implements SupervisorContext {
         return teamMetadata;
     }
 
-    public List<TeamAssignmentStrategy> getAssignmentStrategies() {
+    public Map<TeamAssignmentStrategy, StrategyPriority> getAssignmentStrategies() {
         return assignmentStrategies;
     }
 
@@ -193,11 +195,12 @@ public class TeamManager extends Module implements SupervisorContext {
         // TODO make initial team setting optional. E.g. if they game has already started, set them to spectators only.
         if (isSession(event.getSession()) && !(getSession() instanceof RootBlurSession)) {
             BlurTeam foundTeam = null;
-            for (TeamAssignmentStrategy assignmentStrategy : this.assignmentStrategies) {
+            StrategyPriority foundPriority = null;
+            for (TeamAssignmentStrategy assignmentStrategy : assignmentStrategies.keySet()) {
                 BlurTeam team = assignmentStrategy.getTeam(event.getBlurPlayer());
-                if (team != null) {
+                if (team != null && (foundPriority == null || foundPriority.getSlot() < assignmentStrategies.get(assignmentStrategy).getSlot())) {
                     foundTeam = team;
-                    break;
+                    foundPriority = assignmentStrategies.get(assignmentStrategy);
                 }
             }
 
