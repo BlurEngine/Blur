@@ -66,8 +66,10 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         theDead.keys.toMutableSet().forEach { destroyPlayer(it) }
     }
 
-    fun sendToDeathbox(blurPlayer: BlurPlayer) {
-        theDead[blurPlayer] = System.currentTimeMillis()
+    fun sendToDeathbox(blurPlayer: BlurPlayer, resetTimer: Boolean=true) {
+        if (resetTimer || blurPlayer !in theDead) {
+            theDead[blurPlayer] = System.currentTimeMillis()
+        }
         blurPlayer.coreData.isAlive = false
         if (data.teleportTo != null) {
             blurPlayer.player.leaveVehicle()
@@ -115,7 +117,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         // Remove invalid/offline players
         for (blurPlayer in theDead.keys.toMutableSet()) {
             if (data.deathbox?.contains(blurPlayer) == false) {
-                sendToDeathbox(blurPlayer)
+                sendToDeathbox(blurPlayer, false)
             }
 
             if (!session.players.values.any { it.session == session }) {
