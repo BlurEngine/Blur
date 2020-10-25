@@ -45,7 +45,7 @@
         </repository>
         <repository>
             <id>enderzone-repo</id>
-            <url>http://ci.ender.zone/plugin/repository/everything/</url>
+            <url>https://ci.ender.zone/plugin/repository/everything/</url>
         </repository>
         <repository>
             <id>sk89q-repo</id>
