@@ -66,7 +66,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         theDead.keys.toMutableSet().forEach { destroyPlayer(it) }
     }
 
-    fun sendToDeathbox(blurPlayer: BlurPlayer, resetTimer: Boolean=true) {
+    fun sendToDeathbox(blurPlayer: BlurPlayer, resetTimer: Boolean = true) {
         if (resetTimer || blurPlayer !in theDead) {
             theDead[blurPlayer] = System.currentTimeMillis()
         }
@@ -131,26 +131,32 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
             }
         }
 
-        theDeadTeams.asMap().forEach { _, players ->
-            val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
-            val passedMinWait = playerDeadTimes.filter { it.value >= data.minTimer.toMillis() }
+        theDeadTeams.asMap().forEach { team, players ->
+            if (team.playerCount >= data.minPlayers) {
+                val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
+                val passedMinWait = playerDeadTimes.filter { it.value >= data.minTimer.toMillis() }
 
-            // Check if enough players waited minimum duration  
-            if (passedMinWait.size >= data.minPlayers) {
-                if (logger.debugLevel >= 2) {
-                    logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
-                }
-                passedMinWait.forEach {
-                    it.key.respawn()
+                // Check if enough players waited minimum duration
+                if (passedMinWait.size >= data.minPlayers) {
+                    if (logger.debugLevel >= 2) {
+                        logger.finer("Enough players to spawn players: ${passedMinWait.map { it.key.name }}")
+                    }
+                    passedMinWait.forEach {
+                        it.key.respawn()
+                    }
+                } else {
+                    val needToSpawn = passedMinWait.filter { it.value >= data.maxTimer.toMillis() }
+                    if (needToSpawn.isNotEmpty() && logger.debugLevel >= 2) {
+                        logger.finer("${needToSpawn.map { it.key.name }} waited ${data.maxTimer.seconds}s.")
+                    }
+                    needToSpawn.forEach {
+                        it.key.respawn()
+                    }
                 }
             } else {
-                val needToSpawn = passedMinWait.filter { it.value >= data.maxTimer.toMillis() }
-                if (needToSpawn.isNotEmpty() && logger.debugLevel >= 2) {
-                    logger.finer("${needToSpawn.map { it.key.name }} waited ${data.maxTimer.seconds}s.")
-                }
-                needToSpawn.forEach {
-                    it.key.respawn()
-                }
+                val playerDeadTimes = players.associate { it to (System.currentTimeMillis() - theDead[it]!!) }.entries
+                playerDeadTimes.filter { it.value >= (data.maxTimer.toMillis() + data.minTimer.toMillis()) / 2 }  // The average of max and min timers
+                        .forEach { it.key.respawn() }
             }
         }
 
@@ -195,24 +201,44 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                     return@forEach
                 }
                 val deathTimeMs = (System.currentTimeMillis() - theDead[blurPlayer]!!)
-                val deathTimeRemaining = data.maxTimer.toMillis() - deathTimeMs
-                var progress = 1.0 - (deathTimeMs / data.maxTimer.toMillis().toDouble())
+                val totalDeathTime = if (blurPlayer.getTeam().playerCount >= data.minPlayers) {
+                    data.maxTimer.toMillis()  // The normal maximum timer
+                } else {
+                    (data.maxTimer.toMillis() + data.minTimer.toMillis()) / 2  // The average of max and min timers
+                }
+
+                val deathTimeRemaining = totalDeathTime - deathTimeMs
+                var progress = 1.0 - (deathTimeMs / totalDeathTime.toDouble())
                 progress = Math.max(0.0, Math.min(progress, 1.0))
                 val color: BarColor
-                var title = when {
-                    progress > 2 / 3.0 -> {
-                        color = BarColor.GREEN
-                        "${ChatColor.GREEN}Respawning soon..."
+                var title = if (blurPlayer.getTeam().playerCount >= data.minPlayers) {
+                    when {
+                        progress > 2 / 3.0 -> {
+                            color = BarColor.GREEN
+                            "${ChatColor.GREEN}Respawning soon..."
+                        }
+                        progress > 1 / 3.0 -> {
+                            color = BarColor.YELLOW
+                            "${ChatColor.GOLD}Waiting for respawn group..."
+                        }
+                        else -> {
+                            color = BarColor.RED
+                            "${ChatColor.RED}Respawn imminent!"
+                        }
                     }
-                    progress > 1 / 3.0 -> {
-                        color = BarColor.YELLOW
-                        "${ChatColor.GOLD}Waiting for respawn group..."
-                    }
-                    else -> {
-                        color = BarColor.RED
-                        "${ChatColor.RED}Respawn imminent!"
+                } else {
+                    when {
+                        progress > 1 / 3.0 -> {
+                            color = BarColor.GREEN
+                            "${ChatColor.GREEN}Respawning soon..."
+                        }
+                        else -> {
+                            color = BarColor.RED
+                            "${ChatColor.RED}Respawn imminent!"
+                        }
                     }
                 }
+
                 title += "    ${DurationFormatUtils.formatDuration(deathTimeRemaining, "ss.", false)}"
                 title += "${(deathTimeRemaining % 1000).toString()[0]}s"
                 bossBar.setTitle(title)
