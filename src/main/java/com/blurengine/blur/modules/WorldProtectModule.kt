@@ -246,7 +246,7 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
     @EventHandler(priority = LOWEST, ignoreCancelled = true)
     fun onPrepareItemCraft(event: PrepareItemCraftEvent) {
-        if (event.viewers.first().isCreative()) return
+        if (event.view.player.isCreative()) return
         if (event.test(data.itemCraft)) event.inventory.result = ItemStack(Material.AIR)
     }
 
