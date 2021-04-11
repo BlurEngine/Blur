@@ -22,7 +22,7 @@
 
     <groupId>com.blurengine</groupId>
     <artifactId>blur</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.3-SNAPSHOT</version>
     <name>Blur</name>
 
     <properties>
@@ -30,8 +30,8 @@
         <main.package>com.blurengine.blur</main.package>
         <main.class>${main.package}.BlurPlugin</main.class>
 
-        <spigot.version>1.16.1-R0.1-SNAPSHOT</spigot.version>
-        <commons-bukkit.version>0.8.0-SNAPSHOT</commons-bukkit.version>
+        <spigot.version>1.16.5-R0.1-SNAPSHOT</spigot.version>
+        <commons-bukkit.version>0.9.0-SNAPSHOT</commons-bukkit.version>
         <kotlin.version>1.2.41</kotlin.version>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <text.version>1.12-1.6.4</text.version>
