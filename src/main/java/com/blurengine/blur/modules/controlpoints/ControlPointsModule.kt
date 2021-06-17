@@ -17,7 +17,6 @@
 package com.blurengine.blur.modules.controlpoints
 
 import com.blurengine.blur.Blur
-import com.blurengine.blur.events.players.PlayerMoveBlockEvent
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.ModuleData
 import com.blurengine.blur.framework.ModuleInfo
@@ -42,6 +41,7 @@ import org.bukkit.Particle
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.util.Vector
 import pluginbase.config.annotation.Name
 import java.time.Duration
@@ -64,23 +64,24 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun onPlayerMoveBlock(event: PlayerMoveBlockEvent) {
-        val controlPoint = playerControlPoints[event.blurPlayer]
+    fun onPlayerMove(event: PlayerMoveEvent) {
+        val blurPlayer = getPlayer(event.player)
+        val controlPoint = playerControlPoints[blurPlayer]
         if (controlPoint != null) {
             // Player is still inside the capture point, terminate code
-            if (controlPoint.captureExtent.contains(event.blurPlayer.player.location)) return
+            if (controlPoint.captureExtent.contains(blurPlayer.player.location)) return
 
             // Player is no longer in their previous control point, remove them from the cache.
-            controlPoint.removePlayer(event.blurPlayer)
-            playerControlPoints.remove(event.blurPlayer)
-            this.session.callEvent(ControlPointExitEvent(event.blurPlayer, controlPoint))
+            controlPoint.removePlayer(blurPlayer)
+            playerControlPoints.remove(blurPlayer)
+            this.session.callEvent(ControlPointExitEvent(blurPlayer, controlPoint))
         }
 
         // If the player is in a control point, cache it.
-        getControlPoint(event.to.toVector()).ifPresent {
-            it.addPlayer(event.blurPlayer)
-            playerControlPoints.put(event.blurPlayer, it)
-            this.session.callEvent(ControlPointEnterEvent(event.blurPlayer, it))
+        getControlPoint(event.to!!.toVector()).ifPresent {
+            it.addPlayer(blurPlayer)
+            playerControlPoints.put(blurPlayer, it)
+            this.session.callEvent(ControlPointEnterEvent(blurPlayer, it))
         }
     }
 
@@ -285,6 +286,9 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
         // Only one team is capturing, no need to check capture rules.
         if (countTeams == 1) {
             progress.capturingTeam = teamManager.getPlayerTeam(_players.first())
+            if (teamManager.getPlayerTeam(_players.first()) == owner) {
+                progress.resetProgress()  // Make sure it doesn't get stuck partway through defending.
+            }
             return
         }
 
@@ -401,6 +405,8 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
                         setOwner(null)
                         module.session.callEvent(ControlPointLostEvent(this@ControlPoint, previousOwner))
                     }
+                    progressTeam = null  // There is no progress to have.
+                    reevaluate()
                 }
             }
             // No one owns/has progress on this control point, begin progress for capturingTeam
@@ -427,8 +433,14 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             particlesExtent.radius = radius
             particlesExtent.offsetRadians = progress * (Math.PI * 2)
             particlesExtent.regenerate()
+
+            val particleColor = if (owner == null && 0 < progress && progress < 1) {
+                progressTeam!!.color
+            } else {
+                owner!!.color
+            }
             particlesExtent.pointsList.forEach {
-                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2, 0.0, 0.0, 0.0, 0.0)
+                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2, 0.0, 0.0, 0.0, 0.0, Particle.DustOptions(particleColor, 1F))
             }
         }
 
@@ -448,6 +460,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             if (capturingTeam == null || owner == capturingTeam) {
                 // Progress already reset or
                 // the capturing team is the owner, so there's nothing to reset.
+                progress = 1F  // Set it to full progress for the owner so it doesn't get stuck in the middle
                 return
             }
 
