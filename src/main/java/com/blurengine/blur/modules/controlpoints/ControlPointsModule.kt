@@ -17,6 +17,7 @@
 package com.blurengine.blur.modules.controlpoints
 
 import com.blurengine.blur.Blur
+import com.blurengine.blur.events.players.PlayerLeaveSessionEvent
 import com.blurengine.blur.framework.Module
 import com.blurengine.blur.framework.ModuleData
 import com.blurengine.blur.framework.ModuleInfo
@@ -83,6 +84,17 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
             it.addPlayer(blurPlayer)
             playerControlPoints.put(blurPlayer, it)
             this.session.callEvent(ControlPointEnterEvent(blurPlayer, it))
+        }
+    }
+
+    @EventHandler
+    fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
+        if (!isSession(event)) return
+        val controlPoint = playerControlPoints[event.blurPlayer]
+        if (controlPoint != null) {
+            controlPoint.removePlayer(event.blurPlayer)
+            playerControlPoints.remove(event.blurPlayer)
+            this.session.callEvent(ControlPointExitEvent(event.blurPlayer, controlPoint))
         }
     }
 
