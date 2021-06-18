@@ -292,6 +292,18 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
         return false
     }
 
+    fun getProgress(): Float {
+        return progress.progress
+    }
+
+    fun getProgressTeam(): BlurTeam? {
+        return progress.progressTeam
+    }
+
+    fun getCapturingTeam(): BlurTeam? {
+        return progress.capturingTeam
+    }
+
     private fun reevaluate() {
         // No players to capture this control point, terminate code
         if (_players.isEmpty()) {
