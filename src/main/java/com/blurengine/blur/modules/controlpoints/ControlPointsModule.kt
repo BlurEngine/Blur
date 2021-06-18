@@ -34,6 +34,7 @@ import com.blurengine.blur.modules.filters.Filters
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.utils.allMaxBy
+import com.google.common.collect.ImmutableList
 import com.supaham.commons.relatives.RelativeDuration
 import com.supaham.commons.relatives.RelativeNumber
 import org.bukkit.ChatColor
@@ -113,6 +114,10 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
 
     fun getPlayerControlPoint(blurPlayer: BlurPlayer): Optional<ControlPoint> {
         return Optional.ofNullable(playerControlPoints[blurPlayer])
+    }
+
+    fun getControlPoints(): ImmutableList<ControlPoint> {
+        return ImmutableList.copyOf(controlPoints)
     }
 
     /*
