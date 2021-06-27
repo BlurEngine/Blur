@@ -193,7 +193,7 @@ public class SpawnsModule extends WorldModule {
         StrategyPriority foundPriority = null;
         for (SpawnStrategy spawnStrategy : this.spawnStrategies.keySet()) {
             Spawn spawn = spawnStrategy.getSpawn(entity);
-            if (spawn != null && (foundPriority == null || foundPriority.getSlot() < spawnStrategies.get(spawnStrategy).getSlot())) {
+            if (spawn != null && (foundPriority == null || spawnStrategies.get(spawnStrategy).getSlot() < foundPriority.getSlot())) {
                 foundSpawn = spawn;
                 foundPriority = spawnStrategies.get(spawnStrategy);
             }

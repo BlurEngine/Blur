@@ -198,7 +198,7 @@ public class TeamManager extends Module implements SupervisorContext {
             StrategyPriority foundPriority = null;
             for (TeamAssignmentStrategy assignmentStrategy : assignmentStrategies.keySet()) {
                 BlurTeam team = assignmentStrategy.getTeam(event.getBlurPlayer());
-                if (team != null && (foundPriority == null || foundPriority.getSlot() < assignmentStrategies.get(assignmentStrategy).getSlot())) {
+                if (team != null && (foundPriority == null || assignmentStrategies.get(assignmentStrategy).getSlot() < foundPriority.getSlot())) {
                     foundTeam = team;
                     foundPriority = assignmentStrategies.get(assignmentStrategy);
                 }
