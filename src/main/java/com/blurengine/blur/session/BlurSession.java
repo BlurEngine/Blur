@@ -40,12 +40,12 @@ import com.blurengine.blur.framework.metadata.playerdata.PlayerData;
 import com.blurengine.blur.modules.stages.StageChangeData;
 import com.supaham.commons.CommonCollectors;
 import com.supaham.commons.bukkit.TickerTask;
-import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.bukkit.utils.EventUtils;
 import com.supaham.commons.utils.StringUtils;
 
-import net.kyori.text.TextComponent;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -115,7 +115,7 @@ public abstract class BlurSession {
     //    private final Table<BlurPlayer, Class, Object> customData = HashBasedTable.create();
     private final MetadataStorage<BlurPlayer> playerMetadata = new BasicMetadataStorage<>();
 
-    private net.kyori.text.Component messagePrefix = TextComponent.of("");
+    private BaseComponent messagePrefix = new TextComponent("");
 
     private final List<Runnable> onStopTasks = new ArrayList<>();
     private ComponentState state = ComponentState.UNLOADED;
@@ -242,6 +242,7 @@ public abstract class BlurSession {
         this.ticker.stop();
         this.ticker = null;
         this.onStopTasks.forEach(Runnable::run);
+        this.onStopTasks.clear();  // Clear this to remove self-references down the chain
         if (this.parentSession != null) {
             this.parentSession.removeChildSession(this);
         }
@@ -383,11 +384,15 @@ public abstract class BlurSession {
         getBlur().getPlugin().getLog().info(message, args);
     }
 
-    public void broadcastMessage(@Nonnull net.kyori.text.Component component) {
+    public void broadcastMessage(@Nonnull BaseComponent component) {
         Preconditions.checkNotNull(component, "component cannot be null.");
         List<Player> players = this.players.values().stream().map(BlurPlayer::getPlayer).collect(Collectors.toList());
-        ChatUtils.sendComponent(players, component);
-        ChatUtils.sendStringComponent(Bukkit.getConsoleSender(), component);
+        players.forEach(p -> p.spigot().sendMessage(component));
+        Bukkit.getConsoleSender().spigot().sendMessage(component);
+    }
+
+    public void broadcastMessage(@Nonnull BaseComponent[] components) {
+        broadcastMessage(new net.md_5.bungee.api.chat.TextComponent(components));
     }
 
     /**
@@ -489,11 +494,11 @@ public abstract class BlurSession {
         return Collections.unmodifiableMap(players);
     }
 
-    public net.kyori.text.Component getMessagePrefix() {
+    public BaseComponent getMessagePrefix() {
         return messagePrefix;
     }
 
-    public void setMessagePrefix(net.kyori.text.Component messagePrefix) {
+    public void setMessagePrefix(BaseComponent messagePrefix) {
         this.messagePrefix = messagePrefix;
     }
 

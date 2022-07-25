@@ -30,9 +30,9 @@ import com.supaham.commons.bukkit.players.BukkitPlayerManager;
 import com.supaham.commons.bukkit.players.CommonPlayer;
 import com.supaham.commons.bukkit.players.Players;
 
-import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
-
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -92,11 +92,11 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
     }
 
     public void messagePrefix(String string, Object... args) {
-        messagePrefix(TextComponent.of(String.format(string, args)));
+        messagePrefix(new TextComponent(String.format(string, args)));
     }
 
-    public void messagePrefix(Component component) {
-        message(blurSession.getMessagePrefix().append(component));
+    public void messagePrefix(BaseComponent component) {
+        message(new ComponentBuilder(blurSession.getMessagePrefix()).append(component).create());
     }
 
     public boolean messageTl(String messageNode, Object... args) {

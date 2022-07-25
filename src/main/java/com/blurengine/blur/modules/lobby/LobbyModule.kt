@@ -41,7 +41,7 @@ import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
 import com.blurengine.blur.text.dsl.TextComponentBuilder
 import com.supaham.commons.utils.StringUtils
-import net.kyori.text.format.TextColor
+import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
@@ -138,7 +138,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         check(this.childrenSessions.isEmpty()) { "LobbyModule only supports 1 session at a time." }
         startNextSession()
     }
-    
+
     private fun startNextSession() {
         if (this.countdown != null) {
             this.countdown!!.stop()
@@ -174,6 +174,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     class LobbyData : ModuleData {
 
         val countdown: Duration = Duration.ofSeconds(15)
+
         @Name("delay-start-session")
         val delay: Duration = Duration.ZERO
 
@@ -193,10 +194,8 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
 
         val ARROW: String = "${ChatColor.WHITE}${ChatColor.BOLD}\u00BB"
 
-        val countdownMessage: TextComponentBuilder
-            get() = TextComponentBuilder(ARROW) {
-                text(" Next match will start in ").color(TextColor.YELLOW)
-            }
+        val countdownMessage: ComponentBuilder
+            get() = ComponentBuilder(ARROW).append(" Next match will start in ").color(net.md_5.bungee.api.ChatColor.YELLOW)
 
         override fun onEnd() {
             super.onEnd()
@@ -211,30 +210,26 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
             }
             val seconds = ticks / session.ticksPerSecond
             var hasMessage = false
-            val countdownMessage: TextComponentBuilder by lazy {
+            val countdownMessage: ComponentBuilder by lazy {
                 hasMessage = true
                 this.countdownMessage
             }
             if (seconds % 60 == 0) {
                 countdownMessage.apply {
                     val minutes = seconds / 60
-                    text("$minutes ${StringUtils.appendIfPlural(minutes, "minute", false)}") {
-                        color(TextColor.RED)
-                    }
-                    text(".")
+                    append("$minutes ${StringUtils.appendIfPlural(minutes, "minute", false)}").color(net.md_5.bungee.api.ChatColor.RED)
+                    append(".")
                 }
             } else if (seconds <= 30) {
                 if (seconds <= 10 || seconds % 10 == 0) {
                     countdownMessage.apply {
-                        text("$seconds ${StringUtils.appendIfPlural(seconds, "second", false)}") {
-                            color(TextColor.RED)
-                        }
-                        text(".")
+                        append("$seconds ${StringUtils.appendIfPlural(seconds, "second", false)}").color(net.md_5.bungee.api.ChatColor.RED)
+                        append(".")
                     }
                 }
             }
             if (hasMessage) {
-                session.broadcastMessage(countdownMessage.build())
+                session.broadcastMessage(countdownMessage.create())
             }
         }
     }
@@ -245,7 +240,8 @@ class LobbyPrepareSessionEvent(val lobby: LobbyModule, val players: MutableList<
     override fun getHandlers() = handlerList
 
     companion object {
-        @JvmStatic val handlerList = HandlerList()
+        @JvmStatic
+        val handlerList = HandlerList()
     }
 }
 

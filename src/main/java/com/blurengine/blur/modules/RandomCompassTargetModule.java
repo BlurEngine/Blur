@@ -23,9 +23,9 @@ import com.blurengine.blur.framework.ticking.Tick;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession.Predicates;
 
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 
 @ModuleInfo(name = "RandomCompassTarget")
@@ -41,7 +41,7 @@ public class RandomCompassTargetModule extends Module {
     private void updateBait() {
         getRandomPlayer(Predicates.ALIVE).ifPresent(p -> {
             this.bait = p;
-            broadcastMessage(TextComponent.of(this.bait.getName() + " got baited!").color(TextColor.YELLOW));
+            broadcastMessage(new ComponentBuilder(this.bait.getName() + " got baited!").color(ChatColor.YELLOW).create());
         });
     }
 

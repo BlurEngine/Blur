@@ -16,32 +16,26 @@
 
 package com.blurengine.blur.modules.teams;
 
+import com.blurengine.blur.serializers.ComponentSerializer;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.framework.metadata.MetadataHolder;
 import com.blurengine.blur.modules.filters.Filter;
 import com.blurengine.blur.modules.teams.events.TeamRenameEvent;
 import com.blurengine.blur.session.BlurPlayer;
-import com.supaham.commons.bukkit.FuzzyColorMatchers;
-import com.supaham.commons.bukkit.utils.ChatUtils;
 import com.supaham.commons.utils.StringUtils;
 
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import net.kyori.text.serializer.ComponentSerializers;
-
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.scoreboard.Team.Option;
+import pluginbase.config.annotation.SerializeWith;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -54,8 +48,9 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
     private final String id;
     private String name;
-    private final TextColor chatColor;
-    private final TextComponent chatPrefix;
+    private final net.md_5.bungee.api.ChatColor chatColor;
+    @SerializeWith(ComponentSerializer.class)
+    private final BaseComponent chatPrefix;
     private final Color color;
     private final int max;
     private final int maxOverfill;
@@ -141,7 +136,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         if (!team.getOption(Option.COLLISION_RULE).equals(getCollisionRule().getBukkit())) {
             team.setOption(Option.COLLISION_RULE, getCollisionRule().getBukkit());
         }
-        team.setColor(ChatUtils.textColorToBukkit(getChatColor()));
+        team.setColor(ChatColor.valueOf(getChatColor().getName().toUpperCase()));
         if (updatePlayers) {
             Set<String> oldEntries = players.stream().map(BlurPlayer::getName).collect(Collectors.toSet());
             oldEntries.removeAll(team.getEntries());
@@ -191,16 +186,16 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
         getManager().getSession().callEvent(new TeamRenameEvent(this, oldName, name));
     }
 
-    public TextColor getChatColor() {
+    public net.md_5.bungee.api.ChatColor getChatColor() {
         return chatColor;
     }
 
-    public TextComponent getChatPrefix() {
+    public BaseComponent getChatPrefix() {
         return chatPrefix;
     }
 
     public String getChatPrefixLegacy() {
-        return ComponentSerializers.LEGACY.serialize(chatPrefix);
+        return chatPrefix.toLegacyText();
     }
 
     public Color getColor() {
@@ -240,7 +235,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
      * @return display name
      */
     public String getChatDisplayName() {
-        ChatColor bukkitChatColor = ChatUtils.textColorToBukkit(this.chatColor);
+        ChatColor bukkitChatColor = ChatColor.valueOf(this.chatColor.getName().toUpperCase());
         return bukkitChatColor + this.name;
     }
 
@@ -285,8 +280,8 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
 
         private String id;
         private String name;
-        private TextColor chatColor;
-        private TextComponent chatPrefix = TextComponent.of("").color(TextColor.WHITE);
+        private net.md_5.bungee.api.ChatColor chatColor;
+        private TextComponent chatPrefix = new TextComponent(new ComponentBuilder("").color(net.md_5.bungee.api.ChatColor.WHITE).create());
         private Color color = Color.WHITE;
         private int max = 10;
         private int maxOverfill = 12;
@@ -306,7 +301,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
             return this;
         }
 
-        public Builder chatColor(TextColor chatColor) {
+        public Builder chatColor(net.md_5.bungee.api.ChatColor chatColor) {
             this.chatColor = chatColor;
             return this;
         }
@@ -351,7 +346,7 @@ public class BlurTeam implements Comparable<BlurTeam>, Filter, MetadataHolder {
             StringUtils.checkNotNullOrEmpty(id, "id");
             Preconditions.checkNotNull(color, "color cannot be null.");
             if (chatColor == null) {
-                chatColor = ChatUtils.bukkitToTextColor(FuzzyColorMatchers.matchChatColor(color));
+                chatColor = net.md_5.bungee.api.ChatColor.of(color.toString());
             }
             if (name == null) {
                 name = id;

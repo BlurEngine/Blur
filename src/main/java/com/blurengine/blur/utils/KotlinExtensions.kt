@@ -30,10 +30,9 @@ import com.supaham.commons.bukkit.utils.ImmutableVector
 import com.supaham.commons.bukkit.utils.RelativeVector
 import com.supaham.commons.minecraft.world.space.Position
 import net.kyori.text.TextComponent
+import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Location
 import org.bukkit.Particle
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
@@ -49,7 +48,7 @@ fun Duration.isPositive(): Boolean = this.seconds > 0 || this.nano > 0
  * >> Text
  * ================================ */
 
-fun net.kyori.text.Component.format(vararg args: Any?): net.kyori.text.Component = TextFormatter.format(this, args)
+fun BaseComponent.format(vararg args: Any?): BaseComponent = TextFormatter.format(this, args)
 
 /* ================================
  * >> Space
@@ -93,7 +92,7 @@ inline fun <reified T : SharedComponent> BlurSession.getSharedComponent(crossinl
     return found
 }
 
-fun BlurSession.tl(messageNode: String): net.kyori.text.Component {
+fun BlurSession.tl(messageNode: String): BaseComponent {
     return moduleManager.messagesManager[messageNode]!!.component
 }
 

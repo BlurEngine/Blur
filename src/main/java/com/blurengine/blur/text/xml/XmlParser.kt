@@ -17,40 +17,38 @@
 package com.blurengine.blur.text.xml
 
 import com.blurengine.blur.text.TextParser
-import com.supaham.commons.Enums
-import net.kyori.text.BuildableComponent
-import net.kyori.text.Component
-import net.kyori.text.TextComponent
-import net.kyori.text.event.ClickEvent
-import net.kyori.text.event.HoverEvent
-import net.kyori.text.format.TextColor
-import net.kyori.text.format.TextDecoration
-import org.bukkit.ChatColor
 import java.io.StringReader
 import java.util.ArrayList
 import java.util.Collections
 import java.util.regex.Pattern
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.annotation.XmlAnyAttribute
-import javax.xml.bind.annotation.XmlAttribute
-import javax.xml.bind.annotation.XmlElementRef
-import javax.xml.bind.annotation.XmlMixed
-import javax.xml.bind.annotation.XmlSeeAlso
+import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.annotation.XmlAnyAttribute
+import jakarta.xml.bind.annotation.XmlAttribute
+import jakarta.xml.bind.annotation.XmlElementRef
+import jakarta.xml.bind.annotation.XmlMixed
+import jakarta.xml.bind.annotation.XmlSeeAlso
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.BaseComponent
+import net.md_5.bungee.api.chat.ClickEvent
+import net.md_5.bungee.api.chat.ComponentBuilder
+import net.md_5.bungee.api.chat.HoverEvent
+import net.md_5.bungee.api.chat.TextComponent
+import net.md_5.bungee.api.chat.hover.content.Text
 import javax.xml.namespace.QName
 
 class XmlParser : TextParser {
 
-    override fun parse(source: String): Component {
+    override fun parse(source: String): BaseComponent {
         val source = "<span>$source</span>"
 
         try {
             val context = JAXBContext.newInstance(Element::class.java)
             val unmarshaller = context.createUnmarshaller()
             val tag = unmarshaller.unmarshal(StringReader(source)) as Element
-            val builder = TextComponent.builder().content("")
+            val builder = ComponentBuilder()
             tag.apply(builder)
             tag.loop(builder)
-            return builder.build()
+            return (tag as ComponentCreator).rootComponent.apply { extra = builder.create().toMutableList() }  // Use TextComponent as a container
         } catch (e: Exception) {
             throw RuntimeException("Failed to parse: $source", e)
         }
@@ -77,19 +75,25 @@ open class Element {
 
     @XmlAttribute
     private val onClick: String? = null
+
     @XmlAttribute
     private val onHover: String? = null
+
     @XmlAttribute
     private val style: String? = null
+
     @XmlAttribute
     private val insertion: String? = null
+
     @XmlElementRef(type = Element::class)
     @XmlMixed
     var mixedContent: List<Any> = ArrayList()
+
     @XmlAnyAttribute
     var attr: Map<QName, String>? = null
         private set
         get() = if (field != null) Collections.unmodifiableMap(field) else null
+
     /**
      * This regex pattern validates the syntax for onClick/onHover chat events.
      * Click [here](http://www.regexr.com/38pjh) for fun.
@@ -97,49 +101,43 @@ open class Element {
     private val FUNCTION_PATTERN = Pattern.compile("^([^(]+)\\([\"'](.*)[\"']\\)$")
 
     companion object {
-        fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> parseAndApplyStyle(builder: BuildableComponent.Builder<C, B>, style: String) {
+        fun parseAndApplyStyle(builder: ComponentBuilder, style: String) {
             val styles = style.split("\\s*,\\s*") // blue, underline , bold
             for (_style in styles) {
                 handleStyle(builder, _style)
             }
         }
 
-        private fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> handleStyle(builder: BuildableComponent.Builder<C, B>, style: String) {
+        private fun handleStyle(builder: ComponentBuilder, style: String) {
             val stateSplit = style.split("\\s*:\\s*")
             val styleName = stateSplit[0]
             val stateSpecified = stateSplit.size > 1
-            val state = (if (stateSpecified) Enums.findFuzzyByValue(TextDecoration.State::class.java, stateSplit[1]) else TextDecoration.State.TRUE)
-                    ?: throw IllegalArgumentException("Invalid state: '${stateSplit[1]}'")
+            val state = (if (stateSpecified) stateSplit[1].toBoolean() else true)  // TODO: This would break for not set
             var found = false
-            for (decoration in TextDecoration.values()) {
-                if (styleName == decoration.name) {
-                    builder.decoration(decoration, state)
-                    found = true
-                    break
+            if (styleName in "klmno") { // k = obfuscated, l = bold, m = strikethrough, n = underlined, o = italic
+                when (styleName) {
+                    "k" -> builder.obfuscated(true)
+                    "l" -> builder.bold(true)
+                    "m" -> builder.strikethrough(true)
+                    "n" -> builder.underlined(true)
+                    "o" -> builder.italic(true)
                 }
+                found = true
             }
 
             if (!found) {
                 found = handleColor(builder, styleName, state, stateSpecified)
             }
-            if (!found) {
+            if (!found) {  // TODO: Tidy this up, right now it's not been fully re-thought, just modified.
                 for (char in style) {
                     val chatColor = ChatColor.getByChar(char)
                     require(chatColor != null) { "Invalid style '${char.toUpperCase()}'" }
-                    val textDeco: TextDecoration?
                     if (chatColor == ChatColor.MAGIC) {
-                        textDeco = TextDecoration.OBFUSCATED
-                    } else {
-                        textDeco = Enums.findFuzzyByValue(TextDecoration::class.java, chatColor!!.name)
-                    }
-                    if (textDeco != null) {
-                        builder.decoration(textDeco, state)
+                        builder.obfuscated(true)
                         found = true
                         continue
-                    }
-                    val textColor = Enums.findFuzzyByValue(TextColor::class.java, chatColor.name)
-                    if (textColor != null) {
-                        builder.color(textColor)
+                    } else {
+                        builder.color(chatColor)
                         found = true
                         continue
                     }
@@ -148,15 +146,19 @@ open class Element {
             require(found) { "Invalid style '$styleName'" }
         }
 
-        private fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> handleColor(builder: BuildableComponent.Builder<C, B>, value: String,
-                                                                             state: TextDecoration.State, stateSpecified: Boolean): Boolean {
+        private fun handleColor(builder: ComponentBuilder, value: String, state: Boolean, stateSpecified: Boolean): Boolean {
             if (value.equals("color", ignoreCase = true)) {
-                val state = if (!stateSpecified && state == TextDecoration.State.TRUE) TextDecoration.State.NOT_SET else state
-                require(state != TextDecoration.State.TRUE) { "color style only accepts FALSE OR NOT_SET" }
+                val state = if (!stateSpecified && state) null else state
+                require(state != true) { "color style only accepts FALSE OR NOT_SET" }
                 builder.color(null) // NOT_SET or FALSE resets color.
                 return true
             } else {
-                val textColor = Enums.findFuzzyByValue(TextColor::class.java, value)
+                val textColor = if (value.length == 1) {
+                    ChatColor.getByChar(value[0])
+                } else {
+                    return false
+                    // ChatColor.of(value)  // Don't allow long colour names, only colour codes.
+                }
                 if (textColor != null) {
                     builder.color(textColor)
                     return true
@@ -166,7 +168,11 @@ open class Element {
         }
     }
 
-    open fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> apply(builder: BuildableComponent.Builder<C, B>) {
+    open fun apply(builder: ComponentBuilder) {
+        /**
+        Apply Element formatting to the given builder.
+         */
+
         if (style != null) {
             parseAndApplyStyle(builder, style)
         }
@@ -178,10 +184,10 @@ open class Element {
             if (!matcher.matches()) {
                 throw IllegalArgumentException("onClick syntax is invalid ('$onClick')")
             }
-            val action = ClickEvent.Action.values().firstOrNull { it.toString() == matcher.group(1) }
+            val action = ClickEvent.Action.values().firstOrNull { it.toString() == matcher.group(1).uppercase() }
                     ?: throw IllegalArgumentException("${matcher.group(1)} is not a valid ClickEvent.Action")
             val data = String.format(matcher.group(2))
-            builder.clickEvent(ClickEvent(action, data))
+            builder.event(ClickEvent(action, data))
         }
 
         if (onHover != null) {
@@ -189,33 +195,24 @@ open class Element {
             if (!matcher.matches()) {
                 throw IllegalArgumentException("onHover syntax is invalid ('$onHover')")
             }
-            val action = HoverEvent.Action.values().firstOrNull { it.toString() == matcher.group(1) }
+            val action = HoverEvent.Action.values().firstOrNull { it.toString() == matcher.group(1).uppercase() }
                     ?: throw IllegalArgumentException("${matcher.group(1)} is not a valid HoverEvent.Action")
             val data = String.format(matcher.group(2))
-            builder.hoverEvent(HoverEvent(action, TextComponent.of(data)))
+            builder.event(HoverEvent(action, Text(data)))
         }
     }
 
-    fun <C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> loop(builder: BuildableComponent.Builder<C, B>) {
-        var elementAppended = false // Maintains order of string content when attempting to optimise.
+    fun loop(builder: ComponentBuilder) {
         for (o in mixedContent) {
             if (o is String) {
-                if (builder is TextComponent.Builder) {
-                    val component = builder.build()
-                    if (!elementAppended && component.content().isNullOrEmpty()) {
-                        builder.content(o.toString())
-                    } else {
-                        builder.append(TextComponent.of(o.toString()))
-                    }
-                } else {
-                    builder.append(TextComponent.of(o.toString()))
-                }
+                builder.append(TextComponent(o.toString()))
             } else if (o is Element) {
-                elementAppended = true
-                val elBuilder = (o as? ComponentCreator<C, B>)?.createBuilder() ?: builder
+                val elBuilder = (o as? ComponentCreator)?.createBuilder() ?: builder
                 o.apply(elBuilder)
                 o.loop(elBuilder)
-                builder.append(elBuilder.build())
+                if (elBuilder.parts.isNotEmpty()) {
+                    builder.append((o as ComponentCreator).rootComponent.apply { extra = elBuilder.create().toMutableList() })  // Use container for correct nesting
+                }
             } else {
                 throw IllegalStateException("Unknown mixed content of type ${o.javaClass.canonicalName}")
             }
@@ -223,6 +220,8 @@ open class Element {
     }
 }
 
-interface ComponentCreator<C : BuildableComponent<*, *>, B : BuildableComponent.Builder<C, B>> {
-    fun createBuilder(): BuildableComponent.Builder<C, B>
+interface ComponentCreator {
+    var rootComponent: BaseComponent
+
+    fun createBuilder(): ComponentBuilder
 }

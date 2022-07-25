@@ -17,13 +17,13 @@
 package com.blurengine.blur.modules.message
 
 import com.blurengine.blur.session.BlurPlayer
-import net.kyori.text.Component
+import net.md_5.bungee.api.chat.BaseComponent
 
 interface Message {
     val messageNode: String
-    val component: Component
+    val component: BaseComponent
 
     fun send(blurPlayer: BlurPlayer, vararg args: Any?)
 }
 
-abstract class AbstractMessage(override val messageNode: String, override val component: Component) : Message
+abstract class AbstractMessage(override val messageNode: String, override val component: BaseComponent) : Message

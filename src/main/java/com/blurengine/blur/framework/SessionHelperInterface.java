@@ -27,6 +27,8 @@ import com.blurengine.blur.modules.teams.TeamManager;
 import com.blurengine.blur.session.BlurPlayer;
 import com.blurengine.blur.session.BlurSession;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerEvent;
 
@@ -81,7 +83,12 @@ public interface SessionHelperInterface {
         getSession().broadcastMessage(message, args);
     }
 
-    default void broadcastMessage(@Nonnull net.kyori.text.Component component) {
+    default void broadcastMessage(@Nonnull BaseComponent component) {
+        getSession().broadcastMessage(Preconditions.checkNotNull(component, "component cannot be null."));
+    }
+
+    default void broadcastMessage(@Nonnull BaseComponent[] componentList) {
+        BaseComponent component = new TextComponent(componentList);
         getSession().broadcastMessage(Preconditions.checkNotNull(component, "component cannot be null."));
     }
 

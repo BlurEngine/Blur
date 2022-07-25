@@ -201,7 +201,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                     return@forEach
                 }
                 val deathTimeMs = (System.currentTimeMillis() - theDead[blurPlayer]!!)
-                val totalDeathTime = if (blurPlayer.getTeam().playerCount >= data.minPlayers) {
+                val totalDeathTime = if (blurPlayer.getTeam()!!.playerCount >= data.minPlayers) {
                     data.maxTimer.toMillis()  // The normal maximum timer
                 } else {
                     (data.maxTimer.toMillis() + data.minTimer.toMillis()) / 2  // The average of max and min timers
@@ -211,7 +211,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
                 var progress = 1.0 - (deathTimeMs / totalDeathTime.toDouble())
                 progress = Math.max(0.0, Math.min(progress, 1.0))
                 val color: BarColor
-                var title = if (blurPlayer.getTeam().playerCount >= data.minPlayers) {
+                var title = if (blurPlayer.getTeam()!!.playerCount >= data.minPlayers) {
                     when {
                         progress > 2 / 3.0 -> {
                             color = BarColor.GREEN
