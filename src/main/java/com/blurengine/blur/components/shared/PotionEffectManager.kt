@@ -95,7 +95,7 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
         potions.clear()
     }
 
-    fun clearAll() = _entityEffects.rowKeySet().forEach(this::clearAll)
+    fun clearAll() = _entityEffects.rowKeySet().forEach { e -> this.clearAll(e) }
 
     fun apply(entity: LivingEntity, potion: BlurPotionEffect, force: Boolean = false): Boolean {
         var force = force
@@ -104,7 +104,7 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
             potionData = PotionData(potion.copy())
             _entityEffects.put(entity.uniqueId, potion.type, potionData)
         } else {
-            potionData = _entityEffects.get(entity.uniqueId, potion.type)
+            potionData = _entityEffects.get(entity.uniqueId, potion.type)!!
             if (potionData.merge(potion)) {
                 entity.removePotionEffect(potion.type)
                 force = true

@@ -16,7 +16,7 @@
 
 package com.blurengine.blur.modules.teams;
 
-import net.kyori.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 
 /**
@@ -32,7 +32,7 @@ public class SpectatorTeam extends BlurTeam {
                 .name("Spectators")
                 .max(9001)
                 .maxOverfill(9001)
-                .chatColor(TextColor.WHITE)
+                .chatColor(ChatColor.WHITE)
                 .collisionRule(CollisionRule.NOONE)
                 .nametagVisibility(NametagVisibility.NOONE)
                 .color(Color.WHITE));

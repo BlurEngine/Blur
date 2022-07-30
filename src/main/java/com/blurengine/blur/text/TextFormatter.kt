@@ -16,115 +16,124 @@
 
 package com.blurengine.blur.text
 
-import net.kyori.text.BuildableComponent
-import net.kyori.text.Component
-import net.kyori.text.KeybindComponent
-import net.kyori.text.ScoreComponent
-import net.kyori.text.SelectorComponent
-import net.kyori.text.TextComponent
-import net.kyori.text.TranslatableComponent
-import net.kyori.text.event.ClickEvent
-import net.kyori.text.event.HoverEvent
+import net.md_5.bungee.api.chat.*
+import net.md_5.bungee.api.chat.hover.content.Text
 
 object TextFormatter {
     val PATTERN = """(?<!\\)\{(\d+)}""".toPattern()
     var step = 0
-    fun format(component: Component, args: Array<out Any?>): Component {
+
+    fun format(component: BaseComponent, args: Array<out Any?>, overwriteOriginal: Boolean = false): BaseComponent {
+        val componentCopy = if (!overwriteOriginal) {
+             component.duplicate()
+        } else {
+            component
+        }
+
+        // Most of these operations are on template components so don't overwrite the given component
         require(args.isNotEmpty()) { "args cannot be empty." }
-        return formatBuilder(component, args).build()
+        val componentArgs: Map<Int, BaseComponent> = args
+                .mapIndexed { idx, it -> idx to it }
+                .filter { it.second is BaseComponent }
+                .map { it.first to it.second as BaseComponent }.toMap()
+
+        when (componentCopy) {
+            is KeybindComponent -> componentCopy.apply {
+                this.keybind = replaceParams(this.keybind, args)
+            }
+            is ScoreComponent -> componentCopy.apply {
+                this.name = replaceParams(this.name, args)
+                this.objective = replaceParams(this.objective, args)
+                this.value = replaceParams(this.value, args)
+            }
+            is SelectorComponent -> componentCopy.apply {
+                this.selector = replaceParams(this.selector, args)
+            }
+            is TextComponent -> {
+                if (componentArgs.isEmpty()) {  // Don't do all the messy stuff for a simple text replacement
+                    componentCopy.apply {
+                        text = replaceParams(componentCopy.text, args)
+                        clickEvent = if (clickEvent != null) ClickEvent(clickEvent.action, replaceParams(clickEvent.value, args)) else null
+                        hoverEvent = if (hoverEvent != null) formatHoverEvent(hoverEvent, args) else null
+                    }
+                } else {
+                    componentCopy.apply {
+                        clickEvent = if (clickEvent != null) ClickEvent(clickEvent.action, replaceParams(clickEvent.value, args)) else null
+                        hoverEvent = if (hoverEvent != null) formatHoverEvent(hoverEvent, args) else null
+                    }
+                    val matcher = PATTERN.matcher(componentCopy.text)  // Find replacement tags
+                    val sb = StringBuffer()  // Create an empty string buffer
+                    val thisBuilder = ComponentBuilder()
+                    var matchedAnything = false  // Set to true if any matches are found
+                    while (matcher.find()) {  // Move along matches to the pattern
+                        matchedAnything = true
+                        val idx = matcher.group(1).toInt()
+                        if (idx in componentArgs) {  // If we are to replace with a component
+                            matcher.appendReplacement(sb, "") // Remove the matched pattern from the sequence
+                            if (sb.isNotEmpty()) {
+                                // First put the string buffer in the builder and copy formatting to it
+                                thisBuilder.append(sb.toString()).currentComponent.apply {
+                                    copyFormatting(componentCopy)
+                                }
+                                sb.setLength(0)  // Then empty the string buffer
+                            }
+                            val formattedComponent = format(componentArgs[idx]!!, args, overwriteOriginal = true)  // Format the component
+                            thisBuilder.append(formattedComponent)  // Add the component
+                        } else {  // Replace with a regular string if we have any arguments left, otherwise null
+                            val str = if (idx > args.lastIndex) "null" else args[idx].toString()
+                            matcher.appendReplacement(sb, str)
+                        }
+                    }
+
+                    matcher.appendTail(sb)  // Get the rest of the string
+
+                    if (sb.isNotEmpty()) {
+                        // Stick it on the string builder and copy formatting to it
+                        thisBuilder.append(sb.toString()).currentComponent.apply {
+                            copyFormatting(componentCopy)
+                        }
+                    }
+
+                    if (matchedAnything) {
+                        componentCopy.apply {
+                            text = ""  // Remove the actual text
+                            extra = thisBuilder.create().toMutableList()  // Replace it with just the extras required
+                        }
+                    }
+                }
+            }
+            is TranslatableComponent -> componentCopy.apply {
+                this.translate = replaceParams(componentCopy.translate, args)
+                this.with = this.with.map { format(it, args, overwriteOriginal = true) }
+            }
+            else -> throw UnsupportedOperationException("Unknown type ${componentCopy.javaClass.canonicalName}")
+        }
+
+        componentCopy.extra?.map { format(it, args, overwriteOriginal = true) }  // Format all children
+        ++step  // WHAT THE HECK IS THIS FOR?!
+        return componentCopy
     }
 
-    fun formatBuilder(component: Component, args: Array<out Any?>): BuildableComponent.Builder<*, *> {
-        require(args.isNotEmpty()) { "args cannot be empty." }
-        val componentArgs: Map<Int, Component> = args
-                .mapIndexed { idx, it -> idx to it }
-                .filter { it.second is Component }
-                .map { it.first to it.second as Component }.toMap()
+    private fun formatHoverEvent(hoverEvent: HoverEvent, args: Array<out Any?>): HoverEvent {
+        return HoverEvent(hoverEvent.action, hoverEvent.contents.map {
+            if (it is Text && it.value is String) {
+                Text(replaceParams(it.value as String, args))
+            } else if (it is Text && it.value is Collection<*>) {
+                // TODO: MAKE THIS LESS JANKY
+                Text(arrayOf((it.value as Collection<BaseComponent>).map {
+                    format(it, args)
+                }) as Array<out BaseComponent>)
+            } else {
+                it
+            }
 
-        // TODO update when extract-buildable is on master
-        val builder: BuildableComponent.Builder<*, *> = when (component) {
-            is KeybindComponent -> KeybindComponent.builder().also { _builder ->
-                _builder.keybind(replaceParams(component.keybind(), args))
-            }
-            is ScoreComponent -> ScoreComponent.builder().also { _builder ->
-                _builder.name(replaceParams(component.name(), args))
-                _builder.objective(replaceParams(component.objective(), args))
-                component.value()?.apply { _builder.value(replaceParams(this, args)) }
-            }
-            is SelectorComponent -> SelectorComponent.builder().also { _builder ->
-                _builder.pattern(replaceParams(component.pattern(), args))
-            }
-            is TextComponent -> TextComponent.builder("").let { _builder ->
-                var _builder = _builder
-                val matcher = PATTERN.matcher(component.content())
-                val sb = StringBuffer()
-                var lastWasContent: Boolean? = null
-                while(matcher.find()) {
-                    val idx = matcher.group(1).toInt()
-                    if (idx in componentArgs) {
-                        matcher.appendReplacement(sb, "")
-                        if (sb.isNotEmpty()) {
-                            if (lastWasContent != false) {
-                                lastWasContent = true
-                                _builder.content(sb.toString())
-                            } else {
-                                _builder.append(TextComponent.of(sb.toString()))
-                            }
-                            sb.setLength(0)
-                        }
-                        val formattedComponentBuilder = formatBuilder(componentArgs[idx]!!, args)
-                        if (lastWasContent == null && formattedComponentBuilder is TextComponent.Builder) {
-                            _builder = formattedComponentBuilder
-                        } else {
-                            _builder.append(formattedComponentBuilder.build())
-                        }
-                        lastWasContent = false
-                    } else {
-                        val str = if (idx > args.lastIndex) "null" else args[idx].toString()
-                        matcher.appendReplacement(sb, str)
-                    }
-                }
-
-                matcher.appendTail(sb)
-
-                if (sb.isNotEmpty()) {
-                    if (lastWasContent != false) {
-                        _builder.content(sb.toString())
-                    } else {
-                        _builder.append(TextComponent.of(sb.toString()))
-                    }
-                }
-                _builder
-            }
-            is TranslatableComponent -> TranslatableComponent.builder().let { _builder ->
-                _builder.key(replaceParams(component.key(), args))
-                _builder.args(component.args().map { format(it, args) })
-            }
-            else -> throw UnsupportedOperationException("Unknown type ${component.javaClass.canonicalName}")
-        }
-        builder.mergeColor(component)
-        builder.mergeDecorations(component)
-        
-        component.hoverEvent()?.apply {
-            builder.hoverEvent(HoverEvent(action(), format(value(), args)))
-        }
-        
-        component.clickEvent()?.apply {
-            builder.clickEvent(ClickEvent(action(), replaceParams(value(), args)))
-        }
-        
-        
-        for (child in component.children()) {
-            builder.append(format(child, args))
-        }
-        ++step
-        return builder
+        })
     }
 
     private fun replaceParams(string: CharSequence, args: Array<out Any?>): String {
         val matcher = PATTERN.matcher(string)
         val sb = StringBuffer()
-        while(matcher.find()) {
+        while (matcher.find()) {
             val idx = matcher.group(1).toInt()
             val str = if (idx > args.lastIndex) "null" else args[idx].toString()
             matcher.appendReplacement(sb, str)

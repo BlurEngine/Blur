@@ -70,7 +70,7 @@ public class TeamManager extends Module implements SupervisorContext {
     private Map<BlurPlayer, BlurTeam> playerTeams = new HashMap<>();
     private final MetadataStorage<BlurTeam> teamMetadata = new BasicMetadataStorage<>();
     private final Map<TeamAssignmentStrategy, StrategyPriority> assignmentStrategies = new HashMap<>();
-    private final RoundRobinBalancedTeamAssignmentStrategy fallbackAssignmentStrategy;
+    private RoundRobinBalancedTeamAssignmentStrategy fallbackAssignmentStrategy;
 
     static {
         ModuleLoader.register(TeamsModule.class);
@@ -129,7 +129,7 @@ public class TeamManager extends Module implements SupervisorContext {
         }
     }
 
-    @Nonnull
+    @Nullable
     public BlurTeam getPlayerTeam(BlurPlayer blurPlayer) {
         return this.playerTeams.get(blurPlayer);
     }
@@ -221,6 +221,15 @@ public class TeamManager extends Module implements SupervisorContext {
     public void onPlayerLeaveSession(PlayerLeaveSessionEvent event) {
         if (!isSession(event)) return;
         setPlayerTeam(event.getBlurPlayer(), null);
+    }
+
+    @Override
+    public void unload() {
+        super.unload();
+
+        // Get rid of all assignment strategies because their suppliers often reference the TeamManager that contains them.
+        assignmentStrategies.clear();
+        fallbackAssignmentStrategy = null;
     }
 
     /* ================================

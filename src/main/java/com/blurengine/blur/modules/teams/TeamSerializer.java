@@ -19,14 +19,10 @@ package com.blurengine.blur.modules.teams;
 import com.blurengine.blur.framework.BlurSerializer;
 import com.blurengine.blur.framework.ModuleLoader;
 import com.blurengine.blur.serializers.ComponentSerializer;
-import com.supaham.commons.bukkit.serializers.ColorStringSerializer;
-import com.supaham.commons.bukkit.serializers.TextColorSerializer;
-import com.supaham.commons.serializers.ListSerializer;
+import com.supaham.commons.bukkit.serializers.ChatColorSerializer;
 
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Color;
 
 import java.util.Map;
@@ -90,8 +86,8 @@ public class TeamSerializer implements BlurSerializer<BlurTeam> {
         private String id;
         private String name = null;
         @Name("chat-color")
-        @SerializeWith(TextColorSerializer.class)
-        private TextColor chatColor;
+        @SerializeWith(ChatColorSerializer.class)
+        private ChatColor chatColor;
         @Name("chat-prefix")
         @SerializeWith(ComponentSerializer.class)
         private TextComponent chatPrefix;

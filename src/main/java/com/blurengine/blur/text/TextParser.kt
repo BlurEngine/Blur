@@ -17,16 +17,16 @@
 package com.blurengine.blur.text
 
 import com.blurengine.blur.text.xml.XmlParser
-import net.kyori.text.Component
+import net.md_5.bungee.api.chat.BaseComponent
 
 interface TextParser {
 
     /**
      * Parses a [String] using this Parser.
      * @param source source to parse
-     * @return an instance of [Component] with the parsed `source`
+     * @return an instance of [BaseComponent] with the parsed `source`
      */
-    fun parse(source: String): Component
+    fun parse(source: String): BaseComponent
 }
 
 object TextParsers {

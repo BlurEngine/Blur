@@ -38,10 +38,12 @@ class BasicPvpComponent(moduleManager: ModuleManager) : AbstractComponent(module
 
     @EventHandler(priority = LOW)
     fun updateStatsOnDeath(event: BlurPlayerDeathEvent) {
-        val data = event.blurPlayer.getMetadata<BasicPvpData>()!!
-        data.notifyKillstreakChange(0)
-        data.notifyDeathstreakChange(data.deathstreak + 1)
-        data.lastDeathTime = Instant.now()
+        val data = event.blurPlayer.getMetadata<BasicPvpData>()
+        if (data != null) {
+            data.notifyKillstreakChange(0)
+            data.notifyDeathstreakChange(data.deathstreak + 1)
+            data.lastDeathTime = Instant.now()
+        }
     }
 
     @EventHandler(priority = LOW)

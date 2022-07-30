@@ -16,6 +16,7 @@
 
 package com.blurengine.blur.framework;
 
+import com.blurengine.blur.serializers.ComponentSerializer;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
@@ -38,8 +39,6 @@ import com.github.zafarkhaja.semver.Version;
 import com.supaham.commons.bukkit.utils.SerializationUtils;
 import com.supaham.commons.utils.ThrowableUtils;
 
-import net.kyori.text.Component;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -54,6 +53,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import pluginbase.config.serializers.Serializer;
 import pluginbase.config.serializers.SerializerSet;
 import pluginbase.config.serializers.SerializerSet.Builder;
@@ -139,6 +139,7 @@ public class ModuleLoader {
         __add(builder, Extent.class, extentSerializer = new ExtentSerializer(this));
         __add(builder, Spawn.class, spawnSerializer = new SpawnSerializer(this));
         __add(builder, Component.class, new XmlComponentSerializer());
+        __add(builder, BaseComponent.class, new ComponentSerializer());
         serializerSet = builder.build();
     }
 

@@ -16,19 +16,19 @@
 
 package com.blurengine.blur.serializers
 
-import com.supaham.commons.bukkit.text.TextParsers
-import net.kyori.text.Component
+import com.blurengine.blur.text.TextParsers
+import net.md_5.bungee.api.chat.BaseComponent
 import pluginbase.config.serializers.Serializer
 import pluginbase.config.serializers.SerializerSet
 
-class ComponentSerializer: Serializer<Component> {
-    override fun deserialize(serialized: Any?, wantedType: Class<*>, serializerSet: SerializerSet): Component? {
+class ComponentSerializer: Serializer<BaseComponent> {
+    override fun deserialize(serialized: Any?, wantedType: Class<*>, serializerSet: SerializerSet): BaseComponent? {
         if (serialized == null) return null
         if (serialized !is String) throw IllegalArgumentException("Expecting string, got ${serialized.javaClass.typeName}")
-        return TextParsers.XML.parse(serialized)
+        return TextParsers.XML_PARSER.parse(serialized)
     }
 
-    override fun serialize(`object`: Component?, serializerSet: SerializerSet): Any? {
+    override fun serialize(`object`: BaseComponent?, serializerSet: SerializerSet): Any? {
         throw UnsupportedOperationException()
     }
 }

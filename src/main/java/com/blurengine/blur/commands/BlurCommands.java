@@ -22,13 +22,10 @@ import com.supaham.commons.bukkit.Colors;
 import com.supaham.commons.bukkit.commands.flags.Flag;
 import com.supaham.commons.bukkit.commands.flags.FlagParseResult;
 import com.supaham.commons.bukkit.commands.flags.FlagParser;
-import com.supaham.commons.bukkit.utils.ChatUtils;
 
-import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import net.kyori.text.format.TextDecoration;
-
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -44,8 +41,8 @@ import co.aikar.commands.annotation.Optional;
 
 public class BlurCommands extends BaseCommand {
 
-    private static Component HEADER;
-    private static Component FOOTER;
+    private static BaseComponent HEADER;
+    private static BaseComponent FOOTER;
     private final BlurSession session;
     private final Blur blur;
     private FlagParser blurFlagParser;
@@ -57,12 +54,11 @@ public class BlurCommands extends BaseCommand {
             sb.append(color).append(ChatColor.STRIKETHROUGH).append('=');
         };
         IntStream.range(0, 15).forEach(consumer); // Add 15 padding
-        HEADER = TextComponent.of(sb.toString() + " ")
-            .append(TextComponent.of("Blur").color(TextColor.YELLOW).decoration(TextDecoration.BOLD, true))
-            .append(TextComponent.of(" " + sb.toString()).resetStyle());
+        HEADER = new TextComponent(new ComponentBuilder(sb.toString() + " ").append("Blur").color(net.md_5.bungee.api.ChatColor.YELLOW).bold(true)
+                .append(" " + sb.toString(), ComponentBuilder.FormatRetention.NONE).create());
 
         IntStream.range(1, 21).forEach(consumer); // start from 1 to start with different colors, then add 20 =. 
-        FOOTER = TextComponent.of(sb.toString());
+        FOOTER = new TextComponent(sb.toString());
     }
 
     public BlurCommands(BlurSession session) {
@@ -86,18 +82,18 @@ public class BlurCommands extends BaseCommand {
             return;
         }
         if (sender instanceof ConsoleCommandSender) {
-            ChatUtils.sendStringComponent(sender, HEADER);
+            sender.spigot().sendMessage(HEADER);
         } else {
-            ChatUtils.sendComponent(sender, HEADER);
+            sender.spigot().sendMessage(HEADER);
         }
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Blur version", this.blur.getVersion());
         map.put("Current sessions", this.blur.getSessionManager().getBlurSessions().size());
         map.forEach((k, v) -> sender.sendMessage(ChatColor.YELLOW + k + ChatColor.WHITE + ": " + ChatColor.DARK_GREEN + v));
         if (sender instanceof ConsoleCommandSender) {
-            ChatUtils.sendStringComponent(sender, FOOTER);
+            sender.spigot().sendMessage(FOOTER);
         } else {
-            ChatUtils.sendComponent(sender, FOOTER);
+            sender.spigot().sendMessage(FOOTER);
         }
     }
 }

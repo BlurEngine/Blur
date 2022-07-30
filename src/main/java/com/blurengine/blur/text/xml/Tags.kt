@@ -18,175 +18,207 @@ package com.blurengine.blur.text.xml
 
 import com.blurengine.blur.text.TextParsers
 import com.supaham.commons.Enums
-import net.kyori.text.BuildableComponent
-import net.kyori.text.Component
-import net.kyori.text.KeybindComponent
-import net.kyori.text.ScoreComponent
-import net.kyori.text.SelectorComponent
-import net.kyori.text.TextComponent
-import net.kyori.text.TranslatableComponent
-import net.kyori.text.event.ClickEvent
-import net.kyori.text.event.HoverEvent
-import net.kyori.text.format.TextColor
-import net.kyori.text.format.TextDecoration
-import javax.xml.bind.annotation.XmlAttribute
-import javax.xml.bind.annotation.XmlRootElement
+import jakarta.xml.bind.annotation.XmlAttribute
+import jakarta.xml.bind.annotation.XmlRootElement
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.BaseComponent
+import net.md_5.bungee.api.chat.ClickEvent
+import net.md_5.bungee.api.chat.ComponentBuilder
+import net.md_5.bungee.api.chat.HoverEvent
+import net.md_5.bungee.api.chat.KeybindComponent
+import net.md_5.bungee.api.chat.ScoreComponent
+import net.md_5.bungee.api.chat.SelectorComponent
+import net.md_5.bungee.api.chat.TextComponent
+import net.md_5.bungee.api.chat.TranslatableComponent
+import net.md_5.bungee.api.chat.hover.content.Text
 
 @XmlRootElement
-class A : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
+class A : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private lateinit var href: String
 
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("").clickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, href))
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder().event(ClickEvent(ClickEvent.Action.OPEN_URL, href))
     }
 }
 
 @XmlRootElement
-class B : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("").decoration(TextDecoration.BOLD, true)
+class B : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder().bold(true)
     }
 }
 
 @XmlRootElement
-class Click : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
+class Click : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private var action: String? = null
+
     @XmlAttribute(required = true)
     private var value: String? = null
 
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(action != null) { "action attribute must be specified in <click>." }
-        val action = Enums.findFuzzyByValue(ClickEvent.Action::class.java, action) ?: throw IllegalArgumentException("Invalid click action $action.")
+        val action = Enums.findFuzzyByValue(ClickEvent.Action::class.java, action)
+                ?: throw IllegalArgumentException("Invalid click action $action.")
         require(value != null) { "value attribute must be specified in <value>." }
-        return TextComponent.builder().content("").clickEvent(ClickEvent(action, value!!))
+        return ComponentBuilder().event(ClickEvent(action, value!!))
     }
 }
 
 @XmlRootElement
-class Color : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
+class Color : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private var color: String? = null
 
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(color != null) { "color attribute must be specified in <color>." }
-        val textColor = Enums.findFuzzyByValue(TextColor::class.java, color)
-                ?: TextColor.values().firstOrNull { it.toString().equals(color, ignoreCase = true) }
+        val textColor = ChatColor.of(color)
         require(textColor != null) { "Invalid color $color" }
-        return TextComponent.builder().content("").color(textColor)
+        return ComponentBuilder().color(textColor)
     }
 }
 
 @XmlRootElement
-class Hover : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
+class Hover : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private var action: String? = null
+
     @XmlAttribute(required = true)
     private var value: String? = null
 
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(action != null) { "action attribute must be specified in <hover>." }
-        val action = Enums.findFuzzyByValue(HoverEvent.Action::class.java, action) ?: throw IllegalArgumentException("Invalid hover action $action.")
+        val action = Enums.findFuzzyByValue(HoverEvent.Action::class.java, action)
+                ?: throw IllegalArgumentException("Invalid hover action $action.")
         require(value != null) { "value attribute must be specified in <value>." }
-        var value: Component
-        try {
-            value = TextParsers.XML_PARSER.parse(this.value!!)
+        val value: BaseComponent = try {
+            TextParsers.XML_PARSER.parse(this.value!!)
         } catch (e: Exception) { // In case the value is not valid XML, 
-            value = TextComponent.of(this.value!!)
+            TextComponent(this.value!!)
         }
-        return TextComponent.builder().content("").hoverEvent(HoverEvent(action, value))
+        return ComponentBuilder().event(HoverEvent(action, Text(arrayOf(value))))
     }
 }
 
 @XmlRootElement
-class I : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("").decoration(TextDecoration.ITALIC, true)
+class I : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder().italic(true)
     }
 }
 
 @XmlRootElement
-class Keybind : Element(), ComponentCreator<KeybindComponent, KeybindComponent.Builder> {
+class Keybind : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()  // Overwritten in createBuilder()
+    
     @XmlAttribute(required = true)
     private var key: String? = null
 
-    override fun createBuilder(): BuildableComponent.Builder<KeybindComponent, KeybindComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(key != null) { "key attribute must be specified in <keybind>." }
-        return KeybindComponent.builder().keybind(key!!)
+        rootComponent = KeybindComponent(key!!)
+        return ComponentBuilder()
     }
 
 }
 
 @XmlRootElement
-class Obfuscated : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("").decoration(TextDecoration.OBFUSCATED, true)
+class Obfuscated : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder().obfuscated(true)
     }
 }
 
 @XmlRootElement
-class Score : Element(), ComponentCreator<ScoreComponent, ScoreComponent.Builder> {
+class Score : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private var name: String? = null
+
     @XmlAttribute(required = true)
     private var objective: String? = null
+
     @XmlAttribute
     private var value: String? = null
-    override fun createBuilder(): BuildableComponent.Builder<ScoreComponent, ScoreComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(name != null) { "name attribute must be specified in <score>." }
         require(objective != null) { "objective attribute must be specified in <score>." }
-        return ScoreComponent.builder().name(name!!).objective(objective!!).value(value)
+        rootComponent = ScoreComponent(name!!, objective!!, value)
+        return ComponentBuilder()
     }
 }
 
 @XmlRootElement
-class Selector : Element(), ComponentCreator<SelectorComponent, SelectorComponent.Builder> {
+class Selector : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
     @XmlAttribute(required = true)
     private var pattern: String? = null
-    override fun createBuilder(): BuildableComponent.Builder<SelectorComponent, SelectorComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(pattern != null) { "pattern attribute must be specified in <selector>." }
-        return SelectorComponent.builder().pattern(pattern!!)
+        rootComponent = SelectorComponent(pattern!!)
+        return ComponentBuilder()
     }
 }
 
 @XmlRootElement
-class Span : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("")
+class Span : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()    
+    
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder()
     }
 }
 
 @XmlRootElement
-class Strike : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        val component = TextComponent.builder().content("").decoration(TextDecoration.STRIKETHROUGH, true)
-        return component
+class Strike : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+    
+    override fun createBuilder(): ComponentBuilder {
+        return ComponentBuilder().strikethrough(true)
     }
 }
 
 @XmlRootElement
-class Tl : Element(), ComponentCreator<TranslatableComponent, TranslatableComponent.Builder> {
+class Tl : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+
     @XmlAttribute(required = true)
     private var key: String? = null
 
-    override fun createBuilder(): BuildableComponent.Builder<TranslatableComponent, TranslatableComponent.Builder> {
+    override fun createBuilder(): ComponentBuilder {
         require(key != null) { "key attribute must be specified in <tl>." }
-        val component = TranslatableComponent.builder().key(key!!)
         val args = attr?.filter { it.key.localPart.startsWith("with-") }
                 ?.toSortedMap(compareBy { it.toString() })
                 ?.map { TextParsers.XML_PARSER.parse(it.value) }
-        if (args != null) {
-            component.args(args)
-        }
-        return component
+        rootComponent = TranslatableComponent(key!!, *args!!.toTypedArray())
+        return ComponentBuilder()
     }
 
 }
 
 @XmlRootElement
-class U : Element(), ComponentCreator<TextComponent, TextComponent.Builder> {
-    override fun createBuilder(): BuildableComponent.Builder<TextComponent, TextComponent.Builder> {
-        return TextComponent.builder().content("").decoration(TextDecoration.UNDERLINE, true)
+class U : Element(), ComponentCreator {
+    override var rootComponent: BaseComponent = TextComponent()
+
+    override fun createBuilder(): ComponentBuilder {
+
+        return ComponentBuilder().underlined(true)
     }
 }
