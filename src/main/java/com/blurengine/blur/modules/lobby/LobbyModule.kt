@@ -39,7 +39,6 @@ import com.blurengine.blur.modules.spawns.SpawnsModule
 import com.blurengine.blur.modules.stages.StageChangeData
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.session.BlurSession
-import com.blurengine.blur.text.dsl.TextComponentBuilder
 import com.supaham.commons.utils.StringUtils
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.ChatColor
@@ -55,8 +54,12 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     private val childrenSessions = ArrayList<BlurSession>()
     private var countdown: AbstractCountdown? = null
 
+    // Filters for player count check, countdown will only run if enough players are true for all filters.
+    val filters = HashMap<String, (BlurPlayer) -> Boolean>()
+
     init {
         this.countdown = LobbyCountdown()
+        filters["online"] = { p -> p.isOnline && !p.isQuitting }
     }
 
     @EventHandler
@@ -95,9 +98,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     @EventHandler
     fun onPlayerLeaveSession(event: PlayerLeaveSessionEvent) {
         if (isSession(event)) {
-            if (this.countdown != null && !testCriteria()) {
-                this.countdown!!.stop()
-            }
+            checkAndStop()
         }
     }
 
@@ -118,7 +119,14 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
         }
     }
 
-    fun testCriteria() = session.players.size >= data.requiredPlayers
+    fun checkAndStop() {
+        if (this.countdown != null && !testCriteria()) {
+            this.countdown!!.stop()
+            players.forEach { it.player.exp = 0f }
+        }
+    }
+
+    fun testCriteria() = session.players.filter { p -> filters.all { it.value(p.value) } }.size >= data.requiredPlayers
 
     fun checkAndStart() {
         if (testCriteria()) {
@@ -137,6 +145,7 @@ class LobbyModule(moduleManager: ModuleManager, private val data: LobbyData) : W
     fun skipCountdown() {
         check(this.childrenSessions.isEmpty()) { "LobbyModule only supports 1 session at a time." }
         startNextSession()
+        players.forEach { it.player.exp = 0f }
     }
 
     private fun startNextSession() {
