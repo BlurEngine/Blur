@@ -25,6 +25,7 @@ import com.blurengine.blur.framework.WorldModule
 import com.blurengine.blur.modules.WorldProtectModule.WorldProtectData
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.block.data.type.CaveVinesPlant
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
@@ -33,6 +34,7 @@ import org.bukkit.entity.Projectile
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority.LOWEST
+import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockEvent
@@ -285,6 +287,14 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         if (!event.player.isCreative() && event.test(data.playerDropItem)) event.isCancelled = true
     }
 
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerPickBerries(event: PlayerInteractEvent) {
+        if ((event.action == Action.RIGHT_CLICK_BLOCK && event.clickedBlock!!.blockData is CaveVinesPlant) ||
+                (event.action == Action.RIGHT_CLICK_BLOCK && event.clickedBlock!!.blockData.material == Material.SWEET_BERRY_BUSH)) {
+            if (!event.player.isCreative() && event.test(data.pickBerries)) event.isCancelled = true
+        }
+    }
+
     class WorldProtectData : ModuleData {
         @Name("block-break")
         var blockBreak: Boolean = true
@@ -332,6 +342,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
 
         @Name("interact-block")
         var interactBlock: Boolean = false
+        @Name("pick-berries")
+        var pickBerries: Boolean = true
         @Name("item-craft")
         var itemCraft: Boolean = true
         @Name("player-bed-enter")
