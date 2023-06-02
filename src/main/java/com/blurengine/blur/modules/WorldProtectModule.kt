@@ -58,6 +58,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.hanging.HangingPlaceEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerBucketEmptyEvent
 import org.bukkit.event.player.PlayerBucketFillEvent
@@ -295,6 +296,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         }
     }
 
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerArmorStandManipulate(event: PlayerArmorStandManipulateEvent) {
+        if (!event.player.isCreative() && event.test(data.armorStandManipulate)) event.isCancelled = true
+    }
+
     class WorldProtectData : ModuleData {
         @Name("block-break")
         var blockBreak: Boolean = true
@@ -358,6 +364,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var playerDropItem: Boolean = true
         @Name("player-damage-entity")
         var playerDamageEntity: Boolean = true
+        @Name("armor-stand-manipulate")
+        var armorStandManipulate: Boolean = true
 
         @Name("weather-change")
         var weatherChange: Boolean = true
