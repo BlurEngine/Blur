@@ -39,7 +39,9 @@ import com.google.common.collect.ImmutableList
 import com.supaham.commons.relatives.RelativeDuration
 import com.supaham.commons.relatives.RelativeNumber
 import org.bukkit.ChatColor
+import org.bukkit.Material
 import org.bukkit.Particle
+import org.bukkit.block.Block
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerChatEvent
@@ -182,6 +184,10 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
         var permanent: Boolean? = null
         @Name("initial-owner") var initialOwner: BlurTeam? = null
         @Name("visual-materials") var visualMaterials: Filter? = null
+
+        // Using material here because deserialising block data is not trivial.
+        @Name("neutral-material") var neutralMaterial: Material? = null
+        @Name("team-materials") var teamMaterials: List<TeamMaterialEntry>? = null
         var particles = true
     }
 
@@ -190,6 +196,12 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
         var name: String? = null
         lateinit var capture: Extent
         var progress: Extent? = null
+        var indicator: Extent? = null
+    }
+
+    class TeamMaterialEntry {
+        lateinit var id: String
+        lateinit var material: Material
     }
 }
 
@@ -236,6 +248,8 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
     val players: MutableSet<BlurPlayer>
         get() = Collections.unmodifiableSet(_players)
 
+    private val indicatorBlocks: List<Block>?
+
     private var _owner: BlurTeam? = null
     var owner: BlurTeam?
         get() = _owner
@@ -259,6 +273,14 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
         captureExtent = data.capture
         progressExtent = data.progress
         particles = data.particles
+
+        indicatorBlocks = if (data.indicator != null) {
+            data.indicator!!.map { b -> module.world.getBlockAt(b.blockX, b.blockY, b.blockZ) }
+                    .filter { b -> b.blockData.material == data.neutralMaterial }
+                    .toList()
+        } else {
+            null
+        }
 
         progress = Progress(1F / module.session.millisecondsToTicks(captureDuration.toMillis()))
 
@@ -433,6 +455,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
                         var previousOwner = owner!!
                         setOwner(null)
                         module.session.callEvent(ControlPointLostEvent(this@ControlPoint, previousOwner))
+                        indicatorBlocks?.forEach { it.blockData = data.neutralMaterial!!.createBlockData() }  // This is null safe because we only get any indicator blocks if neutralBlockData is non-null.
                     }
                     progressTeam = null  // There is no progress to have.
                     reevaluate()
@@ -446,6 +469,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
                 if (progress == 1F) {
                     setOwner(progressTeam)
                     module.session.callEvent(ControlPointCapturedEvent(this@ControlPoint))
+                    indicatorBlocks?.forEach { it.blockData = data.teamMaterials?.firstOrNull { m -> m.id == owner!!.id }?.material?.createBlockData() ?: it.blockData }
                     timesCaptured++
                 }
             }
