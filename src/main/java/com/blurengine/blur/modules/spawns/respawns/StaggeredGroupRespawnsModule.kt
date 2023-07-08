@@ -26,7 +26,9 @@ import com.blurengine.blur.framework.ModuleManager
 import com.blurengine.blur.framework.SerializedModule
 import com.blurengine.blur.framework.WorldModule
 import com.blurengine.blur.framework.ticking.Tick
+import com.blurengine.blur.modules.extents.DirectionalExtent
 import com.blurengine.blur.modules.extents.Extent
+import com.blurengine.blur.modules.extents.UnionExtent
 import com.blurengine.blur.modules.spawns.SpawnsModule
 import com.blurengine.blur.modules.spawns.respawns.StaggeredGroupRespawnsModule.StaggeredGroupRespawnsData
 import com.blurengine.blur.modules.teams.BlurTeam
@@ -34,6 +36,7 @@ import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.utils.getModule
 import com.blurengine.blur.utils.getTeam
 import com.google.common.collect.HashMultimap
+import com.supaham.commons.utils.CollectionUtils
 import org.apache.commons.lang.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -73,7 +76,15 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
         blurPlayer.coreData.isAlive = false
         if (data.teleportTo != null) {
             blurPlayer.player.leaveVehicle()
-            blurPlayer.player.teleport(data.teleportTo!!.randomLocation.toLocation(world))
+            var extent = data.teleportTo!!
+            if (extent is UnionExtent) {
+                extent = CollectionUtils.getRandomElement(extent.extents)
+            }
+            val location = extent.randomLocation.toLocation(world)
+            if (extent is DirectionalExtent) {
+                (extent as DirectionalExtent).getDirection().applyTo(location, blurPlayer.player)
+            }
+            blurPlayer.player.teleport(location)
         }
         if (data.useBossBar) {
             spawnerBossBar.add(blurPlayer)
