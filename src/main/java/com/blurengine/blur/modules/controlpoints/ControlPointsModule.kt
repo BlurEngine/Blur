@@ -35,6 +35,7 @@ import com.blurengine.blur.modules.filters.Filters
 import com.blurengine.blur.modules.teams.BlurTeam
 import com.blurengine.blur.session.BlurPlayer
 import com.blurengine.blur.utils.allMaxBy
+import com.blurengine.blur.utils.getTeam
 import com.google.common.collect.ImmutableList
 import com.supaham.commons.relatives.RelativeDuration
 import com.supaham.commons.relatives.RelativeNumber
@@ -146,6 +147,8 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
     fun isPermanent() = data.permanent
     fun getInitialOwner() = data.initialOwner
     fun getVisualMaterials() = data.visualMaterials
+    fun getTimeModifierPerPlayer() = data.timeModifierPerPlayer
+    fun getMinCaptureTime() = data.minCaptureTime
 
     class ControlPointsData : CommonData(), ModuleData {
         @Name("control-points") var controlPoints = ArrayList<ControlPointEntry>()
@@ -160,6 +163,8 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
             permanent = false
             initialOwner = null
             visualMaterials = Filters.ALWAYS_ALLOW
+            timeModifierPerPlayer = RelativeNumber.ZERO
+            minCaptureTime = RelativeDuration.ZERO
 
 
             serialized.load(this)
@@ -184,6 +189,9 @@ class ControlPointsModule(manager: ModuleManager, val data: ControlPointsData) :
         var permanent: Boolean? = null
         @Name("initial-owner") var initialOwner: BlurTeam? = null
         @Name("visual-materials") var visualMaterials: Filter? = null
+
+        @Name("time-modifier-per-player") var timeModifierPerPlayer: RelativeNumber? = null
+        @Name("min-capture-time") var minCaptureTime: RelativeDuration? = null
 
         // Using material here because deserialising block data is not trivial.
         @Name("neutral-material") var neutralMaterial: Material? = null
@@ -242,6 +250,8 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
     val captureExtent: Extent
     val progressExtent: Extent?
     val particles: Boolean
+    val timeModifierPerPlayer: RelativeNumber
+    val minCaptureTime: Duration
 
     private val teamManager = module.teamManager
     private val _players: MutableSet<BlurPlayer> = HashSet()
@@ -273,6 +283,8 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
         captureExtent = data.capture
         progressExtent = data.progress
         particles = data.particles
+        timeModifierPerPlayer = data.timeModifierPerPlayer ?: module.getTimeModifierPerPlayer()!!
+        minCaptureTime = handleRelDuration(data.minCaptureTime, module.getMinCaptureTime()!!)
 
         indicatorBlocks = if (data.indicator != null) {
             data.indicator!!.map { b -> module.world.getBlockAt(b.blockX, b.blockY, b.blockZ) }
@@ -464,7 +476,23 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
             // No one owns/has progress on this control point, begin progress for capturingTeam
             else {
                 progressTeam = capturingTeam
-                progress += progressIncr
+
+                // Only count players that are making a difference (i.e. if the capturing team has 3 players, and the other has 2, then only 1 of the capturing team players actually matters for this).
+                val numCapturingPlayers = 2 * _players.count { it.getTeam() == progressTeam } - _players.size  // Equivalent to progressTeamPlayers - (playersOnPoint - progressTeamPlayers).
+
+                var thisTotalCaptureTime = captureDuration.toMillis().toDouble()  // This is how long it would take to capture the whole thing with this many players on point.
+                for (i in 2..numCapturingPlayers) {  // Only modify if there is more than 1 capturing player.
+                    thisTotalCaptureTime = timeModifierPerPlayer.apply(thisTotalCaptureTime)
+                }
+
+                if (thisTotalCaptureTime < minCaptureTime.toMillis()) {
+                    thisTotalCaptureTime = minCaptureTime.toMillis().toDouble()
+                }
+
+                // Scale this progress increment based on how much faster capturing would be with this many capturing players.
+                val thisProgressIncr = progressIncr * captureDuration.toMillis() / thisTotalCaptureTime
+
+                progress += thisProgressIncr.toFloat()
                 // The capturingTeam has fully progressed, capture the point.
                 if (progress == 1F) {
                     setOwner(progressTeam)
