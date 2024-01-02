@@ -86,6 +86,7 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         player.resetPlayerTime();
         player.resetPlayerWeather();
         player.setBedSpawnLocation(null);
+        player.setLastDamageCause(null);  // Stop Minecraft from retaining old worlds due to retained damage events.
 
         BlurPlayerCoreData coreData = getCoreData();
         coreData.setInventoryLayout(new InventoryLayout(player.getInventory()));
