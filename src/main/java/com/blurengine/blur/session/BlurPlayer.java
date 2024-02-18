@@ -144,7 +144,7 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
      * @param event Blur PlayerDamagePlayerEvent 
      */
     public void kill(@Nonnull PlayerDamagePlayerEvent event) {
-        kill(event.getVictim());
+        kill(event.getVictim(), event);
     }
 
     /**
@@ -156,6 +156,20 @@ public class BlurPlayer extends CommonPlayer implements Filter, MetadataHolder {
         BlurPlayerCoreData coreData = getCoreData();
         coreData.setKills(coreData.getKills() + 1);
         PlayerKilledEvent killedEvent = new PlayerKilledEvent(victim, victim.getLocation(), this, null);
+        this.blurSession.callEvent(killedEvent);
+        victim.die(killedEvent);
+    }
+
+    /**
+     * Kills a {@link BlurPlayer}.
+     * @param victim Victim
+     * @param eventTrigger Event that triggered the kill
+     */
+    public void kill(@Nonnull BlurPlayer victim, @Nonnull Event eventTrigger) {
+        Preconditions.checkNotNull(victim, "victim");
+        BlurPlayerCoreData coreData = getCoreData();
+        coreData.setKills(coreData.getKills() + 1);
+        PlayerKilledEvent killedEvent = new PlayerKilledEvent(victim, victim.getLocation(), this, eventTrigger);
         this.blurSession.callEvent(killedEvent);
         victim.die(killedEvent);
     }
