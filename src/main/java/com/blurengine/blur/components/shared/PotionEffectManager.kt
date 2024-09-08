@@ -25,7 +25,9 @@ import com.blurengine.blur.utils.elapsed
 import com.blurengine.blur.utils.isPositive
 import com.blurengine.blur.utils.toTicks
 import com.google.common.collect.HashBasedTable
+import org.bukkit.GameMode
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
@@ -100,6 +102,9 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
     fun apply(entity: LivingEntity, potion: BlurPotionEffect, force: Boolean = false): Boolean {
         var force = force
         var potionData: PotionData
+        if (entity is Player && entity.gameMode == GameMode.SPECTATOR) {
+            return false
+        }
         if (!_entityEffects.contains(entity.uniqueId, potion.type)) {
             potionData = PotionData(potion.copy())
             _entityEffects.put(entity.uniqueId, potion.type, potionData)
