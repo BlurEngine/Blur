@@ -18,8 +18,11 @@ package com.blurengine.blur.text.xml
 
 import com.blurengine.blur.text.TextParsers
 import com.supaham.commons.Enums
+import jakarta.xml.bind.annotation.XmlAccessType
+import jakarta.xml.bind.annotation.XmlAccessorType
 import jakarta.xml.bind.annotation.XmlAttribute
 import jakarta.xml.bind.annotation.XmlRootElement
+import jakarta.xml.bind.annotation.XmlTransient
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ClickEvent
@@ -33,9 +36,10 @@ import net.md_5.bungee.api.chat.TranslatableComponent
 import net.md_5.bungee.api.chat.hover.content.Text
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class A : Element(), ComponentCreator {
-    override var rootComponent: BaseComponent = TextComponent()
-    
+    override var rootComponent: BaseComponent = TextComponent()  // TODO: For some reason this is STILL being picked up by JAXB?! WHY IS IT IGNORING MY TRANSIENT?!
+
     @XmlAttribute(required = true)
     private lateinit var href: String
 
@@ -45,18 +49,20 @@ class A : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class B : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     override fun createBuilder(): ComponentBuilder {
         return ComponentBuilder().bold(true)
     }
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Click : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     @XmlAttribute(required = true)
     private var action: String? = null
 
@@ -73,9 +79,10 @@ class Click : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Color : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     @XmlAttribute(required = true)
     private var color: String? = null
 
@@ -88,9 +95,10 @@ class Color : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Hover : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     @XmlAttribute(required = true)
     private var action: String? = null
 
@@ -112,18 +120,20 @@ class Hover : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class I : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     override fun createBuilder(): ComponentBuilder {
         return ComponentBuilder().italic(true)
     }
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Keybind : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()  // Overwritten in createBuilder()
-    
+
     @XmlAttribute(required = true)
     private var key: String? = null
 
@@ -136,18 +146,20 @@ class Keybind : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Obfuscated : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     override fun createBuilder(): ComponentBuilder {
         return ComponentBuilder().obfuscated(true)
     }
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Score : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     @XmlAttribute(required = true)
     private var name: String? = null
 
@@ -165,9 +177,10 @@ class Score : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Selector : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     @XmlAttribute(required = true)
     private var pattern: String? = null
     override fun createBuilder(): ComponentBuilder {
@@ -178,24 +191,27 @@ class Selector : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Span : Element(), ComponentCreator {
-    override var rootComponent: BaseComponent = TextComponent()    
-    
+    override var rootComponent: BaseComponent = TextComponent()
+
     override fun createBuilder(): ComponentBuilder {
         return ComponentBuilder()
     }
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Strike : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
-    
+
     override fun createBuilder(): ComponentBuilder {
         return ComponentBuilder().strikethrough(true)
     }
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class Tl : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
 
@@ -214,6 +230,7 @@ class Tl : Element(), ComponentCreator {
 }
 
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)  // Necessary so that BaseComponent isn't mapped by JAXB, which causes conflict with Java's `Color` and `Color` in this file.
 class U : Element(), ComponentCreator {
     override var rootComponent: BaseComponent = TextComponent()
 

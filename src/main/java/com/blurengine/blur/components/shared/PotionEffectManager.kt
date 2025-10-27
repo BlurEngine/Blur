@@ -219,7 +219,7 @@ class PotionEffectManager(session: BlurSession) : SharedComponent(session) {
 
         fun apply(entity: LivingEntity, force: Boolean = false): Boolean {
             val applied: Boolean
-            if (force || (potion.reapplyDuration.isPositive() && lastApply.elapsed(potion.reapplyDuration))) {
+            if (force || (potion.reapplyDuration.isPositive && lastApply.elapsed(potion.reapplyDuration))) {
                 applied = entity.addPotionEffect(createPotionEffect(), true)
                 lastApply = Instant.now()
             } else {
@@ -242,7 +242,7 @@ data class BlurPotionEffect(val type: PotionEffectType, val amplifier: Int, val 
 }
 
 object BlurPotionEffects {
-    val NO_JUMP = BlurPotionEffect(PotionEffectType.JUMP, 128, Duration.ofSeconds(30), particles = false)
-    val NO_WALK = BlurPotionEffect(PotionEffectType.SLOW, 6, Duration.ofSeconds(30), particles = false)
-    val INFINITE_INVISIBLITY = BlurPotionEffect(PotionEffectType.SLOW, 6, Duration.ofSeconds(30))
+    val NO_JUMP = BlurPotionEffect(PotionEffectType.JUMP_BOOST, 128, Duration.ofSeconds(30), particles = false)
+    val NO_WALK = BlurPotionEffect(PotionEffectType.SLOWNESS, 6, Duration.ofSeconds(30), particles = false)
+    val INFINITE_INVISIBLITY = BlurPotionEffect(PotionEffectType.SLOWNESS, 6, Duration.ofSeconds(30))
 }

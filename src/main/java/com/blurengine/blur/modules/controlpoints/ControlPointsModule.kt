@@ -521,7 +521,7 @@ class ControlPoint(val module: ControlPointsModule, private val data: ControlPoi
                 owner!!.color
             }
             particlesExtent.pointsList.forEach {
-                module.world.spawnParticle(Particle.REDSTONE, it.toLocation(module.world), 2, 0.0, 0.0, 0.0, 0.0, Particle.DustOptions(particleColor, 1F))
+                module.world.spawnParticle(Particle.DUST, it.toLocation(module.world), 2, 0.0, 0.0, 0.0, 0.0, Particle.DustOptions(particleColor, 1F))
             }
         }
 
