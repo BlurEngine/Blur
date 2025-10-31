@@ -67,6 +67,7 @@ import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerShearEntityEvent
+import org.bukkit.event.player.PlayerSignOpenEvent
 import org.bukkit.event.vehicle.VehicleDamageEvent
 import org.bukkit.event.vehicle.VehicleDestroyEvent
 import org.bukkit.event.weather.WeatherChangeEvent
@@ -301,6 +302,11 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         if (!event.player.isCreative() && event.test(data.armorStandManipulate)) event.isCancelled = true
     }
 
+    @EventHandler(priority = LOWEST, ignoreCancelled = true)
+    fun onPlayerSignEdit(event: PlayerSignOpenEvent) {
+        if (!event.player.isCreative() && event.test(data.signEdit)) event.isCancelled = true
+    }
+
     class WorldProtectData : ModuleData {
         @Name("block-break")
         var blockBreak: Boolean = true
@@ -366,6 +372,8 @@ class WorldProtectModule(moduleManager: ModuleManager, val data: WorldProtectDat
         var playerDamageEntity: Boolean = true
         @Name("armor-stand-manipulate")
         var armorStandManipulate: Boolean = true
+        @Name("sign-edit")
+        var signEdit: Boolean = true
 
         @Name("weather-change")
         var weatherChange: Boolean = true
