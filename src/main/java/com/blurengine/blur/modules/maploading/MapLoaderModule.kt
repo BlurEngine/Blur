@@ -156,6 +156,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         }
 
         val worldCreator = map.config.map!!.worldSettings.toWorldCreator(worldDir.name)
+        worldCreator.generator(EmptyGenerator())
 
         val world = worldCreator.createWorld()
 
