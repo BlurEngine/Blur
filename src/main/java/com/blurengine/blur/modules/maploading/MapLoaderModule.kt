@@ -50,7 +50,7 @@ import java.util.stream.Stream
  * Represents a [Module] that allows for the creation of [Filter] and nothing else. Intended for user convenience.
  */
 @ModuleInfo(name = "MapLoader", dataClass = MapLoaderData::class)
-class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, mapPaths: Set<File>, val isRandom: Boolean, archive: Archive?)
+class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, mapPaths: Set<File>, val isRandom: Boolean, archive: Archive?, val allowChunkGen: Boolean)
     : Module(moduleManager) {
     private val mapPaths: List<File>
     private val archiver: LocalArchiver?
@@ -156,7 +156,8 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
         }
 
         val worldCreator = map.config.map!!.worldSettings.toWorldCreator(worldDir.name)
-        worldCreator.generator(EmptyGenerator())
+
+        if (!allowChunkGen) worldCreator.generator(EmptyGenerator())
 
         val world = worldCreator.createWorld()
 
@@ -233,6 +234,9 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
             val random = map["random"]
             val randomBool = if (random == null) false else java.lang.Boolean.valueOf(random.toString())
 
+            val allowChunkGen = map["allow-chunk-gen"]
+            val allowChunkGenBool = if (allowChunkGen == null) false else java.lang.Boolean.valueOf(allowChunkGen.toString())
+
             if (map.containsKey("archive")) {
                 val o = map["archive"]
                 this.archive = null // If archive is present, assume we must start archives, unless value is "false". See if-string.
@@ -273,7 +277,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
                 }
             }
 
-            return MapLoaderModule(moduleManager, this.directory!!, this.mapPaths, randomBool, archive)
+            return MapLoaderModule(moduleManager, this.directory!!, this.mapPaths, randomBool, archive, allowChunkGenBool)
         }
 
         @Throws(ModuleParseException::class)
