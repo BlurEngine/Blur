@@ -23,6 +23,7 @@ import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.utils.RandomUtils;
 
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,9 +59,9 @@ public class CuboidExtent implements Extent, DirectionalExtent {
 
     @Override
     public boolean contains(double x, double y, double z) {
-        return x >= min.getBlockX() && x < max.getBlockX() + 1 &&
-            y >= min.getBlockY() && y < max.getBlockY() + 1 &&
-            z >= min.getBlockZ() && z < max.getBlockZ() + 1;
+        return x >= min.getX() && x <= max.getX() &&
+            y >= min.getY() && y <= max.getY() &&
+            z >= min.getZ() && z <= max.getZ();
     }
 
     @Override
@@ -98,6 +99,10 @@ public class CuboidExtent implements Extent, DirectionalExtent {
 
     public Vector getMaximumPoint() {
         return max;
+    }
+
+    public BoundingBox asBoundingBox() {
+        return BoundingBox.of(min, max);
     }
 
     private class CuboidIterator implements Iterator<BlockVector> {
