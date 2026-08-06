@@ -19,9 +19,10 @@ package com.blurengine.blur.modules.extents;
 import com.google.common.base.Preconditions;
 
 import com.blurengine.blur.modules.extents.ExtentDirection.NullExtentDirection;
-import com.supaham.commons.bukkit.utils.VectorUtils;
 import com.supaham.commons.utils.RandomUtils;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
@@ -62,6 +63,14 @@ public class CuboidExtent implements Extent, DirectionalExtent {
         return x >= min.getX() && x <= max.getX() &&
             y >= min.getY() && y <= max.getY() &&
             z >= min.getZ() && z <= max.getZ();
+    }
+
+    @Override
+    public boolean contains(@NotNull Block block) {
+        Location loc = block.getLocation();
+        return loc.getX() >= min.getX() && loc.getX() < max.getX() &&
+                loc.getY() >= min.getY() && loc.getY() < max.getY() &&
+                loc.getZ() >= min.getZ() && loc.getZ() < max.getZ();
     }
 
     @Override
@@ -106,7 +115,6 @@ public class CuboidExtent implements Extent, DirectionalExtent {
     }
 
     private class CuboidIterator implements Iterator<BlockVector> {
-
         private int nextX = min.getBlockX();
         private int nextY = min.getBlockY();
         private int nextZ = min.getBlockZ();
@@ -122,11 +130,11 @@ public class CuboidExtent implements Extent, DirectionalExtent {
                 throw new NoSuchElementException();
             }
             BlockVector answer = new BlockVector(nextX, nextY, nextZ);
-            if (++nextX > max.getBlockX()) {
+            if (++nextX >= max.getBlockX()) {
                 nextX = min.getBlockX();
-                if (++nextY > max.getBlockY()) {
+                if (++nextY >= max.getBlockY()) {
                     nextY = min.getBlockY();
-                    if (++nextZ > max.getBlockZ()) {
+                    if (++nextZ >= max.getBlockZ()) {
                         nextX = Integer.MIN_VALUE;
                     }
                 }
