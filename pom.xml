@@ -30,10 +30,10 @@
         <main.package>com.blurengine.blur</main.package>
         <main.class>${main.package}.BlurPlugin</main.class>
 
-        <spigot.version>1.21.10-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>26.2-R0.1-SNAPSHOT</spigot.version>
         <commons-bukkit.version>0.9.3-SNAPSHOT</commons-bukkit.version>
-        <kotlin.version>1.9.22</kotlin.version>
-        <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
+        <kotlin.version>2.3.20</kotlin.version>
+        <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
         <text.version>1.12-1.6.5</text.version>
         <java-semver.version>0.9.0</java-semver.version>
     </properties>
@@ -197,7 +197,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

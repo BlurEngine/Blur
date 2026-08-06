@@ -131,7 +131,7 @@ open class Element {
             if (!found) {  // TODO: Tidy this up, right now it's not been fully re-thought, just modified.
                 for (char in style) {
                     val chatColor = ChatColor.getByChar(char)
-                    require(chatColor != null) { "Invalid style '${char.toUpperCase()}'" }
+                    require(chatColor != null) { "Invalid style '${char.uppercase()}'" }
                     if (chatColor == ChatColor.MAGIC) {
                         builder.obfuscated(true)
                         found = true

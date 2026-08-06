@@ -94,7 +94,7 @@ class ExtentSerializer(private val moduleLoader: ModuleLoader) : BlurSerializer<
 
         var extent: Extent? = null
         for ((key, value) in map) {
-            if (key.toLowerCase() in listOf("id", "protect")) {
+            if (key.lowercase() in listOf("id", "protect")) {
                 continue
             }
             // Get serializer by the name of the given key.
@@ -148,7 +148,7 @@ class ExtentSerializer(private val moduleLoader: ModuleLoader) : BlurSerializer<
          * @return previous clazz that was removed by this execution
          */
         fun registerSerializer(extentType: String, clazz: Class<out ExtentTypeSerializer<*>>): Class<out ExtentTypeSerializer<*>>? {
-            var extentType = extentType.toLowerCase()
+            var extentType = extentType.lowercase()
             require(ArrayUtils.contains(RESERVED_SERIALIZERS, extentType)) { "$extentType is a reserved extent type." }
             return EXTENT_SERIALIZERS.put(extentType, clazz)
         }

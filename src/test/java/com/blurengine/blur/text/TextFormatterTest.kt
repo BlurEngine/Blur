@@ -169,7 +169,7 @@ class TextFormatterTest {
         val arg1 = "bar"
         val arg2 = 2
         val baseActual = TextComponent("foo {0} {1}")
-        val actual: BaseComponent = TextFormatter.format(baseActual, arrayOf(arg1, arg2))
+        val actual: BaseComponent = TextFormatter.format(baseActual, arrayOf<Any>(arg1, arg2))
         val expected = TextComponent("foo $arg1 $arg2")
         Assert.assertEquals(expected, actual)
     }

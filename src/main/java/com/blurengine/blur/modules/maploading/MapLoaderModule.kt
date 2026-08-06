@@ -266,7 +266,7 @@ class MapLoaderModule(moduleManager: ModuleManager, val rootDirectory: File, map
                             this.archive!!.compressionTypeEnum = if (java.lang.Boolean.valueOf(compress)) ArchiveCompressionType.ZIP else ArchiveCompressionType.NONE
                         } else {
                             try {
-                                this.archive!!.compressionTypeEnum = ArchiveCompressionType.valueOf(compress.toUpperCase())
+                                this.archive!!.compressionTypeEnum = ArchiveCompressionType.valueOf(compress.uppercase())
                             } catch (e: IllegalArgumentException) {
                                 check(false, "%s is not a valid compression type. Compression types: %s", compress,
                                         Joiner.on(',').join(ArchiveCompressionType.values()))

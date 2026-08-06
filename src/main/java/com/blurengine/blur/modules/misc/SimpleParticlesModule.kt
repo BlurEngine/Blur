@@ -44,9 +44,9 @@ class SimpleParticlesModule(manager: ModuleManager, val data: SimpleParticlesDat
 
     init {
         first@data.particles.forEach { pdata ->
-            outlines.putAll(pdata.extent, doExtent(pdata.extent))
+            outlines.putAll(pdata.extent!!, doExtent(pdata.extent))
             newTask({
-                outlines.get(pdata.extent).forEach {
+                outlines.get(pdata.extent!!).forEach {
                     world.spawnParticle(pdata.particle!!, it.toLocation(this.world), 2, 0.0, 0.0, 0.0, 0.0)
                 }
             }).interval(pdata.interval).build()

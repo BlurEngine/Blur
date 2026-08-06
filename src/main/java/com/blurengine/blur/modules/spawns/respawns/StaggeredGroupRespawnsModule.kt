@@ -138,7 +138,7 @@ class StaggeredGroupRespawnsModule(moduleManager: ModuleManager, val data: Stagg
             if (!blurPlayer.player.isValid) {
                 destroyPlayer(blurPlayer)
             } else {
-                theDeadTeams.put(blurPlayer.getTeam(), blurPlayer)
+                theDeadTeams.put(blurPlayer.getTeam()!!, blurPlayer)
             }
         }
 
